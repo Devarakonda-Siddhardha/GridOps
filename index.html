@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angkor Wat (Paramavishnuloka) — AAA 3D Architectural Showcase</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Model Viewer for interactive 3D WebGL inspection -->
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+  <style>
+    model-viewer {
+      width: 100%;
+      height: 600px;
+      background-color: #0d1117;
+      --poster-color: #0d1117;
+    }
+    .hotspot {
+      background: #f59e0b;
+      border-radius: 9999px;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.8);
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .hotspot:hover {
+      transform: scale(1.35);
+      background: #fbbf24;
+    }
+    .hotspot-annotation {
+      position: absolute;
+      transform: translate(14px, -50%);
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #f8fafc;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      white-space: nowrap;
+      pointer-events: none;
+      display: none;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+    }
+    .hotspot:hover .hotspot-annotation {
+      display: block;
+    }
+    .active-tab {
+      border-color: #f59e0b !important;
+      color: #f59e0b !important;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased selection:bg-amber-500 selection:text-black">
+
+  <!-- Navbar -->
+  <nav class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center font-bold text-black text-lg shadow-md shadow-amber-500/20">
+          ॐ
+        </div>
+        <div>
+          <span class="font-bold text-base sm:text-lg tracking-tight bg-gradient-to-r from-amber-200 via-amber-400 to-amber-500 bg-clip-text text-transparent">Angkor Wat 3D</span>
+          <span class="text-xs text-slate-400 hidden sm:inline ml-2">• Paramavishnuloka (1150 CE)</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm">
+        <a href="#interactive-3d" class="px-3 py-1.5 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition">3D Model</a>
+        <a href="#renders-gallery" class="px-3 py-1.5 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition">Renders</a>
+        <a href="#inscriptions" class="px-3 py-1.5 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition">Inscriptions</a>
+        <a href="https://github.com/Devarakonda-Siddhardha/GridOps/tree/feat/angkor-wat-3d-model" target="_blank" class="px-3 py-1.5 rounded-lg bg-amber-500 text-black font-semibold hover:bg-amber-400 transition flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          <span class="hidden sm:inline">GitHub Branch</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Header -->
+  <section class="relative overflow-hidden pt-12 pb-16 border-b border-slate-800">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(245,158,11,0.15),rgba(255,255,255,0))]"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-medium">
+        <span>Khmer Empire</span> • <span>King Suryavarman II</span> • <span>Dedicated to Lord Vishnu</span>
+      </div>
+      <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight">
+        Angkor Wat: The Cosmic Sanctuary of <span class="bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 bg-clip-text text-transparent">Lord Vishnu</span>
+      </h1>
+      <p class="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+        High-fidelity 3D procedural architecture built with Blender 3.6 LTS and Cycles ray-tracing. Featuring Mount Meru quincunx towers, Samudra Manthana bas-relief friezes, and authentic Sanskrit epigraphy.
+      </p>
+      <div class="flex flex-wrap items-center justify-center gap-3 pt-2 text-xs">
+        <span class="px-3 py-1 rounded-md bg-slate-900 border border-slate-800 text-slate-300">🎮 Game-Ready (17.8 MB GLB)</span>
+        <span class="px-3 py-1 rounded-md bg-slate-900 border border-slate-800 text-slate-300">🎨 11 PBR Texture Maps (2K)</span>
+        <span class="px-3 py-1 rounded-md bg-slate-900 border border-slate-800 text-slate-300">📐 ~95k Polygons</span>
+        <span class="px-3 py-1 rounded-md bg-slate-900 border border-slate-800 text-amber-400">⚡ Cycles Path-Traced</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive 3D Model Section -->
+  <section id="interactive-3d" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <div>
+        <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+          <span>Interactive 3D WebGL Viewer</span>
+          <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono">Live Orbit & Zoom</span>
+        </h2>
+        <p class="text-slate-400 text-xs sm:text-sm">Click and drag to rotate the temple, scroll to zoom, and right-click to pan. Click the presets below for guided viewpoints.</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2 text-xs">
+        <button onclick="setCamera('-80m 45m 80m', '0m 20m 0m')" class="px-3 py-1.5 rounded-md bg-slate-900 border border-slate-700 hover:border-amber-500 text-slate-200 transition">Western View</button>
+        <button onclick="setCamera('0m 180m 120m', '0m 10m 0m')" class="px-3 py-1.5 rounded-md bg-slate-900 border border-slate-700 hover:border-amber-500 text-slate-200 transition">Aerial Plan</button>
+        <button onclick="setCamera('-20m 25m 20m', '20m 25m 0m')" class="px-3 py-1.5 rounded-md bg-slate-900 border border-slate-700 hover:border-amber-500 text-slate-200 transition">Bakan Towers</button>
+        <button onclick="resetCamera()" class="px-3 py-1.5 rounded-md bg-amber-500/20 border border-amber-500/40 text-amber-300 hover:bg-amber-500/30 transition">Reset Camera</button>
+      </div>
+    </div>
+
+    <!-- 3D Canvas Box -->
+    <div class="relative rounded-2xl overflow-hidden border border-slate-800 bg-slate-900 shadow-2xl">
+      <model-viewer id="angkor-viewer"
+                    src="assets/models/angkor_wat_complete.glb"
+                    camera-controls
+                    auto-rotate
+                    auto-rotate-delay="4000"
+                    rotation-per-second="2deg"
+                    shadow-intensity="1.2"
+                    shadow-softness="0.8"
+                    exposure="1.0"
+                    loading="lazy"
+                    camera-orbit="-45deg 65deg 180m"
+                    field-of-view="35deg">
+        
+        <!-- Hotspots -->
+        <button class="hotspot" slot="hotspot-prasat" data-position="20m 45m 0m" data-normal="0m 1m 0m">
+          <div class="hotspot-annotation"><strong>Prasat Thom (Central Meru Tower)</strong><br>38m Tower, 65m above ground</div>
+        </button>
+
+        <button class="hotspot" slot="hotspot-sanctum" data-position="20m 15m 0m" data-normal="-1m 0m 0m">
+          <div class="hotspot-annotation"><strong>Holy Garbhagriha Cella</strong><br>Chaturbhuja Lord Vishnu Murti</div>
+        </button>
+
+        <button class="hotspot" slot="hotspot-relief" data-position="75m 5m -15m" data-normal="-1m 0m 0m">
+          <div class="hotspot-annotation"><strong>First Enclosure Gallery</strong><br>Samudra Manthana Bas-Relief</div>
+        </button>
+
+        <button class="hotspot" slot="hotspot-causeway" data-position="-175m 3m 0m" data-normal="0m 1m 0m">
+          <div class="hotspot-annotation"><strong>Western Sandstone Causeway</strong><br>Sheshanaga Balustrades across Moat</div>
+        </button>
+
+        <button class="hotspot" slot="hotspot-pool" data-position="-62m 2m 24m" data-normal="0m 1m 0m">
+          <div class="hotspot-annotation"><strong>Northern Sacred Reflection Pool</strong><br>Equinox Sunrise Alignment</div>
+        </button>
+
+        <div slot="progress-bar" class="absolute inset-x-0 bottom-0 h-1 bg-amber-500 transition-all"></div>
+      </model-viewer>
+
+      <!-- Direct Download Bar -->
+      <div class="p-3 bg-slate-950/90 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-400 gap-2">
+        <span>Model format: <code class="text-amber-400">angkor_wat_complete.glb</code> (Binary glTF 2.0 with embedded PBR materials)</span>
+        <div class="flex items-center gap-3">
+          <a href="assets/models/angkor_wat_complete.glb" download class="text-amber-400 hover:text-amber-300 font-medium underline flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Download GLB (17.8 MB)
+          </a>
+          <span>•</span>
+          <a href="assets/models/angkor_wat_master.blend" download class="text-slate-300 hover:text-white font-medium underline">Master .Blend (2.4 MB)</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cinematic Renders Gallery Section -->
+  <section id="renders-gallery" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-slate-800 space-y-6">
+    <div>
+      <h2 class="text-2xl font-bold text-white">Cinematic Cycles Renders</h2>
+      <p class="text-slate-400 text-xs sm:text-sm">High-resolution multi-camera ray-traced frames produced with Blender Cycles and Intel OpenImageDenoise.</p>
+    </div>
+
+    <!-- Main Active Preview -->
+    <div class="relative rounded-2xl overflow-hidden border border-slate-800 bg-black aspect-video max-h-[640px] shadow-2xl">
+      <img id="gallery-main-img" src="assets/renders/angkor_wat/Cam_01_Hero_West_Sunrise.png" alt="Render" class="w-full h-full object-cover">
+      <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-6">
+        <h3 id="gallery-main-title" class="text-lg sm:text-xl font-bold text-white">1. Western Causeway Reflection Pool at Sunrise</h3>
+        <p id="gallery-main-desc" class="text-xs sm:text-sm text-slate-300 mt-1 max-w-3xl">The world-famous hero angle across the sacred northern reflection pool, showing the golden sun illuminating the five lotus towers of Mount Meru reflected in the calm waters.</p>
+      </div>
+    </div>
+
+    <!-- Thumbnail Strip -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+      <button onclick="setGallery(0)" class="thumb-card border-2 border-amber-500 rounded-xl overflow-hidden aspect-video relative group transition">
+        <img src="assets/renders/angkor_wat/Cam_01_Hero_West_Sunrise.png" class="w-full h-full object-cover">
+        <span class="absolute bottom-1.5 left-1.5 text-[10px] font-semibold bg-black/80 px-1.5 py-0.5 rounded text-white">1. Hero West</span>
+      </button>
+      <button onclick="setGallery(1)" class="thumb-card border border-slate-800 rounded-xl overflow-hidden aspect-video relative group opacity-75 hover:opacity-100 transition">
+        <img src="assets/renders/angkor_wat/Cam_02_Aerial_Grand_View.png" class="w-full h-full object-cover">
+        <span class="absolute bottom-1.5 left-1.5 text-[10px] font-semibold bg-black/80 px-1.5 py-0.5 rounded text-white">2. Aerial View</span>
+      </button>
+      <button onclick="setGallery(2)" class="thumb-card border border-slate-800 rounded-xl overflow-hidden aspect-video relative group opacity-75 hover:opacity-100 transition">
+        <img src="assets/renders/angkor_wat/Cam_03_Bakan_Upper_Towers.png" class="w-full h-full object-cover">
+        <span class="absolute bottom-1.5 left-1.5 text-[10px] font-semibold bg-black/80 px-1.5 py-0.5 rounded text-white">3. Bakan Towers</span>
+      </button>
+      <button onclick="setGallery(3)" class="thumb-card border border-slate-800 rounded-xl overflow-hidden aspect-video relative group opacity-75 hover:opacity-100 transition">
+        <img src="assets/renders/angkor_wat/Cam_04_BasRelief_Gallery.png" class="w-full h-full object-cover">
+        <span class="absolute bottom-1.5 left-1.5 text-[10px] font-semibold bg-black/80 px-1.5 py-0.5 rounded text-white">4. Bas-Reliefs</span>
+      </button>
+      <button onclick="setGallery(4)" class="thumb-card border border-slate-800 rounded-xl overflow-hidden aspect-video relative group opacity-75 hover:opacity-100 transition">
+        <img src="assets/renders/angkor_wat/Cam_05_Garbhagriha_Vishnu.png" class="w-full h-full object-cover">
+        <span class="absolute bottom-1.5 left-1.5 text-[10px] font-semibold bg-black/80 px-1.5 py-0.5 rounded text-white">5. Lord Vishnu</span>
+      </button>
+      <button onclick="setGallery(5)" class="thumb-card border border-slate-800 rounded-xl overflow-hidden aspect-video relative group opacity-75 hover:opacity-100 transition">
+        <img src="assets/renders/angkor_wat/Cam_06_Inscription_Macro.png" class="w-full h-full object-cover">
+        <span class="absolute bottom-1.5 left-1.5 text-[10px] font-semibold bg-black/80 px-1.5 py-0.5 rounded text-white">6. Inscriptions</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Inscriptions & Epigraphy Section -->
+  <section id="inscriptions" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-slate-800 space-y-8">
+    <div class="max-w-3xl">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-medium mb-2">
+        Rigveda I.154 • Vishnu Sukta • Paramavishnuloka
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-bold text-white">Royal Epigraphy & Sanskrit Verses</h2>
+      <p class="text-slate-400 text-xs sm:text-sm mt-1">Recreation of the royal epigraphic stela standing on the Western Avenue landing, engraved with authentic Vedic Sanskrit hymns honoring Lord Vishnu's cosmic strides.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      <!-- Inscription Tablet Card -->
+      <div class="rounded-2xl border border-amber-500/30 bg-slate-900/90 p-6 space-y-6 shadow-xl relative overflow-hidden">
+        <div class="absolute -top-12 -right-12 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="border-b border-slate-800 pb-4">
+          <p class="text-amber-400 font-bold tracking-widest text-sm">OM NAMO BHAGAVATE VĀSUDEVĀYA</p>
+          <p class="text-xs text-slate-400">SRI ANGKOR WAT — PARAMAVISHNULOKA • REIGN OF KING SURYAVARMAN II</p>
+        </div>
+
+        <!-- Verse 1 -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-amber-300">Rigveda I.154.1 (Vedic Sanskrit)</span>
+            <span class="text-[10px] text-slate-500 font-mono">IAST Transliteration</span>
+          </div>
+          <p class="font-serif italic text-sm text-slate-200 bg-slate-950 p-3 rounded-lg border border-slate-800">
+            "Viṣṇor nu kaṁ vīryāṇi pra vocaṁ yaḥ pārthivāni vimame rajāṁsi |<br>
+            yo askabhāyan uttaraṁ sadhasthaṁ vicakramāṇas tredhorugāyaḥ ||"
+          </p>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            <strong>Translation:</strong> <em>"I will declare the mighty deeds of Lord Vishnu, Who measured out the earthly regions, Who established the high sanctuary on high, striding wide thrice with His vast steps."</em>
+          </p>
+        </div>
+
+        <!-- Verse 2 -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-amber-300">Rigveda I.154.2</span>
+            <span class="text-[10px] text-slate-500 font-mono">IAST Transliteration</span>
+          </div>
+          <p class="font-serif italic text-sm text-slate-200 bg-slate-950 p-3 rounded-lg border border-slate-800">
+            "Pra tad viṣṇuḥ stavate vīryeṇa mṛgo na bhīmaḥ kucaro giriṣṭhāḥ |<br>
+            yasyoruṣu triṣu vikramaṇeṣv adhikṣiyanti bhuvanāni viśvā ||"
+          </p>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            <strong>Translation:</strong> <em>"For this heroic prowess Vishnu is lauded, like a fierce mountain beast roaming free; in Whose three wide strides all created realms and living beings abide."</em>
+          </p>
+        </div>
+
+        <!-- Khmer Royal Dedication Formula -->
+        <div class="space-y-2 pt-2 border-t border-slate-800 text-xs">
+          <span class="font-bold text-slate-300">Royal Khmer Consecration:</span>
+          <p class="text-slate-400">
+            <em>Chaturbhuja Vishnu (Conch, Discus, Mace, Lotus) established as the sacred Axis of Mount Meru. Churning of the Primordial Ocean (Samudra Manthana) by 88 Devas and 92 Asuras with Kurma Avatar as the eternal pivot. Kambujadese Paramesvara Devaraja Sthapitam.</em>
+          </p>
+        </div>
+      </div>
+
+      <!-- Macro Inscription Photo -->
+      <div class="space-y-4">
+        <div class="rounded-2xl overflow-hidden border border-slate-800 bg-black shadow-xl">
+          <img src="assets/renders/angkor_wat/Cam_06_Inscription_Macro.png" alt="Macro Inscription Stela" class="w-full h-auto object-cover">
+        </div>
+        <p class="text-xs text-slate-400 text-center">Macro photograph render of the freestanding Royal Stela on the Western Avenue landing.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architectural Breakdown Section -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-slate-800 space-y-8">
+    <div>
+      <h2 class="text-2xl sm:text-3xl font-bold text-white">Hindu-Khmer Cosmology & Architectural Anatomy</h2>
+      <p class="text-slate-400 text-xs sm:text-sm mt-1">How Angkor Wat translates sacred Vedic cosmology into monumental stone geometry.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">1</div>
+        <h3 class="text-base font-bold text-white">The Cosmic Ocean</h3>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          The 190m-wide outer moat represents the cosmic ocean encircling the universe. 1.5 km by 1.3 km in rectangular perimeter, its stepped laterite banks protect the temple foundation and maintain hydraulic balance.
+        </p>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">2</div>
+        <h3 class="text-base font-bold text-white">The Sheshanaga Bridge</h3>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          The 70m sandstone causeway across the moat functions as a symbolic rainbow bridge between the terrestrial mortal realm and the divine sphere, flanked by seven-headed Naga serpent balustrades.
+        </p>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">3</div>
+        <h3 class="text-base font-bold text-white">Mount Meru Quincunx</h3>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          The five lotus prasat towers arranged in a quincunx represent the five peaks of Mount Meru, axis mundi of the universe. The central Prasat Thom rises 65m above ground directly over the Garbhagriha.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 bg-slate-950 py-8 text-center text-xs text-slate-500 space-y-2">
+    <p>Angkor Wat 3D Model • Dedicated to Lord Vishnu (Paramavishnuloka) • King Suryavarman II</p>
+    <p>Repository: <a href="https://github.com/Devarakonda-Siddhardha/GridOps" class="text-amber-400 hover:underline">Devarakonda-Siddhardha/GridOps</a> • Branch: <code class="text-slate-400">feat/angkor-wat-3d-model</code></p>
+  </footer>
+
+  <script>
+    const galleryData = [
+      {
+        title: "1. Western Causeway Reflection Pool at Sunrise",
+        desc: "The world-famous hero angle across the sacred northern reflection pool, showing the golden sun illuminating the five lotus towers of Mount Meru reflected in the calm waters.",
+        src: "assets/renders/angkor_wat/Cam_01_Hero_West_Sunrise.png"
+      },
+      {
+        title: "2. Aerial Perspective of the Complete Sacred Precinct",
+        desc: "High bird's-eye vantage capturing the vast moat, causeway bridge, Western Gopura, processional avenue, reflection pools, and concentric galleries rising to the central pyramid.",
+        src: "assets/renders/angkor_wat/Cam_02_Aerial_Grand_View.png"
+      },
+      {
+        title: "3. The Bakan: Upper Lotus Towers of Mount Meru",
+        desc: "Dramatic low-angle view looking up the steep 70-degree staircases of the Bakan pyramid toward the five crowning lotus-bud prasat towers.",
+        src: "assets/renders/angkor_wat/Cam_03_Bakan_Upper_Towers.png"
+      },
+      {
+        title: "4. The Colonnaded Gallery & Samudra Manthana Frieze",
+        desc: "Inside the East Gallery of the First Enclosure looking down the colonnaded arcade with square sandstone pillars, corbelled ceiling, and the continuous relief wall depicting the Churning of the Ocean of Milk.",
+        src: "assets/renders/angkor_wat/Cam_04_BasRelief_Gallery.png"
+      },
+      {
+        title: "5. Holy Garbhagriha Sanctum: Four-Armed Lord Vishnu",
+        desc: "Framed view through the stone doorway into the central sanctuary cella, showcasing the standing Chaturbhuja Lord Vishnu statue holding the Sudarshana Chakra, Shankha, Gada, and Padma on a golden lotus plinth, flanked by epigraphic stelae.",
+        src: "assets/renders/angkor_wat/Cam_05_Garbhagriha_Vishnu.png"
+      },
+      {
+        title: "6. Royal Sanskrit Inscription Stela (Vishnu Sukta Rigveda I.154)",
+        desc: "Macro photographic render of the freestanding royal inscription monument on the Western Avenue landing, engraved with authentic Sanskrit Rigvedic verses in IAST script and royal Khmer dedication titles.",
+        src: "assets/renders/angkor_wat/Cam_06_Inscription_Macro.png"
+      }
+    ];
+
+    function setGallery(idx) {
+      const data = galleryData[idx];
+      document.getElementById('gallery-main-img').src = data.src;
+      document.getElementById('gallery-main-title').textContent = data.title;
+      document.getElementById('gallery-main-desc').textContent = data.desc;
+
+      const cards = document.querySelectorAll('.thumb-card');
+      cards.forEach((c, i) => {
+        if (i === idx) {
+          c.classList.add('border-2', 'border-amber-500');
+          c.classList.remove('opacity-75', 'border-slate-800');
+        } else {
+          c.classList.remove('border-2', 'border-amber-500');
+          c.classList.add('opacity-75', 'border-slate-800');
+        }
+      });
+    }
+
+    const viewer = document.getElementById('angkor-viewer');
+
+    function setCamera(orbit, target) {
+      if (viewer) {
+        viewer.cameraOrbit = orbit;
+        viewer.cameraTarget = target;
+      }
+    }
+
+    function resetCamera() {
+      if (viewer) {
+        viewer.cameraOrbit = "-45deg 65deg 180m";
+        viewer.cameraTarget = "auto auto auto";
+      }
+    }
+  </script>
+</body>
+</html>
