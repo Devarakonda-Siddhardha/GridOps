@@ -1,0 +1,64 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/player/warrior.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://assets/models/warrior.glb" id="2_model"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
+radius = 0.45
+height = 1.85
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_aura"]
+transparency = 1
+albedo_color = Color(1, 0.2, 0.05, 0.35)
+emission_enabled = true
+emission = Color(1, 0.3, 0.1, 1)
+emission_energy_multiplier = 4.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_aura"]
+material = SubResource("StandardMaterial3D_aura")
+radius = 0.9
+height = 1.8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_spark"]
+albedo_color = Color(1, 0.9, 0.3, 1)
+emission_enabled = true
+emission = Color(1, 0.8, 0.2, 1)
+emission_energy_multiplier = 5.0
+
+[node name="Warrior" type="CharacterBody3D"]
+collision_layer = 1
+collision_mask = 3
+script = ExtResource("1_script")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.925, 0)
+shape = SubResource("CapsuleShape3D_player")
+
+[node name="Model" parent="." instance=ExtResource("2_model")]
+
+[node name="AresAura" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+visible = false
+
+[node name="AuraMesh" type="MeshInstance3D" parent="AresAura"]
+mesh = SubResource("SphereMesh_aura")
+
+[node name="AuraLight" type="OmniLight3D" parent="AresAura"]
+light_color = Color(1, 0.2, 0.05, 1)
+light_energy = 4.0
+omni_range = 5.0
+
+[node name="HitSpark" type="CPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -1.2)
+emitting = false
+amount = 16
+lifetime = 0.25
+one_shot = true
+explosiveness = 0.9
+direction = Vector3(0, 1, 0)
+spread = 60.0
+gravity = Vector3(0, -9.8, 0)
+initial_velocity_min = 4.0
+initial_velocity_max = 8.0
+scale_amount_min = 0.05
+scale_amount_max = 0.12

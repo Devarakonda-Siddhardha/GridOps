@@ -1,0 +1,549 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/ui/hud.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hp_bg"]
+bg_color = Color(0.15, 0.05, 0.05, 0.85)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hp_fill"]
+bg_color = Color(0.85, 0.15, 0.15, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sp_fill"]
+bg_color = Color(0.15, 0.75, 0.35, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
+bg_color = Color(0.1, 0.1, 0.14, 0.85)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.85, 0.75, 0.3, 0.8)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_script")
+
+[node name="TopLeft" type="MarginContainer" parent="."]
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 320.0
+offset_bottom = 120.0
+
+[node name="VBox" type="VBoxContainer" parent="TopLeft"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="TopLeft/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 18
+text = "⚔ CHAMPION OF HELLAS"
+
+[node name="HpBar" type="ProgressBar" parent="TopLeft/VBox"]
+custom_minimum_size = Vector2(280, 24)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_hp_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_hp_fill")
+value = 100.0
+show_percentage = false
+
+[node name="HpText" type="Label" parent="TopLeft/VBox/HpBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 13
+text = "120 / 120 HP"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SpBar" type="ProgressBar" parent="TopLeft/VBox"]
+custom_minimum_size = Vector2(280, 14)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_hp_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_sp_fill")
+value = 100.0
+show_percentage = false
+
+[node name="SpText" type="Label" parent="TopLeft/VBox/SpBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 10
+text = "100 / 100 SP"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TopRight" type="MarginContainer" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -260.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 110.0
+grow_horizontal = 0
+
+[node name="VBox" type="VBoxContainer" parent="TopRight"]
+layout_mode = 2
+alignment = 2
+
+[node name="WaveLabel" type="Label" parent="TopRight/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.4, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 24
+text = "WAVE 1 / 3"
+horizontal_alignment = 2
+
+[node name="EnemyCountLabel" type="Label" parent="TopRight/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 15
+text = "Demons Approaching..."
+horizontal_alignment = 2
+
+[node name="BottomCenter" type="MarginContainer" parent="."]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -280.0
+offset_top = -125.0
+offset_right = 280.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="SkillBar" type="HBoxContainer" parent="BottomCenter"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="SlotZeus" type="Panel" parent="BottomCenter/SkillBar"]
+custom_minimum_size = Vector2(120, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="KeyLabel" type="Label" parent="BottomCenter/SkillBar/SlotZeus"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 4.0
+offset_bottom = 22.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_font_sizes/font_size = 12
+text = "[1 / Q]"
+horizontal_alignment = 1
+
+[node name="NameLabel" type="Label" parent="BottomCenter/SkillBar/SlotZeus"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 22.0
+offset_bottom = 44.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.3, 0.7, 1, 1)
+theme_override_font_sizes/font_size = 15
+text = "Zeus"
+horizontal_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="BottomCenter/SkillBar/SlotZeus"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -45.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 11
+text = "LOCKED"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="CooldownOverlay" type="ColorRect" parent="BottomCenter/SkillBar/SlotZeus"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="CdLabel" type="Label" parent="BottomCenter/SkillBar/SlotZeus/CooldownOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "4.2s"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SlotPoseidon" type="Panel" parent="BottomCenter/SkillBar"]
+custom_minimum_size = Vector2(120, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="KeyLabel" type="Label" parent="BottomCenter/SkillBar/SlotPoseidon"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 4.0
+offset_bottom = 22.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_font_sizes/font_size = 12
+text = "[2 / F]"
+horizontal_alignment = 1
+
+[node name="NameLabel" type="Label" parent="BottomCenter/SkillBar/SlotPoseidon"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 22.0
+offset_bottom = 44.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.1, 0.9, 0.8, 1)
+theme_override_font_sizes/font_size = 15
+text = "Poseidon"
+horizontal_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="BottomCenter/SkillBar/SlotPoseidon"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -45.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 11
+text = "LOCKED"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="CooldownOverlay" type="ColorRect" parent="BottomCenter/SkillBar/SlotPoseidon"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="CdLabel" type="Label" parent="BottomCenter/SkillBar/SlotPoseidon/CooldownOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "5.0s"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SlotHades" type="Panel" parent="BottomCenter/SkillBar"]
+custom_minimum_size = Vector2(120, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="KeyLabel" type="Label" parent="BottomCenter/SkillBar/SlotHades"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 4.0
+offset_bottom = 22.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_font_sizes/font_size = 12
+text = "[3 / R]"
+horizontal_alignment = 1
+
+[node name="NameLabel" type="Label" parent="BottomCenter/SkillBar/SlotHades"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 22.0
+offset_bottom = 44.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.7, 0.1, 0.95, 1)
+theme_override_font_sizes/font_size = 15
+text = "Hades"
+horizontal_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="BottomCenter/SkillBar/SlotHades"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -45.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 11
+text = "LOCKED"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="CooldownOverlay" type="ColorRect" parent="BottomCenter/SkillBar/SlotHades"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="CdLabel" type="Label" parent="BottomCenter/SkillBar/SlotHades/CooldownOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "7.0s"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SlotAres" type="Panel" parent="BottomCenter/SkillBar"]
+custom_minimum_size = Vector2(120, 95)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="KeyLabel" type="Label" parent="BottomCenter/SkillBar/SlotAres"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 4.0
+offset_bottom = 22.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_font_sizes/font_size = 12
+text = "[4 / C]"
+horizontal_alignment = 1
+
+[node name="NameLabel" type="Label" parent="BottomCenter/SkillBar/SlotAres"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 22.0
+offset_bottom = 44.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.2, 0.1, 1)
+theme_override_font_sizes/font_size = 15
+text = "Ares"
+horizontal_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="BottomCenter/SkillBar/SlotAres"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -45.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 11
+text = "LOCKED"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="CooldownOverlay" type="ColorRect" parent="BottomCenter/SkillBar/SlotAres"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="CdLabel" type="Label" parent="BottomCenter/SkillBar/SlotAres/CooldownOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "10.0s"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BannerPanel" type="CenterContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -350.0
+offset_top = -140.0
+offset_right = 350.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="VBox" type="VBoxContainer" parent="BannerPanel"]
+layout_mode = 2
+
+[node name="BannerTitle" type="Label" parent="BannerPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.25, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 32
+text = "BLESSING OF ZEUS GRANTED!"
+horizontal_alignment = 1
+
+[node name="BannerSubtitle" type="Label" parent="BannerPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 18
+text = "Call down thunder upon the demons"
+horizontal_alignment = 1
+
+[node name="VictoryPanel" type="ColorRect" parent="."]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.08, 0.15, 0.85)
+
+[node name="Center" type="CenterContainer" parent="VictoryPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="VictoryPanel/Center"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="VictoryPanel/Center/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 46
+text = "🏛 OLYMPUS PREVAILS! 🏛"
+horizontal_alignment = 1
+
+[node name="Desc" type="Label" parent="VictoryPanel/Center/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "By the grace of the Olympian Gods, the Tartarus Horde has been vanquished!"
+horizontal_alignment = 1
+
+[node name="RestartBtn" type="Button" parent="VictoryPanel/Center/VBox"]
+custom_minimum_size = Vector2(220, 50)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 20
+text = "Defend Sanctuary Again"
+
+[node name="GameOverPanel" type="ColorRect" parent="."]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.12, 0.02, 0.02, 0.88)
+
+[node name="Center" type="CenterContainer" parent="GameOverPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="GameOverPanel/Center"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="GameOverPanel/Center/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.15, 0.15, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 48
+text = "💀 FALLEN WARRIOR 💀"
+horizontal_alignment = 1
+
+[node name="Desc" type="Label" parent="GameOverPanel/Center/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 20
+text = "The demons have overrun the temple. Your soul descends to the Underworld..."
+horizontal_alignment = 1
+
+[node name="RestartBtn" type="Button" parent="GameOverPanel/Center/VBox"]
+custom_minimum_size = Vector2(200, 50)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 20
+text = "Rise Once More"
+
+[connection signal="pressed" from="VictoryPanel/Center/VBox/RestartBtn" to="." method="_on_restart_pressed"]
+[connection signal="pressed" from="GameOverPanel/Center/VBox/RestartBtn" to="." method="_on_restart_pressed"]

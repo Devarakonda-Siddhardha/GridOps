@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "godot": {
+      "command": "/home/antigravity/.local/bin/godot-mcp",
+      "args": [],
+      "env": {
+        "GODOT_PATH": "/home/antigravity/.local/bin/godot",
+        "DEBUG": "true"
+      }
+    },
+    "blender": {
+      "command": "/home/antigravity/.local/bin/mcp-for-blender",
+      "args": []
+    }
+  }
+}

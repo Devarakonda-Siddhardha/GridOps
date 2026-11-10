@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/enemies/demon.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://assets/models/demon.glb" id="2_model"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_demon"]
+radius = 0.55
+height = 2.2
+
+[node name="Demon" type="CharacterBody3D"]
+collision_layer = 2
+collision_mask = 3
+script = ExtResource("1_script")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+shape = SubResource("CapsuleShape3D_demon")
+
+[node name="Model" parent="." instance=ExtResource("2_model")]
+
+[node name="HpLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.7, 0)
+billboard = 1
+text = "Tartarus Demon
+[■■■■■■■■■■] 100 HP"
+font_size = 24
+outline_size = 6
+modulate = Color(1, 0.35, 0.25, 1)

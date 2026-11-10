@@ -1,0 +1,29 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/powers/soul_drain.gd" id="1_script"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_soul"]
+transparency = 1
+albedo_color = Color(0.3, 0.05, 0.5, 0.7)
+emission_enabled = true
+emission = Color(0.6, 0.1, 0.9, 1)
+emission_energy_multiplier = 4.0
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_circle"]
+material = SubResource("StandardMaterial3D_soul")
+top_radius = 1.0
+bottom_radius = 1.0
+height = 0.2
+
+[node name="SoulDrain" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
+mesh = SubResource("CylinderMesh_circle")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+light_color = Color(0.7, 0.1, 0.95, 1)
+light_energy = 6.0
+omni_range = 8.0

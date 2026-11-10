@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/powers/ares_fury.gd" id="1_script"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fire"]
+transparency = 1
+albedo_color = Color(0.9, 0.15, 0.05, 0.75)
+emission_enabled = true
+emission = Color(1.0, 0.25, 0.05, 1)
+emission_energy_multiplier = 5.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_blast"]
+material = SubResource("StandardMaterial3D_fire")
+radius = 1.0
+height = 2.0
+
+[node name="AresFury" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("SphereMesh_blast")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+light_color = Color(1, 0.2, 0.05, 1)
+light_energy = 8.0
+omni_range = 9.0
