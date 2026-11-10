@@ -11,14 +11,16 @@ const GOD_MODELS = {
 	"zeus": "res://assets/models/god_zeus.glb",
 	"poseidon": "res://assets/models/god_poseidon.glb",
 	"hades": "res://assets/models/god_hades.glb",
-	"ares": "res://assets/models/god_ares.glb"
+	"ares": "res://assets/models/god_ares.glb",
+	"athena": "res://assets/models/god_athena.glb"
 }
 
 const GOD_COLORS = {
 	"zeus": Color(0.4, 0.85, 1.0),
 	"poseidon": Color(0.2, 0.95, 0.85),
 	"hades": Color(0.75, 0.35, 1.0),
-	"ares": Color(1.0, 0.25, 0.15)
+	"ares": Color(1.0, 0.25, 0.15),
+	"athena": Color(1.0, 0.85, 0.25)
 }
 
 @onready var light: OmniLight3D = $OmniLight3D
@@ -62,9 +64,13 @@ func _on_body_entered(body: Node3D):
 			has_manifested = true
 			if anim_player and anim_player.has_animation("Bless"):
 				anim_player.play("Bless")
-			SoundManager.play_dialogue("%s_manifest" % god_id)
-			DivineManager.unlock_power(god_id)
-			DivineManager.emit_signal("message_broadcast", "%s HAS SPOKEN!" % god_id.to_upper(), "Received the blessing of %s!" % title)
+			if god_id == "athena":
+				SoundManager.play_dialogue("athena_intro", true)
+				DivineManager.emit_signal("message_broadcast", "🦉 ATHENA'S GUIDANCE", "The Goddess of Wisdom guides your path to victory!")
+			else:
+				SoundManager.play_dialogue("%s_manifest" % god_id)
+				DivineManager.unlock_power(god_id)
+				DivineManager.emit_signal("message_broadcast", "%s HAS SPOKEN!" % god_id.to_upper(), "Received the blessing of %s!" % title)
 
 func _on_body_exited(body: Node3D):
 	if body.is_in_group("player"):

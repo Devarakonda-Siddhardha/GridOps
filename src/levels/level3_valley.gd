@@ -35,8 +35,8 @@ func _ready():
 		hud.set_objective("Liberate 3 Cages & Slay Roman Outposts (0 / %d Freed)" % total_cages)
 
 	get_tree().create_timer(1.2).timeout.connect(func():
-		SoundManager.play_dialogue("campaign_intro_2")
-		DivineManager.emit_signal("message_broadcast", "CHAPTER III: THE VALLEY OF ARCADIA", "Vast 300m Roman territory! Liberate caged hoplites and build your Greek army!")
+		SoundManager.play_dialogue("athena_level3_valley", true)
+		DivineManager.emit_signal("message_broadcast", "CHAPTER III: THE VALLEY OF ARCADIA", "Athena: Liberate captured Spartan cages and assemble the Phalanx!")
 	)
 
 func _spawn_player():

@@ -28,8 +28,8 @@ func _ready():
 	_spawn_greek_phalanx()
 
 	get_tree().create_timer(1.2).timeout.connect(func():
-		SoundManager.play_dialogue("campaign_intro_3")
-		DivineManager.emit_signal("message_broadcast", "CHAPTER V: THE SIEGE OF CASTRUM ROMA", "Lead your Greek Army to breach the gates, vanquish General Marcus, and reclaim the Empire!")
+		SoundManager.play_dialogue("athena_level5_siege", true)
+		DivineManager.emit_signal("message_broadcast", "CHAPTER V: THE SIEGE OF CASTRUM ROMA", "Athena: Sound the charge! Breach the fortress gates and reclaim Hellas!")
 	)
 
 func _spawn_player():
@@ -76,7 +76,7 @@ func _on_gate_breached():
 func _on_boss_died(_general):
 	boss_defeated = true
 	get_tree().create_timer(2.0).timeout.connect(func():
-		SoundManager.play_dialogue("campaign_victory")
+		SoundManager.play_dialogue("athena_victory", true)
 		if hud:
-			hud.show_victory("THE GREEK EMPIRE IS RECLAIMED!", "General Marcus has fallen! All of Hellas is free from Roman conquest!")
+			hud.show_victory("THE GREEK EMPIRE IS RECLAIMED!", "Athena: Your courage and strategy have echoed into eternity. Hellas is free!")
 	)

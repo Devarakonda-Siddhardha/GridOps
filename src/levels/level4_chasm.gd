@@ -20,8 +20,8 @@ func _ready():
 		hud.set_objective("Vanquish the Infernal Minotaur & Seal the Abyss")
 
 	get_tree().create_timer(1.2).timeout.connect(func():
-		SoundManager.play_dialogue("biome_chasm")
-		DivineManager.emit_signal("message_broadcast", "CHAPTER IV: THE CHASM OF TARTARUS", "Volcanic Ashlands! Slay the Infernal Minotaur to seal the Underworld rift!")
+		SoundManager.play_dialogue("athena_level4_chasm", true)
+		DivineManager.emit_signal("message_broadcast", "CHAPTER IV: THE CHASM OF TARTARUS", "Athena: Beware the Infernal Minotaur! Dodge ground slams and strike true!")
 	)
 
 func _spawn_player():

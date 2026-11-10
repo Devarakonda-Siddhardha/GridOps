@@ -21,8 +21,8 @@ func _ready():
 		spawner.connect("all_waves_cleared", Callable(self, "_on_sanctuary_cleared"))
 
 	get_tree().create_timer(1.0).timeout.connect(func():
-		SoundManager.play_dialogue("warrior_intro")
-		DivineManager.emit_signal("message_broadcast", "CHAPTER I: SANCTUARY OF OLYMPUS", "Commune with the 4 Olympian Gods and repel the Underworld Vanguard!")
+		SoundManager.play_dialogue("athena_intro", true)
+		DivineManager.emit_signal("message_broadcast", "CHAPTER I: SANCTUARY OF OLYMPUS", "Athena: Look upon Mount Olympus and cleanse the sacred plaza!")
 	)
 
 func _process(delta):

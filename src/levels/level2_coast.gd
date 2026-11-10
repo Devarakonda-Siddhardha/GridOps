@@ -28,8 +28,8 @@ func _ready():
 		hud.set_objective("Defeat the Roman Beachhead Garrison (%d Remaining)" % remaining_enemies)
 
 	get_tree().create_timer(1.2).timeout.connect(func():
-		SoundManager.play_dialogue("biome_coast")
-		DivineManager.emit_signal("message_broadcast", "CHAPTER II: THE COAST OF PELOPONNESE", "The Roman fleet has landed! Vanquish the vanguard and burn their landing force!")
+		SoundManager.play_dialogue("athena_level2_coast", true)
+		DivineManager.emit_signal("message_broadcast", "CHAPTER II: THE COAST OF PELOPONNESE", "Athena: Burn their vanguard before they establish a foothold!")
 	)
 
 func _spawn_player():

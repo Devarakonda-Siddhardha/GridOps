@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Shader" path="res://src/environment/temple_floor.gdshader" id="1_floor_shader"]
 [ext_resource type="PackedScene" path="res://src/environment/temple_zeus.tscn" id="2_tzeus"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://src/environment/temple_ares.tscn" id="5_tares"]
 [ext_resource type="PackedScene" path="res://assets/models/temple_brazier.glb" id="6_brazier"]
 [ext_resource type="PackedScene" path="res://assets/models/temple_column.glb" id="7_column"]
+[ext_resource type="PackedScene" path="res://src/environment/god_avatar.tscn" id="8_athena"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_floor"]
 render_priority = 0
@@ -74,6 +75,13 @@ transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -42, 0, 0)
 
 [node name="TempleAres" parent="DedicatedTemples" instance=ExtResource("5_tares")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42, 0, 0)
+
+[node name="AthenaSanctuary" type="Node3D" parent="."]
+
+[node name="GodAthena" parent="AthenaSanctuary" instance=ExtResource("8_athena")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -12)
+god_id = "athena"
+title = "🦉 ATHENA, GODDESS OF WISDOM"
 
 [node name="CentralPlazaDecor" type="Node3D" parent="."]
 

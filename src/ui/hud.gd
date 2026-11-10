@@ -329,6 +329,8 @@ func update_hp(current: float, max_val: float):
 		hp_bar.value = current
 	if hp_text:
 		hp_text.text = "%d / %d HP" % [int(current), int(max_val)]
+	if AthenaCommentary:
+		AthenaCommentary.check_player_health(current, max_val)
 
 func update_stamina(current: float, max_val: float):
 	if sp_bar:

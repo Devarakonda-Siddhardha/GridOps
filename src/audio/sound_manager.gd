@@ -196,6 +196,86 @@ var dialogues = {
 		"speaker": "Oracle of Delphi",
 		"text": "A dark fissure to Tartarus has opened! Vanquish the Infernal Minotaur before the abyss swallows Greece!",
 		"color": Color(1.0, 0.85, 0.3)
+	},
+	"athena_intro": {
+		"speaker": "Athena, Goddess of Wisdom",
+		"text": "Champion of Hellas, hear my voice. I am Athena. Look upon Mount Olympus. The Underworld claws at our holy mount. Take up your blade and cleanse the sacred plaza!",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_pray_zeus": {
+		"speaker": "Athena",
+		"text": "Zeus, Lord of Olympus, watches from above. Kneel before the King of the Gods and let lightning empower your strikes.",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_pray_poseidon": {
+		"speaker": "Athena",
+		"text": "Poseidon's tides crash against the shores of Hellas. Channel his oceanic fury to shatter enemy ranks.",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_pray_hades": {
+		"speaker": "Athena",
+		"text": "Hades holds the subterranean gates of Tartarus. Even in death, there is power. Claim his dark siphon.",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_pray_ares": {
+		"speaker": "Athena",
+		"text": "Ares thirsts for battle. Let rage fuel your blade, but remember: true victory is won through wisdom.",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_class_archer": {
+		"speaker": "Athena",
+		"text": "A Cretan Toxotes bow! Strike with precision from afar. Distance and positioning are your greatest allies.",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_class_cavalry": {
+		"speaker": "Athena",
+		"text": "A Thessalian warhorse! Trample the enemy cohorts beneath heavy hooves and spearhead our assault!",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_class_champion": {
+		"speaker": "Athena",
+		"text": "The shield of Sparta! Unyielding and steadfast, hold the line against all odds.",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_level2_coast": {
+		"speaker": "Athena",
+		"text": "We have reached the Peloponnese shoreline. The Roman fleet has beached their triremes. Burn their vanguard before they establish a foothold!",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_level3_valley": {
+		"speaker": "Athena",
+		"text": "The Great Valley of Arcadia lies in chains. Roman outposts patrol these hills. Find the captured Spartan cages, liberate our soldiers, and assemble the Phalanx!",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_army_assembled": {
+		"speaker": "Athena",
+		"text": "Our brothers in arms are free! Command them with courage. Together, no Roman legion can withstand the Greek Phalanx.",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_level4_chasm": {
+		"speaker": "Athena",
+		"text": "The earth tears open into Tartarus. Beware the Infernal Minotaur! Dodge his ground-slam shockwaves and strike true!",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_level5_siege": {
+		"speaker": "Athena",
+		"text": "Behold, Castrum Roma! Marcus Aurelius hides behind stone ramparts. Sound the charge! Breach the fortress gates and reclaim the glory of Hellas!",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_low_health": {
+		"speaker": "Athena",
+		"text": "Stand strong, warrior! Do not falter now. Commune with the Gods and regain your vigor!",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_victory": {
+		"speaker": "Athena",
+		"text": "Hellas is restored! Your courage and strategy have echoed into eternity. Olympus honors you, Champion of Greece!",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_tactical_advice": {
+		"speaker": "Athena",
+		"text": "Keep moving, warrior! Time your dodges and use the terrain to flank their shields.",
+		"color": Color(1.0, 0.85, 0.25)
 	}
 }
 
@@ -267,6 +347,24 @@ func _ready():
 	_load_sound("minotaur_bellow", "res://assets/audio/minotaur_bellow.wav")
 	_load_sound("biome_coast", "res://assets/audio/biome_coast.wav")
 	_load_sound("biome_chasm", "res://assets/audio/biome_chasm.wav")
+
+	# Athena Commentary (Sudha Devarakonda - ElevenLabs v4)
+	_load_sound("athena_intro", "res://assets/audio/athena_intro.wav")
+	_load_sound("athena_pray_zeus", "res://assets/audio/athena_pray_zeus.wav")
+	_load_sound("athena_pray_poseidon", "res://assets/audio/athena_pray_poseidon.wav")
+	_load_sound("athena_pray_hades", "res://assets/audio/athena_pray_hades.wav")
+	_load_sound("athena_pray_ares", "res://assets/audio/athena_pray_ares.wav")
+	_load_sound("athena_class_archer", "res://assets/audio/athena_class_archer.wav")
+	_load_sound("athena_class_cavalry", "res://assets/audio/athena_class_cavalry.wav")
+	_load_sound("athena_class_champion", "res://assets/audio/athena_class_champion.wav")
+	_load_sound("athena_level2_coast", "res://assets/audio/athena_level2_coast.wav")
+	_load_sound("athena_level3_valley", "res://assets/audio/athena_level3_valley.wav")
+	_load_sound("athena_army_assembled", "res://assets/audio/athena_army_assembled.wav")
+	_load_sound("athena_level4_chasm", "res://assets/audio/athena_level4_chasm.wav")
+	_load_sound("athena_level5_siege", "res://assets/audio/athena_level5_siege.wav")
+	_load_sound("athena_low_health", "res://assets/audio/athena_low_health.wav")
+	_load_sound("athena_victory", "res://assets/audio/athena_victory.wav")
+	_load_sound("athena_tactical_advice", "res://assets/audio/athena_tactical_advice.wav")
 
 	# Create SFX player pool
 	for i in range(pool_size):

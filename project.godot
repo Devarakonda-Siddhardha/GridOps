@@ -16,6 +16,7 @@ config/features=PackedStringArray("4.7", "Forward Plus")
 SoundManager="*res://src/audio/sound_manager.gd"
 DivineManager="*res://src/powers/divine_manager.gd"
 CampaignManager="*res://src/campaign/campaign_manager.gd"
+AthenaCommentary="*res://src/campaign/athena_commentary.gd"
 
 [display]
 
