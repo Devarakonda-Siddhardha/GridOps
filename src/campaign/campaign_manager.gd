@@ -4,18 +4,29 @@ signal army_changed(current_count: int, max_count: int)
 signal army_command(command_type: String)
 signal objective_updated(text: String)
 signal level_completed(level_num: int)
+signal hero_class_changed(hero_type: String)
 
 var current_level: int = 1
 var army_count: int = 0
-var max_army_count: int = 16
+var max_army_count: int = 24
 
 var rescued_cages: int = 0
 var total_cages: int = 3
 
+var selected_class: String = "warrior" # "warrior", "archer", "cavalry"
+
+const CLASS_SCENES = {
+	"warrior": "res://src/player/warrior.tscn",
+	"archer": "res://src/player/archer.tscn",
+	"cavalry": "res://src/player/cavalry.tscn"
+}
+
 var level_scenes = {
 	1: "res://src/levels/level1_sanctuary.tscn",
-	2: "res://src/levels/level2_valley.tscn",
-	3: "res://src/levels/level3_siege.tscn"
+	2: "res://src/levels/level2_coast.tscn",
+	3: "res://src/levels/level3_valley.tscn",
+	4: "res://src/levels/level4_chasm.tscn",
+	5: "res://src/levels/level5_siege.tscn"
 }
 
 func _ready():
@@ -27,6 +38,8 @@ func _input(event):
 			order_charge()
 		elif event.keycode == KEY_H:
 			order_regroup()
+		elif event.keycode == KEY_T or event.keycode == KEY_TAB:
+			cycle_hero_class()
 
 func recruit_allies(amount: int):
 	army_count = min(max_army_count, army_count + amount)
@@ -45,6 +58,52 @@ func order_charge():
 func order_regroup():
 	emit_signal("army_command", "regroup")
 	DivineManager.emit_signal("message_broadcast", "REGROUP PHALANX!", "Soldiers falling back to defensive formation!")
+
+func cycle_hero_class():
+	var classes = ["warrior", "archer", "cavalry"]
+	var idx = classes.find(selected_class)
+	var nxt = classes[(idx + 1) % classes.size()]
+	switch_hero_class(nxt)
+
+func switch_hero_class(new_class: String):
+	if not CLASS_SCENES.has(new_class):
+		return
+
+	var current_player = get_tree().get_first_node_in_group("player")
+	if not current_player:
+		selected_class = new_class
+		emit_signal("hero_class_changed", new_class)
+		return
+
+	var scene_root = current_player.get_parent()
+	var spawn_pos = current_player.global_position
+	var spawn_rot = current_player.rotation
+
+	# Free old player
+	current_player.remove_from_group("player")
+	current_player.queue_free()
+
+	# Instantiate new player class
+	selected_class = new_class
+	var new_scene = load(CLASS_SCENES[new_class])
+	var new_player = new_scene.instantiate()
+	new_player.global_position = spawn_pos
+	new_player.rotation = spawn_rot
+	scene_root.add_child(new_player)
+
+	# Update camera pivot target
+	var cam_pivot = scene_root.get_node_or_null("CameraPivot")
+	if cam_pivot:
+		cam_pivot.target = new_player
+
+	# Update HUD connections
+	var hud = scene_root.get_node_or_null("HUD")
+	if hud and hud.has_method("setup_player_bindings"):
+		hud.setup_player_bindings(new_player)
+
+	emit_signal("hero_class_changed", new_class)
+	var display_name = "SPARTAN CHAMPION" if new_class == "warrior" else ("CRETAN ARCHER" if new_class == "archer" else "THESSALIAN CAVALRY")
+	DivineManager.emit_signal("message_broadcast", "CLASS SWITCHED", "Now playing as %s!" % display_name)
 
 func load_level(level_num: int):
 	current_level = level_num

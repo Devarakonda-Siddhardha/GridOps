@@ -1,0 +1,118 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://src/levels/level4_chasm.gd" id="1_script"]
+[ext_resource type="Script" path="res://src/player/camera_controller.gd" id="2_cam"]
+[ext_resource type="PackedScene" path="res://src/ui/hud.tscn" id="3_hud"]
+[ext_resource type="PackedScene" path="res://src/enemies/minotaur.tscn" id="4_mino"]
+[ext_resource type="PackedScene" path="res://src/enemies/demon.tscn" id="5_demon"]
+[ext_resource type="PackedScene" path="res://assets/models/volcanic_rock.glb" id="6_vrock"]
+[ext_resource type="PackedScene" path="res://assets/models/temple_brazier.glb" id="7_brazier"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_chasm"]
+sky_top_color = Color(0.12, 0.05, 0.06, 1)
+sky_horizon_color = Color(0.65, 0.18, 0.10, 1)
+ground_bottom_color = Color(0.08, 0.04, 0.04, 1)
+ground_horizon_color = Color(0.40, 0.12, 0.08, 1)
+
+[sub_resource type="Sky" id="Sky_chasm"]
+sky_material = SubResource("ProceduralSkyMaterial_chasm")
+
+[sub_resource type="Environment" id="Environment_chasm"]
+background_mode = 2
+sky = SubResource("Sky_chasm")
+ambient_light_source = 3
+ambient_light_color = Color(0.85, 0.35, 0.20, 1)
+ambient_light_energy = 0.8
+tonemap_mode = 2
+glow_enabled = true
+glow_intensity = 0.8
+glow_bloom = 0.3
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_basalt"]
+albedo_color = Color(0.12, 0.11, 0.14, 1)
+roughness = 0.9
+
+[sub_resource type="BoxMesh" id="BoxMesh_chasm"]
+material = SubResource("StandardMaterial3D_basalt")
+size = Vector3(180, 2, 180)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_chasm"]
+size = Vector3(180, 2, 180)
+
+[node name="Level4Chasm" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_chasm")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, -0.5, 0.5, 0, 30, 0)
+light_color = Color(1, 0.55, 0.35, 1)
+light_energy = 1.2
+shadow_enabled = true
+
+[node name="Ground" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+collision_layer = 1
+collision_mask = 3
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("BoxMesh_chasm")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("BoxShape3D_chasm")
+
+[node name="CameraPivot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 30)
+script = ExtResource("2_cam")
+
+[node name="SpringArm3D" type="SpringArm3D" parent="CameraPivot"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 0, 0)
+spring_length = 5.8
+margin = 0.2
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot/SpringArm3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5.8)
+current = true
+fov = 70.0
+
+[node name="HUD" parent="." instance=ExtResource("3_hud")]
+
+[node name="VolcanicProps" type="Node3D" parent="."]
+
+[node name="VRock1" parent="VolcanicProps" instance=ExtResource("6_vrock")]
+transform = Transform3D(1.4, 0, 0, 0, 1.4, 0, 0, 0, 1.4, -25, 0, 10)
+
+[node name="VRock2" parent="VolcanicProps" instance=ExtResource("6_vrock")]
+transform = Transform3D(1.6, 0, 0, 0, 1.6, 0, 0, 0, 1.6, 25, 0, 10)
+
+[node name="VRock3" parent="VolcanicProps" instance=ExtResource("6_vrock")]
+transform = Transform3D(2.0, 0, 0, 0, 2.0, 0, 0, 0, 2.0, -35, 0, -25)
+
+[node name="VRock4" parent="VolcanicProps" instance=ExtResource("6_vrock")]
+transform = Transform3D(1.8, 0, 0, 0, 1.8, 0, 0, 0, 1.8, 35, 0, -25)
+
+[node name="Brazier1" parent="VolcanicProps" instance=ExtResource("7_brazier")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, -8)
+
+[node name="Brazier2" parent="VolcanicProps" instance=ExtResource("7_brazier")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -8)
+
+[node name="BossContainer" type="Node3D" parent="."]
+
+[node name="Minotaur" parent="BossContainer" instance=ExtResource("4_mino")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -18)
+
+[node name="Minions" type="Node3D" parent="."]
+
+[node name="Demon1" parent="Minions" instance=ExtResource("5_demon")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 0, -5)
+
+[node name="Demon2" parent="Minions" instance=ExtResource("5_demon")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, -5)
+
+[node name="Demon3" parent="Minions" instance=ExtResource("5_demon")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, -20)
+
+[node name="Demon4" parent="Minions" instance=ExtResource("5_demon")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0, -20)

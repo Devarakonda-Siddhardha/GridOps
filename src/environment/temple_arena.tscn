@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" path="res://assets/models/temple_column.glb" id="2_col"]
 [ext_resource type="PackedScene" path="res://assets/models/temple_brazier.glb" id="3_brazier"]
 [ext_resource type="PackedScene" path="res://src/environment/altar.tscn" id="4_altar"]
+[ext_resource type="PackedScene" path="res://src/environment/god_avatar.tscn" id="5_god"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_floor"]
 render_priority = 0
@@ -76,6 +77,28 @@ altar_title = "Altar of Hades (Soul Leech)"
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 18, 0, 0)
 god = "ares"
 altar_title = "Altar of Ares (Bloodlust of War)"
+
+[node name="Gods" type="Node3D" parent="."]
+
+[node name="GodZeus" parent="Gods" instance=ExtResource("5_god")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -22)
+god_id = "zeus"
+title = "⚡ ZEUS, KING OF OLYMPUS"
+
+[node name="GodPoseidon" parent="Gods" instance=ExtResource("5_god")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -22, 0, 0)
+god_id = "poseidon"
+title = "🔱 POSEIDON, MASTER OF OCEANS"
+
+[node name="GodHades" parent="Gods" instance=ExtResource("5_god")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 22)
+god_id = "hades"
+title = "💀 HADES, SOVEREIGN OF THE DEAD"
+
+[node name="GodAres" parent="Gods" instance=ExtResource("5_god")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 22, 0, 0)
+god_id = "ares"
+title = "⚔️ ARES, GOD OF WAR"
 
 [node name="Columns" type="Node3D" parent="."]
 

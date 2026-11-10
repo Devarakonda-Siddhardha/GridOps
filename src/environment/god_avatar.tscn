@@ -1,0 +1,51 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/environment/god_avatar.gd" id="1_script"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_prox"]
+height = 6.0
+radius = 6.5
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_solid"]
+height = 4.0
+radius = 0.8
+
+[node name="GodAvatar" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="ModelPivot" type="Node3D" parent="."]
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, 0)
+light_color = Color(0.4, 0.85, 1, 1)
+light_energy = 5.0
+omni_range = 10.0
+
+[node name="TitleLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.8, 0)
+billboard = 1
+text = "⚡ ZEUS, LORD OF OLYMPUS"
+font_size = 28
+outline_size = 8
+
+[node name="InteractLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.3, 0)
+billboard = 1
+text = "[E] COMMUNE WITH GOD"
+font_size = 20
+outline_size = 6
+
+[node name="ProximityArea" type="Area3D" parent="."]
+collision_mask = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ProximityArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0, 0)
+shape = SubResource("CylinderShape3D_prox")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 3
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0, 0)
+shape = SubResource("CylinderShape3D_solid")

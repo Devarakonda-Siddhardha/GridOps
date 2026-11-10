@@ -1,6 +1,5 @@
 extends Node3D
 
-@onready var player = $Warrior
 @onready var camera_pivot = $CameraPivot
 @onready var hud = $HUD
 @onready var spawner = $DemonSpawner
@@ -8,11 +7,11 @@ extends Node3D
 func _ready():
 	CampaignManager.current_level = 1
 	CampaignManager.army_count = 0
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
-	# Connect player signals to HUD
+	var player = get_tree().get_first_node_in_group("player")
 	if player and hud:
-		player.connect("health_changed", Callable(hud, "update_hp"))
-		player.connect("stamina_changed", Callable(hud, "update_stamina"))
+		hud.setup_player_bindings(player)
 		player.connect("died", Callable(self, "_on_player_died"))
 
 	# Connect spawner signals to HUD
@@ -23,10 +22,11 @@ func _ready():
 
 	get_tree().create_timer(1.0).timeout.connect(func():
 		SoundManager.play_dialogue("warrior_intro")
-		DivineManager.emit_signal("message_broadcast", "CHAPTER I: SANCTUARY OF OLYMPUS", "Pray at the 4 Altars to claim God Powers and repel the Vanguard!")
+		DivineManager.emit_signal("message_broadcast", "CHAPTER I: SANCTUARY OF OLYMPUS", "Commune with the 4 Olympian Gods and repel the Underworld Vanguard!")
 	)
 
 func _process(delta):
+	var player = get_tree().get_first_node_in_group("player")
 	if is_instance_valid(player) and is_instance_valid(camera_pivot):
 		camera_pivot.global_position = camera_pivot.global_position.lerp(player.global_position + Vector3(0, 1.4, 0), 12.0 * delta)
 
@@ -37,4 +37,4 @@ func _on_player_died():
 func _on_sanctuary_cleared():
 	SoundManager.play_dialogue("warrior_victory")
 	if hud:
-		hud.show_victory("SANCTUARY DEFENDED!", "The vanguard is defeated! Advance to Arcadia to raise an army!")
+		hud.show_victory("SANCTUARY DEFENDED!", "The vanguard is defeated! Advance to the Peloponnese Coast to intercept the Roman landing!")

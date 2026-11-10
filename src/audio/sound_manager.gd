@@ -131,6 +131,71 @@ var dialogues = {
 		"speaker": "Oracle of Delphi",
 		"text": "The Roman Eagle has fallen! The glory of the Greek Empire rises once more!",
 		"color": Color(1.0, 0.9, 0.4)
+	},
+	"zeus_manifest": {
+		"speaker": "Zeus, King of the Gods",
+		"text": "I am Zeus, King of the Gods! The heavens shake at your devotion. Smite the Roman invaders with celestial lightning!",
+		"color": Color(0.4, 0.85, 1.0)
+	},
+	"poseidon_manifest": {
+		"speaker": "Poseidon, Master of Oceans",
+		"text": "Mortal! I am Poseidon, master of the ocean depths! Unleash my crushing tidal waves and drown their legions!",
+		"color": Color(0.2, 0.95, 0.85)
+	},
+	"hades_manifest": {
+		"speaker": "Hades, Sovereign of Underworld",
+		"text": "I am Hades, sovereign of the Underworld. No Roman soul shall escape the abyssal grasp of Tartarus!",
+		"color": Color(0.75, 0.35, 1.0)
+	},
+	"ares_manifest": {
+		"speaker": "Ares, God of War",
+		"text": "Ares is with you! Spill their blood, crack their shields, and make the earth drown in Roman carnage!",
+		"color": Color(1.0, 0.25, 0.15)
+	},
+	"archer_select": {
+		"speaker": "Cretan Toxotes",
+		"text": "My bow is strung. Not a single Roman shall escape my arrows!",
+		"color": Color(0.3, 0.9, 0.5)
+	},
+	"archer_shoot": {
+		"speaker": "Cretan Toxotes",
+		"text": "Arrows away! For Hellas!",
+		"color": Color(0.3, 0.9, 0.5)
+	},
+	"cavalry_select": {
+		"speaker": "Thessalian Hippeus",
+		"text": "The Thessalian cavalry rides! Trample them beneath iron hooves!",
+		"color": Color(0.9, 0.65, 0.2)
+	},
+	"cavalry_charge": {
+		"speaker": "Thessalian Hippeus",
+		"text": "Charge! Ride them down!",
+		"color": Color(0.9, 0.65, 0.2)
+	},
+	"roman_archer_shout": {
+		"speaker": "Roman Sagittarii",
+		"text": "Sagittarii, rain arrows upon them!",
+		"color": Color(0.95, 0.3, 0.3)
+	},
+	"roman_cavalry_charge": {
+		"speaker": "Roman Equites",
+		"text": "Equites, charge! Break their formation!",
+		"color": Color(0.95, 0.3, 0.3)
+	},
+	"minotaur_bellow": {
+		"speaker": "Infernal Minotaur",
+		"text": "Raaaargh! Slay the Greek mortal!",
+		"color": Color(1.0, 0.15, 0.15)
+	},
+	"biome_coast": {
+		"speaker": "Oracle of Delphi",
+		"text": "The Roman fleet has landed on the shores of Peloponnese! Burn their triremes and push them into the sea!",
+		"color": Color(1.0, 0.85, 0.3)
+	},
+	"biome_chasm": {
+		"speaker": "Oracle of Delphi",
+		"text": "A dark fissure to Tartarus has opened! Vanquish the Infernal Minotaur before the abyss swallows Greece!",
+		"color": Color(1.0, 0.85, 0.3)
 	}
 }
 
@@ -178,9 +243,30 @@ func _ready():
 	_load_sound("centurion_shout", "res://assets/audio/centurion_shout.wav")
 	_load_sound("ally_rescued", "res://assets/audio/ally_rescued.wav")
 	_load_sound("ally_charge", "res://assets/audio/ally_charge.wav")
-	_load_sound("campaign_intro_2", "res://assets/audio/campaign_intro_2.wav")
-	_load_sound("campaign_intro_3", "res://assets/audio/campaign_intro_3.wav")
 	_load_sound("campaign_victory", "res://assets/audio/campaign_victory.wav")
+
+	# Expanded SFX
+	_load_sound("arrow_shoot", "res://assets/audio/arrow_shoot.wav")
+	_load_sound("arrow_hit", "res://assets/audio/arrow_hit.wav")
+	_load_sound("horse_gallop", "res://assets/audio/horse_gallop.wav")
+	_load_sound("horse_neigh", "res://assets/audio/horse_neigh.wav")
+	_load_sound("lance_pierce", "res://assets/audio/lance_pierce.wav")
+	_load_sound("minotaur_slam", "res://assets/audio/minotaur_slam.wav")
+
+	# Expanded Dialogues
+	_load_sound("zeus_manifest", "res://assets/audio/zeus_manifest.wav")
+	_load_sound("poseidon_manifest", "res://assets/audio/poseidon_manifest.wav")
+	_load_sound("hades_manifest", "res://assets/audio/hades_manifest.wav")
+	_load_sound("ares_manifest", "res://assets/audio/ares_manifest.wav")
+	_load_sound("archer_select", "res://assets/audio/archer_select.wav")
+	_load_sound("archer_shoot", "res://assets/audio/archer_shoot.wav")
+	_load_sound("cavalry_select", "res://assets/audio/cavalry_select.wav")
+	_load_sound("cavalry_charge", "res://assets/audio/cavalry_charge.wav")
+	_load_sound("roman_archer_shout", "res://assets/audio/roman_archer_shout.wav")
+	_load_sound("roman_cavalry_charge", "res://assets/audio/roman_cavalry_charge.wav")
+	_load_sound("minotaur_bellow", "res://assets/audio/minotaur_bellow.wav")
+	_load_sound("biome_coast", "res://assets/audio/biome_coast.wav")
+	_load_sound("biome_chasm", "res://assets/audio/biome_chasm.wav")
 
 	# Create SFX player pool
 	for i in range(pool_size):

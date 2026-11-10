@@ -36,6 +36,7 @@ var boss_hp_bar: ProgressBar
 var boss_title_label: Label
 
 var next_level_btn: Button
+var class_badge_label: Label
 
 func _ready():
 	banner_panel.modulate.a = 0.0
@@ -52,15 +53,24 @@ func _ready():
 	DivineManager.connect("power_unlocked", Callable(self, "_on_power_unlocked"))
 	DivineManager.connect("cooldown_updated", Callable(self, "_on_cooldown_updated"))
 	DivineManager.connect("message_broadcast", Callable(self, "show_banner"))
+	DivineManager.connect("boss_spawned", Callable(self, "_on_boss_spawned"))
+	DivineManager.connect("boss_health_updated", Callable(self, "update_boss_hp"))
+	DivineManager.connect("boss_defeated", Callable(self, "_on_boss_defeated"))
 	SoundManager.connect("dialogue_started", Callable(self, "_on_dialogue_started"))
 
 	CampaignManager.connect("army_changed", Callable(self, "_on_army_changed"))
 	CampaignManager.connect("objective_updated", Callable(self, "set_objective"))
+	CampaignManager.connect("hero_class_changed", Callable(self, "_on_class_changed"))
 
 	_create_dialogue_ui()
 	_create_army_ui()
+	_create_class_ui()
 	_create_boss_bar_ui()
 	_setup_victory_panel()
+
+	var p = get_tree().get_first_node_in_group("player")
+	if p:
+		setup_player_bindings(p)
 
 	# Initial slot setup
 	for god in slots.keys():
@@ -155,6 +165,46 @@ func _create_army_ui():
 
 	_on_army_changed(CampaignManager.army_count, CampaignManager.max_army_count)
 
+func _create_class_ui():
+	var top_left_vbox = $TopLeft/VBox
+	if top_left_vbox:
+		class_badge_label = Label.new()
+		class_badge_label.name = "ClassBadgeLabel"
+		class_badge_label.add_theme_font_size_override("font_size", 13)
+		class_badge_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3))
+		class_badge_label.add_theme_color_override("font_outline_color", Color.BLACK)
+		class_badge_label.add_theme_constant_override("outline_size", 4)
+		top_left_vbox.add_child(class_badge_label)
+		_on_class_changed(CampaignManager.selected_class)
+
+func _on_class_changed(new_class: String):
+	if class_badge_label:
+		if new_class == "warrior":
+			class_badge_label.text = "⚔️ SPARTAN CHAMPION  [TAB: Switch Class]"
+			class_badge_label.modulate = Color(1.0, 0.85, 0.3)
+		elif new_class == "archer":
+			class_badge_label.text = "🏹 CRETAN ARCHER  [TAB: Switch Class]"
+			class_badge_label.modulate = Color(0.3, 0.9, 0.5)
+		elif new_class == "cavalry":
+			class_badge_label.text = "🐎 THESSALIAN CAVALRY  [TAB: Switch Class]"
+			class_badge_label.modulate = Color(0.9, 0.65, 0.2)
+
+func setup_player_bindings(player: Node3D):
+	if not player:
+		return
+	if player.has_signal("health_changed"):
+		if not player.is_connected("health_changed", Callable(self, "update_hp")):
+			player.connect("health_changed", Callable(self, "update_hp"))
+	if player.has_signal("stamina_changed"):
+		if not player.is_connected("stamina_changed", Callable(self, "update_stamina")):
+			player.connect("stamina_changed", Callable(self, "update_stamina"))
+	if player.has_signal("died"):
+		if not player.is_connected("died", Callable(self, "show_game_over")):
+			player.connect("died", Callable(self, "show_game_over"))
+	update_hp(player.current_health, player.max_health)
+	update_stamina(player.current_stamina, player.max_stamina)
+	_on_class_changed(CampaignManager.selected_class)
+
 func _create_boss_bar_ui():
 	boss_bar_container = PanelContainer.new()
 	boss_bar_container.name = "BossBarContainer"
@@ -219,6 +269,22 @@ func _setup_victory_panel():
 		next_level_btn.connect("pressed", Callable(self, "_on_next_level_pressed"))
 		btn_vbox.add_child(next_level_btn)
 		btn_vbox.move_child(next_level_btn, 0)
+
+func _on_boss_spawned(boss_name: String, max_hp: float):
+	if boss_bar_container:
+		boss_bar_container.visible = true
+		boss_bar_container.modulate.a = 1.0
+	if boss_title_label:
+		boss_title_label.text = "👑 " + boss_name
+	if boss_hp_bar:
+		boss_hp_bar.max_value = max_hp
+		boss_hp_bar.value = max_hp
+
+func _on_boss_defeated():
+	if boss_bar_container:
+		var tw = create_tween()
+		tw.tween_property(boss_bar_container, "modulate:a", 0.0, 1.0)
+		tw.tween_callback(func(): boss_bar_container.visible = false)
 
 func update_boss_hp(current: float, max_val: float):
 	if boss_bar_container:

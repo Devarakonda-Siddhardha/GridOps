@@ -1,0 +1,52 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/player/cavalry.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://assets/models/cavalry.glb" id="2_model"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cav"]
+size = Vector3(1.2, 2.3, 2.6)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_aura"]
+transparency = 1
+albedo_color = Color(1, 0.2, 0.05, 0.35)
+emission_enabled = true
+emission = Color(1, 0.3, 0.1, 1)
+emission_energy_multiplier = 4.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_aura"]
+material = SubResource("StandardMaterial3D_aura")
+radius = 1.6
+height = 2.6
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_spark"]
+direction = Vector3(0, 1, 0)
+spread = 45.0
+initial_velocity_min = 4.0
+initial_velocity_max = 8.0
+
+[node name="Cavalry" type="CharacterBody3D"]
+collision_layer = 1
+collision_mask = 3
+script = ExtResource("1_script")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.15, 0)
+shape = SubResource("BoxShape3D_cav")
+
+[node name="Model" parent="." instance=ExtResource("2_model")]
+
+[node name="AresAura" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+visible = false
+
+[node name="AuraMesh" type="MeshInstance3D" parent="AresAura"]
+mesh = SubResource("SphereMesh_aura")
+
+[node name="HitSpark" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -1.5)
+emitting = false
+amount = 16
+lifetime = 0.3
+one_shot = true
+explosiveness = 0.9
+process_material = SubResource("ParticleProcessMaterial_spark")

@@ -10,6 +10,7 @@ extends Node3D
 var pitch: float = -15.0
 var yaw: float = 0.0
 var is_mouse_captured: bool = true
+var target: Node3D = null
 
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)

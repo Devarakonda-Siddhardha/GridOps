@@ -3,6 +3,10 @@ extends Node
 signal power_unlocked(god_name)
 signal cooldown_updated(god_name, remaining, max_cd)
 signal message_broadcast(title, subtitle)
+signal boss_spawned(boss_name, max_hp)
+signal boss_health_updated(current, max_val)
+signal boss_defeated()
+signal camera_shake_requested(intensity, duration)
 
 var powers = {
 	"zeus": {
