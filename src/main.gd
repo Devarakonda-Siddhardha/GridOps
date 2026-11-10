@@ -34,4 +34,4 @@ func _on_player_died():
 func _on_all_waves_cleared():
 	SoundManager.play_dialogue("warrior_victory")
 	if hud:
-		hud.show_victory()
+		hud.show_victory("SANCTUARY DEFENDED!", "The vanguard is crushed! Advance to Arcadia to raise a Greek army!")

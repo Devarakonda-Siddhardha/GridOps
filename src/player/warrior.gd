@@ -171,16 +171,19 @@ func _execute_melee_hit(combo_step: int):
 	var hit_center = global_position + forward * 1.6 + Vector3.UP * 0.8
 	var hit_radius = 2.4
 
-	var enemies = get_tree().get_nodes_in_group("enemies")
+	var targets = []
+	targets.append_array(get_tree().get_nodes_in_group("enemies"))
+	targets.append_array(get_tree().get_nodes_in_group("destructible"))
 	var hit_any = false
 
-	for enemy in enemies:
-		if is_instance_valid(enemy):
-			var dist = hit_center.distance_to(enemy.global_position)
-			if dist <= hit_radius:
+	for target in targets:
+		if is_instance_valid(target):
+			var dist = hit_center.distance_to(target.global_position)
+			var max_range = hit_radius + (1.2 if target.is_in_group("destructible") else 0.0)
+			if dist <= max_range:
 				hit_any = true
 				var knockback = forward * (12.0 if combo_step == 1 else 20.0) + Vector3.UP * 3.0
-				enemy.take_damage(final_dmg, knockback, "melee")
+				target.take_damage(final_dmg, knockback, "melee")
 
 	if hit_any:
 		SoundManager.play("sword_hit", 1.0)

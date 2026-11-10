@@ -1,0 +1,64 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://src/levels/level1_sanctuary.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://src/environment/temple_arena.tscn" id="2_arena"]
+[ext_resource type="PackedScene" path="res://src/player/warrior.tscn" id="3_player"]
+[ext_resource type="Script" path="res://src/player/camera_controller.gd" id="4_cam"]
+[ext_resource type="Script" path="res://src/enemies/demon_spawner.gd" id="5_spawner"]
+[ext_resource type="PackedScene" path="res://src/ui/hud.tscn" id="6_hud"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
+sky_top_color = Color(0.12, 0.18, 0.32, 1)
+sky_horizon_color = Color(0.65, 0.40, 0.25, 1)
+ground_bottom_color = Color(0.08, 0.08, 0.12, 1)
+ground_horizon_color = Color(0.35, 0.25, 0.20, 1)
+
+[sub_resource type="Sky" id="Sky_olympus"]
+sky_material = SubResource("ProceduralSkyMaterial_sky")
+
+[sub_resource type="Environment" id="Environment_main"]
+background_mode = 2
+sky = SubResource("Sky_olympus")
+ambient_light_source = 3
+ambient_light_color = Color(0.7, 0.72, 0.8, 1)
+ambient_light_energy = 0.8
+tonemap_mode = 2
+glow_enabled = true
+glow_intensity = 0.5
+glow_bloom = 0.2
+
+[node name="Level1Sanctuary" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_main")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, -0.5, 0.5, 0, 25, 0)
+light_color = Color(1, 0.92, 0.82, 1)
+light_energy = 1.3
+shadow_enabled = true
+
+[node name="TempleArena" parent="." instance=ExtResource("2_arena")]
+
+[node name="Warrior" parent="." instance=ExtResource("3_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3)
+
+[node name="CameraPivot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 3)
+script = ExtResource("4_cam")
+
+[node name="SpringArm3D" type="SpringArm3D" parent="CameraPivot"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 0, 0)
+spring_length = 5.2
+margin = 0.2
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot/SpringArm3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5.2)
+current = true
+fov = 70.0
+
+[node name="DemonSpawner" type="Node3D" parent="."]
+script = ExtResource("5_spawner")
+
+[node name="HUD" parent="." instance=ExtResource("6_hud")]

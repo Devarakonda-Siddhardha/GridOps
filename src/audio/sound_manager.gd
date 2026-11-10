@@ -3,18 +3,18 @@ extends Node
 signal dialogue_started(speaker: String, text: String, color: Color, duration: float)
 
 var sounds = {}
-var pool_size = 14
+var pool_size = 16
 var players = []
 var next_player_idx = 0
 var dialogue_player: AudioStreamPlayer
 
 var last_dialogue_time: float = -10.0
-var min_dialogue_interval: float = 1.5
+var min_dialogue_interval: float = 1.2
 
 var dialogues = {
 	"warrior_intro": {
 		"speaker": "Spartan Warrior",
-		"text": "By the gods of Olympus, no Tartarus demon shall leave this arena alive!",
+		"text": "By the gods of Olympus, no Roman oppressor shall leave this arena alive!",
 		"color": Color(1.0, 0.85, 0.3)
 	},
 	"warrior_pray": {
@@ -39,7 +39,7 @@ var dialogues = {
 	},
 	"god_zeus_blessing": {
 		"speaker": "Zeus, Lord of Olympus",
-		"text": "I am Zeus, King of Olympus! Smite the underworld with my thunderbolts!",
+		"text": "I am Zeus, King of Olympus! Smite the Roman defilers with my thunderbolts!",
 		"color": Color(0.4, 0.85, 1.0)
 	},
 	"god_zeus_cast": {
@@ -78,7 +78,7 @@ var dialogues = {
 		"color": Color(1.0, 0.25, 0.15)
 	},
 	"demon_spawn": {
-		"speaker": "Tartarus Fiend",
+		"speaker": "Roman Vanguard",
 		"text": "Mortal flesh shall burn in the pits!",
 		"color": Color(0.9, 0.2, 0.2)
 	},
@@ -86,6 +86,51 @@ var dialogues = {
 		"speaker": "Tartarus Fiend",
 		"text": "The darkness... will return!",
 		"color": Color(0.6, 0.15, 0.15)
+	},
+	"general_intro": {
+		"speaker": "General Marcus",
+		"text": "You dare challenge the eternal might of Rome, barbarian dog? You will kneel!",
+		"color": Color(0.85, 0.25, 0.95)
+	},
+	"general_testudo": {
+		"speaker": "General Marcus",
+		"text": "Legions, form the testudo! Crush their pathetic rebellion!",
+		"color": Color(0.85, 0.25, 0.95)
+	},
+	"general_defeat": {
+		"speaker": "General Marcus",
+		"text": "Impossible... Rome cannot fall to a Greek mongrel...",
+		"color": Color(0.85, 0.25, 0.95)
+	},
+	"centurion_shout": {
+		"speaker": "Roman Centurion",
+		"text": "Cohort, advance! Draw your gladii and leave none alive!",
+		"color": Color(0.95, 0.2, 0.2)
+	},
+	"ally_rescued": {
+		"speaker": "Freed Greek Hoplite",
+		"text": "We are free! Lead us to war, Spartan Champion!",
+		"color": Color(0.3, 0.7, 1.0)
+	},
+	"ally_charge": {
+		"speaker": "Greek Phalanx",
+		"text": "For the glory of Hellas! Advance the Phalanx!",
+		"color": Color(0.3, 0.7, 1.0)
+	},
+	"campaign_intro_2": {
+		"speaker": "Oracle of Delphi",
+		"text": "Arcadia is overrun by Roman outposts. Liberate our captured brothers and rally the Phalanx!",
+		"color": Color(1.0, 0.85, 0.3)
+	},
+	"campaign_intro_3": {
+		"speaker": "Oracle of Delphi",
+		"text": "Behold Castrum Roma! Breach the fortress gate, vanquish the Legion, and reclaim Hellas!",
+		"color": Color(1.0, 0.85, 0.3)
+	},
+	"campaign_victory": {
+		"speaker": "Oracle of Delphi",
+		"text": "The Roman Eagle has fallen! The glory of the Greek Empire rises once more!",
+		"color": Color(1.0, 0.9, 0.4)
 	}
 }
 
@@ -101,6 +146,12 @@ func _ready():
 	_load_sound("demon_roar", "res://assets/audio/demon_roar.wav")
 	_load_sound("demon_death", "res://assets/audio/demon_death.wav")
 	_load_sound("player_hurt", "res://assets/audio/player_hurt.wav")
+
+	# Campaign SFX
+	_load_sound("war_horn_roman", "res://assets/audio/war_horn_roman.wav")
+	_load_sound("gate_smash", "res://assets/audio/gate_smash.wav")
+	_load_sound("cage_break", "res://assets/audio/cage_break.wav")
+	_load_sound("shield_block", "res://assets/audio/shield_block.wav")
 
 	# Dialogues
 	_load_sound("warrior_intro", "res://assets/audio/warrior_intro.wav")
@@ -120,6 +171,16 @@ func _ready():
 
 	_load_sound("demon_spawn", "res://assets/audio/demon_spawn.wav")
 	_load_sound("demon_defeat", "res://assets/audio/demon_defeat.wav")
+
+	_load_sound("general_intro", "res://assets/audio/general_intro.wav")
+	_load_sound("general_testudo", "res://assets/audio/general_testudo.wav")
+	_load_sound("general_defeat", "res://assets/audio/general_defeat.wav")
+	_load_sound("centurion_shout", "res://assets/audio/centurion_shout.wav")
+	_load_sound("ally_rescued", "res://assets/audio/ally_rescued.wav")
+	_load_sound("ally_charge", "res://assets/audio/ally_charge.wav")
+	_load_sound("campaign_intro_2", "res://assets/audio/campaign_intro_2.wav")
+	_load_sound("campaign_intro_3", "res://assets/audio/campaign_intro_3.wav")
+	_load_sound("campaign_victory", "res://assets/audio/campaign_victory.wav")
 
 	# Create SFX player pool
 	for i in range(pool_size):
