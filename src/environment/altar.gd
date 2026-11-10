@@ -57,6 +57,7 @@ func _complete_prayer():
 	is_attuned = true
 	DivineManager.unlock_blessing(god)
 	SoundManager.play("prayer", 1.0, 3.0)
+	SoundManager.play_dialogue("god_" + god + "_blessing", true)
 	if beam:
 		beam.visible = true
 	if prompt_label:

@@ -18,6 +18,10 @@ func _ready():
 		spawner.connect("wave_progress", Callable(hud, "update_enemies_remaining"))
 		spawner.connect("all_waves_cleared", Callable(self, "_on_all_waves_cleared"))
 
+	get_tree().create_timer(1.0).timeout.connect(func():
+		SoundManager.play_dialogue("warrior_intro")
+	)
+
 func _process(delta):
 	# Follow player with camera pivot
 	if is_instance_valid(player) and is_instance_valid(camera_pivot):
@@ -28,5 +32,6 @@ func _on_player_died():
 		hud.show_game_over()
 
 func _on_all_waves_cleared():
+	SoundManager.play_dialogue("warrior_victory")
 	if hud:
 		hud.show_victory()

@@ -22,6 +22,11 @@ extends CanvasLayer
 
 var slots = {}
 
+var dialogue_container: PanelContainer
+var dialogue_speaker_label: Label
+var dialogue_text_label: Label
+var dialogue_tween: Tween
+
 func _ready():
 	banner_panel.modulate.a = 0.0
 	victory_panel.visible = false
@@ -37,6 +42,9 @@ func _ready():
 	DivineManager.connect("power_unlocked", Callable(self, "_on_power_unlocked"))
 	DivineManager.connect("cooldown_updated", Callable(self, "_on_cooldown_updated"))
 	DivineManager.connect("message_broadcast", Callable(self, "show_banner"))
+	SoundManager.connect("dialogue_started", Callable(self, "_on_dialogue_started"))
+
+	_create_dialogue_ui()
 
 	# Initial slot setup
 	for god in slots.keys():
@@ -47,6 +55,62 @@ func _ready():
 		slot.get_node("StatusLabel").text = "LOCKED\n(Pray at Altar)"
 		slot.get_node("CooldownOverlay").visible = false
 		slot.modulate = Color(0.6, 0.6, 0.6, 0.6)
+
+func _create_dialogue_ui():
+	dialogue_container = PanelContainer.new()
+	dialogue_container.name = "DialogueContainer"
+	add_child(dialogue_container)
+
+	dialogue_container.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	dialogue_container.offset_left = 220
+	dialogue_container.offset_right = -220
+	dialogue_container.offset_top = -215
+	dialogue_container.offset_bottom = -135
+	dialogue_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.06, 0.06, 0.1, 0.92)
+	style.border_color = Color(0.9, 0.78, 0.28, 0.95)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(10)
+	style.content_margin_left = 20
+	style.content_margin_right = 20
+	style.content_margin_top = 10
+	style.content_margin_bottom = 10
+	dialogue_container.add_theme_stylebox_override("panel", style)
+
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 4)
+	dialogue_container.add_child(vbox)
+
+	dialogue_speaker_label = Label.new()
+	dialogue_speaker_label.add_theme_font_size_override("font_size", 14)
+	dialogue_speaker_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	dialogue_speaker_label.add_theme_constant_override("outline_size", 3)
+	vbox.add_child(dialogue_speaker_label)
+
+	dialogue_text_label = Label.new()
+	dialogue_text_label.add_theme_font_size_override("font_size", 14)
+	dialogue_text_label.add_theme_color_override("font_color", Color(0.95, 0.95, 0.95))
+	dialogue_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vbox.add_child(dialogue_text_label)
+
+	dialogue_container.modulate.a = 0.0
+
+func _on_dialogue_started(speaker: String, text: String, color: Color, duration: float):
+	if not dialogue_container:
+		return
+	dialogue_speaker_label.text = "✦ " + speaker.to_upper()
+	dialogue_speaker_label.add_theme_color_override("font_color", color)
+	dialogue_text_label.text = '"' + text + '"'
+
+	if dialogue_tween and dialogue_tween.is_valid():
+		dialogue_tween.kill()
+
+	dialogue_tween = create_tween()
+	dialogue_tween.tween_property(dialogue_container, "modulate:a", 1.0, 0.2)
+	dialogue_tween.tween_interval(duration)
+	dialogue_tween.tween_property(dialogue_container, "modulate:a", 0.0, 0.4)
 
 func update_hp(current: float, max_val: float):
 	if hp_bar:

@@ -136,6 +136,8 @@ func _die():
 		hp_label.visible = false
 	_play_anim("Death")
 	SoundManager.play("demon_death", 1.0 if not is_boss else 0.7)
+	if is_boss or randf() < 0.25:
+		SoundManager.play_dialogue("demon_defeat")
 	emit_signal("died", self)
 
 	# Disable collision

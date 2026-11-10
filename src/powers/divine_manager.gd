@@ -96,21 +96,25 @@ func cast_power(god: String, origin: Vector3, forward_dir: Vector3) -> bool:
 		power_inst.global_position = target_pos
 		power_inst.activate()
 		SoundManager.play("lightning", 1.0, 3.0)
+		SoundManager.play_dialogue("god_zeus_cast", true)
 
 	elif god == "poseidon":
 		power_inst.global_position = origin + forward_dir * 1.5 + Vector3.UP * 0.1
 		power_inst.setup(forward_dir)
 		SoundManager.play("water_wave", 1.0, 2.0)
+		SoundManager.play_dialogue("god_poseidon_cast", true)
 
 	elif god == "hades":
 		power_inst.global_position = origin + Vector3.UP * 0.05
 		power_inst.activate()
 		SoundManager.play("soul_drain", 1.0, 2.0)
+		SoundManager.play_dialogue("god_hades_cast", true)
 
 	elif god == "ares":
 		power_inst.global_position = origin + Vector3.UP * 0.2
 		power_inst.activate()
 		SoundManager.play("ares_fury", 1.0, 3.0)
+		SoundManager.play_dialogue("god_ares_cast", true)
 
 	emit_signal("cooldown_updated", god, info["timer"], info["cooldown"])
 	return true

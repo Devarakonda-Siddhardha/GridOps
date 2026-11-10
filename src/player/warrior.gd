@@ -184,6 +184,8 @@ func _execute_melee_hit(combo_step: int):
 
 	if hit_any:
 		SoundManager.play("sword_hit", 1.0)
+		if combo_step == 2 and randf() < 0.5:
+			SoundManager.play_dialogue("warrior_attack")
 		if hit_spark:
 			hit_spark.restart()
 
@@ -251,6 +253,8 @@ func take_damage(amount: float, knockback: Vector3 = Vector3.ZERO):
 	current_health = max(0.0, current_health - amount)
 	emit_signal("health_changed", current_health, max_health)
 	SoundManager.play("player_hurt", 1.0)
+	if randf() < 0.45:
+		SoundManager.play_dialogue("warrior_hurt")
 
 	if current_health <= 0.0:
 		_die()

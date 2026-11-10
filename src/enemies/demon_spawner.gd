@@ -37,6 +37,11 @@ func start_next_wave():
 	emit_signal("wave_started", current_wave, total_in_wave)
 	DivineManager.emit_signal("message_broadcast", cfg["title"].to_upper(), "Pray to the Gods and purge the demons!")
 
+	if current_wave == 1:
+		get_tree().create_timer(1.2).timeout.connect(func():
+			SoundManager.play_dialogue("demon_spawn")
+		)
+
 	# Stagger spawns around the arena perimeter
 	var arena = get_tree().current_scene
 	var player = get_tree().get_first_node_in_group("player")
