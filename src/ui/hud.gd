@@ -67,6 +67,7 @@ func _ready():
 	_create_class_ui()
 	_create_boss_bar_ui()
 	_setup_victory_panel()
+	_setup_touch_controls()
 
 	var p = get_tree().get_first_node_in_group("player")
 	if p:
@@ -81,6 +82,12 @@ func _ready():
 		slot.get_node("StatusLabel").text = "LOCKED\n(Pray at Altar)" if not info["unlocked"] else info["title"]
 		slot.get_node("CooldownOverlay").visible = false
 		slot.modulate = Color(1.0, 1.0, 1.0, 1.0) if info["unlocked"] else Color(0.6, 0.6, 0.6, 0.6)
+		slot.mouse_filter = Control.MOUSE_FILTER_STOP
+		var current_god = god
+		slot.gui_input.connect(func(ev):
+			if (ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT) or (ev is InputEventScreenTouch and ev.pressed):
+				DivineManager.cast_power(current_god)
+		)
 
 func _create_dialogue_ui():
 	dialogue_container = PanelContainer.new()
@@ -399,3 +406,149 @@ func show_game_over():
 
 func _on_restart_pressed():
 	get_tree().reload_current_scene()
+
+var touch_layer: Control = null
+
+func _setup_touch_controls():
+	touch_layer = Control.new()
+	touch_layer.name = "TouchControls"
+	touch_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	touch_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(touch_layer)
+
+	var is_touch_device = OS.get_name() == "Android" or DisplayServer.is_touchscreen_available()
+	touch_layer.visible = is_touch_device
+
+	# Toggle touch button in top-right
+	var toggle_btn = Button.new()
+	toggle_btn.text = "📱 TOUCH"
+	toggle_btn.tooltip_text = "Toggle On-Screen Touch Controls"
+	toggle_btn.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	toggle_btn.offset_left = -110
+	toggle_btn.offset_top = 16
+	toggle_btn.offset_right = -20
+	toggle_btn.offset_bottom = 44
+	toggle_btn.focus_mode = Control.FOCUS_NONE
+	var t_style = StyleBoxFlat.new()
+	t_style.bg_color = Color(0.12, 0.12, 0.18, 0.85)
+	t_style.border_color = Color(0.9, 0.8, 0.3, 0.8)
+	t_style.set_border_width_all(1)
+	t_style.set_corner_radius_all(6)
+	toggle_btn.add_theme_stylebox_override("normal", t_style)
+	toggle_btn.pressed.connect(func():
+		touch_layer.visible = not touch_layer.visible
+	)
+	add_child(toggle_btn)
+
+	# --- Virtual D-Pad / Movement (Bottom-Left) ---
+	var dpad = Control.new()
+	dpad.name = "DPad"
+	dpad.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	dpad.offset_left = 30
+	dpad.offset_top = -220
+	dpad.offset_right = 210
+	dpad.offset_bottom = -40
+	dpad.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	touch_layer.add_child(dpad)
+
+	_create_touch_btn(dpad, "▲", Vector2(60, 0), Vector2(60, 55), "move_forward")
+	_create_touch_btn(dpad, "▼", Vector2(60, 120), Vector2(60, 55), "move_backward")
+	_create_touch_btn(dpad, "◀", Vector2(0, 60), Vector2(55, 60), "move_left")
+	_create_touch_btn(dpad, "▶", Vector2(125, 60), Vector2(55, 60), "move_right")
+
+	# Center Greek Pillar / Crest emblem
+	var center_icon = Label.new()
+	center_icon.text = "🏛️"
+	center_icon.position = Vector2(72, 70)
+	center_icon.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	center_icon.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	center_icon.theme_override_font_sizes/font_size = 24
+	center_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	dpad.add_child(center_icon)
+
+	# --- Action Buttons Cluster (Bottom-Right) ---
+	var actions = Control.new()
+	actions.name = "ActionButtons"
+	actions.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	actions.offset_left = -260
+	actions.offset_top = -240
+	actions.offset_right = -20
+	actions.offset_bottom = -20
+	actions.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	touch_layer.add_child(actions)
+
+	# ⚔ Attack button (Primary, large)
+	var atk_btn = _create_action_btn(actions, "⚔\nATTACK", Vector2(140, 120), Vector2(90, 90), Color(0.85, 0.2, 0.2, 0.85))
+	atk_btn.button_down.connect(func(): Input.action_press("attack"))
+	atk_btn.button_up.connect(func(): Input.action_release("attack"))
+
+	# 🦘 Jump button
+	var jmp_btn = _create_action_btn(actions, "🦘\nJUMP", Vector2(50, 140), Vector2(70, 70), Color(0.2, 0.6, 0.9, 0.85))
+	jmp_btn.button_down.connect(func(): Input.action_press("jump"))
+	jmp_btn.button_up.connect(func(): Input.action_release("jump"))
+
+	# 💨 Dodge button
+	var ddg_btn = _create_action_btn(actions, "💨\nDODGE", Vector2(150, 40), Vector2(70, 70), Color(0.25, 0.75, 0.4, 0.85))
+	ddg_btn.button_down.connect(func(): Input.action_press("dodge"))
+	ddg_btn.button_up.connect(func(): Input.action_release("dodge"))
+
+	# 🛐 Pray / Interact button
+	var pry_btn = _create_action_btn(actions, "🛐\nPRAY", Vector2(65, 55), Vector2(65, 65), Color(0.9, 0.75, 0.2, 0.85))
+	pry_btn.button_down.connect(func(): Input.action_press("interact_pray"))
+	pry_btn.button_up.connect(func(): Input.action_release("interact_pray"))
+
+	# 🛡 Shield Wall button
+	var shd_btn = _create_action_btn(actions, "🛡\nPHALANX", Vector2(0, 0), Vector2(70, 50), Color(0.4, 0.5, 0.85, 0.85))
+	shd_btn.button_down.connect(func(): Input.action_press("command_shield_wall"))
+	shd_btn.button_up.connect(func(): Input.action_release("command_shield_wall"))
+
+	# 🔄 Class Cycle button
+	var cls_btn = _create_action_btn(actions, "🔄\nCLASS", Vector2(80, 0), Vector2(65, 50), Color(0.65, 0.35, 0.85, 0.85))
+	cls_btn.button_down.connect(func(): Input.action_press("cycle_class"))
+	cls_btn.button_up.connect(func(): Input.action_release("cycle_class"))
+
+	# 📖 Lore / Codex button
+	var cdx_btn = _create_action_btn(actions, "📖\nLORE", Vector2(155, -20), Vector2(65, 48), Color(0.8, 0.5, 0.2, 0.85))
+	cdx_btn.button_down.connect(func(): Input.action_press("open_codex"))
+	cdx_btn.button_up.connect(func(): Input.action_release("open_codex"))
+
+func _create_touch_btn(parent: Control, label_text: String, pos: Vector2, sz: Vector2, action_name: String) -> Button:
+	var btn = Button.new()
+	btn.text = label_text
+	btn.position = pos
+	btn.size = sz
+	btn.focus_mode = Control.FOCUS_NONE
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.1, 0.12, 0.2, 0.75)
+	style.border_color = Color(0.85, 0.75, 0.3, 0.8)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(10)
+	btn.add_theme_stylebox_override("normal", style)
+	var pressed_style = style.duplicate()
+	pressed_style.bg_color = Color(0.3, 0.35, 0.55, 0.9)
+	btn.add_theme_stylebox_override("pressed", pressed_style)
+	btn.add_theme_font_size_override("font_size", 22)
+	btn.button_down.connect(func(): Input.action_press(action_name))
+	btn.button_up.connect(func(): Input.action_release(action_name))
+	parent.add_child(btn)
+	return btn
+
+func _create_action_btn(parent: Control, label_text: String, pos: Vector2, sz: Vector2, color: Color) -> Button:
+	var btn = Button.new()
+	btn.text = label_text
+	btn.position = pos
+	btn.size = sz
+	btn.focus_mode = Control.FOCUS_NONE
+	var style = StyleBoxFlat.new()
+	style.bg_color = color
+	style.border_color = Color(1.0, 0.9, 0.6, 0.9)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(sz.x / 2.0 if sz.x == sz.y else 10)
+	btn.add_theme_stylebox_override("normal", style)
+	var pressed_style = style.duplicate()
+	pressed_style.bg_color = color.lightened(0.25)
+	btn.add_theme_stylebox_override("pressed", pressed_style)
+	btn.add_theme_font_size_override("font_size", 12 if "\n" in label_text else 14)
+	parent.add_child(btn)
+	return btn
+
