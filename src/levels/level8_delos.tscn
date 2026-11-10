@@ -1,0 +1,128 @@
+[gd_scene load_steps=19 format=3]
+
+[ext_resource type="Script" path="res://src/levels/level8_delos.gd" id="1_script"]
+[ext_resource type="Script" path="res://src/player/camera_controller.gd" id="2_cam"]
+[ext_resource type="PackedScene" path="res://src/ui/hud.tscn" id="3_hud"]
+[ext_resource type="PackedScene" path="res://src/enemies/roman_centurion.tscn" id="4_centurion"]
+[ext_resource type="PackedScene" path="res://src/enemies/roman_soldier.tscn" id="5_soldier"]
+[ext_resource type="PackedScene" path="res://src/enemies/roman_archer.tscn" id="6_archer"]
+[ext_resource type="PackedScene" path="res://src/enemies/roman_cavalry.tscn" id="7_cavalry"]
+[ext_resource type="PackedScene" path="res://assets/models/roman_trireme.glb" id="8_trireme"]
+[ext_resource type="PackedScene" path="res://src/environment/prisoner_cage.tscn" id="9_cage"]
+[ext_resource type="PackedScene" path="res://assets/models/watchtower.glb" id="10_tower"]
+[ext_resource type="PackedScene" path="res://src/environment/roman_ballista.tscn" id="11_ballista"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_delos"]
+sky_top_color = Color(0.18, 0.50, 0.82, 1)
+sky_horizon_color = Color(0.75, 0.85, 0.95, 1)
+ground_bottom_color = Color(0.10, 0.35, 0.50, 1)
+ground_horizon_color = Color(0.60, 0.75, 0.85, 1)
+
+[sub_resource type="Sky" id="Sky_delos"]
+sky_material = SubResource("ProceduralSkyMaterial_delos")
+
+[sub_resource type="Environment" id="Environment_delos"]
+background_mode = 2
+sky = SubResource("Sky_delos")
+ambient_light_source = 3
+ambient_light_color = Color(0.85, 0.90, 0.98, 1)
+ambient_light_energy = 0.95
+tonemap_mode = 2
+glow_enabled = true
+glow_intensity = 0.45
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_island_sand"]
+albedo_color = Color(0.82, 0.75, 0.58, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="BoxMesh_island"]
+material = SubResource("StandardMaterial3D_island_sand")
+size = Vector3(220, 2, 220)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_island"]
+size = Vector3(220, 2, 220)
+
+[node name="Level8Delos" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_delos")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 0, 35, 0)
+light_color = Color(1, 0.98, 0.90, 1)
+light_energy = 1.35
+shadow_enabled = true
+
+[node name="Terrain" type="Node3D" parent="."]
+
+[node name="IslandFloor" type="StaticBody3D" parent="Terrain"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+collision_layer = 1
+collision_mask = 7
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Terrain/IslandFloor"]
+mesh = SubResource("BoxMesh_island")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Terrain/IslandFloor"]
+shape = SubResource("BoxShape3D_island")
+
+[node name="CameraPivot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 2, 42)
+script = ExtResource("2_cam")
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 3, 7.5)
+current = true
+fov = 68.0
+
+[node name="HUD" parent="." instance=ExtResource("3_hud")]
+
+[node name="Props" type="Node3D" parent="."]
+
+[node name="Trireme1" parent="Props" instance=ExtResource("8_trireme")]
+transform = Transform3D(1.8, 0, 0, 0, 1.8, 0, 0, 0, 1.8, -40, 0, -45)
+
+[node name="Trireme2" parent="Props" instance=ExtResource("8_trireme")]
+transform = Transform3D(1.8, 0, 0, 0, 1.8, 0, 0, 0, 1.8, 40, 0, -45)
+
+[node name="Trireme3" parent="Props" instance=ExtResource("8_trireme")]
+transform = Transform3D(2.0, 0, 0, 0, 2.0, 0, 0, 0, 2.0, 0, 0, -65)
+
+[node name="Cage1" parent="Props" instance=ExtResource("9_cage")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0, -12)
+
+[node name="Cage2" parent="Props" instance=ExtResource("9_cage")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0, -12)
+
+[node name="Watchtower" parent="Props" instance=ExtResource("10_tower")]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -28, 0, -32)
+
+[node name="Ballista" parent="Props" instance=ExtResource("11_ballista")]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 28, 0, -32)
+
+[node name="Enemies" type="Node3D" parent="."]
+
+[node name="Centurion" parent="Enemies" instance=ExtResource("4_centurion")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -38)
+
+[node name="Cavalry1" parent="Enemies" instance=ExtResource("7_cavalry")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0, -25)
+
+[node name="Cavalry2" parent="Enemies" instance=ExtResource("7_cavalry")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, -25)
+
+[node name="Soldier1" parent="Enemies" instance=ExtResource("5_soldier")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, -18)
+
+[node name="Soldier2" parent="Enemies" instance=ExtResource("5_soldier")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -18)
+
+[node name="Soldier3" parent="Enemies" instance=ExtResource("5_soldier")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -5)
+
+[node name="Archer1" parent="Enemies" instance=ExtResource("6_archer")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, -30)
+
+[node name="Archer2" parent="Enemies" instance=ExtResource("6_archer")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -30)

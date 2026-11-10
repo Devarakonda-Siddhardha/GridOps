@@ -1,0 +1,132 @@
+[gd_scene load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://src/levels/level7_delphi.gd" id="1_script"]
+[ext_resource type="Script" path="res://src/player/camera_controller.gd" id="2_cam"]
+[ext_resource type="PackedScene" path="res://src/ui/hud.tscn" id="3_hud"]
+[ext_resource type="PackedScene" path="res://src/enemies/roman_centurion.tscn" id="4_centurion"]
+[ext_resource type="PackedScene" path="res://src/enemies/roman_soldier.tscn" id="5_soldier"]
+[ext_resource type="PackedScene" path="res://src/enemies/roman_archer.tscn" id="6_archer"]
+[ext_resource type="PackedScene" path="res://src/enemies/demon.tscn" id="7_demon"]
+[ext_resource type="PackedScene" path="res://src/environment/greek_ruin_column.tscn" id="8_ruin_col"]
+[ext_resource type="PackedScene" path="res://assets/models/temple_column.glb" id="9_col"]
+[ext_resource type="PackedScene" path="res://assets/models/temple_brazier.glb" id="10_brazier"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_delphi"]
+sky_top_color = Color(0.20, 0.40, 0.70, 1)
+sky_horizon_color = Color(0.85, 0.80, 0.75, 1)
+ground_bottom_color = Color(0.15, 0.18, 0.22, 1)
+ground_horizon_color = Color(0.60, 0.65, 0.70, 1)
+
+[sub_resource type="Sky" id="Sky_delphi"]
+sky_material = SubResource("ProceduralSkyMaterial_delphi")
+
+[sub_resource type="Environment" id="Environment_delphi"]
+background_mode = 2
+sky = SubResource("Sky_delphi")
+ambient_light_source = 3
+ambient_light_color = Color(0.85, 0.88, 0.95, 1)
+ambient_light_energy = 1.0
+tonemap_mode = 2
+glow_enabled = true
+glow_intensity = 0.6
+glow_bloom = 0.2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_delphi_stone"]
+albedo_color = Color(0.72, 0.70, 0.65, 1)
+roughness = 0.75
+
+[sub_resource type="BoxMesh" id="BoxMesh_delphi_floor"]
+material = SubResource("StandardMaterial3D_delphi_stone")
+size = Vector3(180, 2, 180)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_delphi_floor"]
+size = Vector3(180, 2, 180)
+
+[node name="Level7Delphi" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_delphi")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.707107, -0.5, 0.5, 0, 0.707107, 0.707107, -0.707107, -0.5, 0.5, 0, 35, 0)
+light_color = Color(1, 0.97, 0.90, 1)
+light_energy = 1.35
+shadow_enabled = true
+
+[node name="Ground" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+collision_layer = 1
+collision_mask = 7
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("BoxMesh_delphi_floor")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("BoxShape3D_delphi_floor")
+
+[node name="CameraPivot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 2, 38)
+script = ExtResource("2_cam")
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 3, 7.5)
+current = true
+fov = 68.0
+
+[node name="HUD" parent="." instance=ExtResource("3_hud")]
+
+[node name="Colonnade" type="Node3D" parent="."]
+
+[node name="RuinCol1" parent="Colonnade" instance=ExtResource("8_ruin_col")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, -10)
+
+[node name="RuinCol2" parent="Colonnade" instance=ExtResource("8_ruin_col")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0, -10)
+
+[node name="RuinCol3" parent="Colonnade" instance=ExtResource("8_ruin_col")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, -28)
+
+[node name="RuinCol4" parent="Colonnade" instance=ExtResource("8_ruin_col")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0, -28)
+
+[node name="TempleCol1" parent="Colonnade" instance=ExtResource("9_col")]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, -10, 0, -42)
+
+[node name="TempleCol2" parent="Colonnade" instance=ExtResource("9_col")]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 10, 0, -42)
+
+[node name="Brazier1" parent="Colonnade" instance=ExtResource("10_brazier")]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, -8, 0, -18)
+
+[node name="Brazier2" parent="Colonnade" instance=ExtResource("10_brazier")]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 8, 0, -18)
+
+[node name="Enemies" type="Node3D" parent="."]
+
+[node name="Centurion" parent="Enemies" instance=ExtResource("4_centurion")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -32)
+
+[node name="Soldier1" parent="Enemies" instance=ExtResource("5_soldier")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, -15)
+
+[node name="Soldier2" parent="Enemies" instance=ExtResource("5_soldier")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -15)
+
+[node name="Soldier3" parent="Enemies" instance=ExtResource("5_soldier")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, 0)
+
+[node name="Soldier4" parent="Enemies" instance=ExtResource("5_soldier")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 0)
+
+[node name="Archer1" parent="Enemies" instance=ExtResource("6_archer")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, -25)
+
+[node name="Archer2" parent="Enemies" instance=ExtResource("6_archer")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, -25)
+
+[node name="Demon1" parent="Enemies" instance=ExtResource("7_demon")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -38)
+
+[node name="Demon2" parent="Enemies" instance=ExtResource("7_demon")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -38)

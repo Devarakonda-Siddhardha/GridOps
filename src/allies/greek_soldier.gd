@@ -24,6 +24,10 @@ var target_enemy: Node3D = null
 
 func _ready():
 	add_to_group("allies")
+	floor_max_angle = deg_to_rad(60.0)
+	floor_snap_length = 0.35
+	floor_constant_speed = true
+	floor_stop_on_slope = true
 	current_health = max_health
 	_update_hp_display()
 	_play_anim("Idle")
@@ -72,7 +76,7 @@ func _physics_process(delta):
 				var dir = to_pos.normalized()
 				velocity.x = dir.x * (speed * 1.15 if dist > 6.0 else speed)
 				velocity.z = dir.z * (speed * 1.15 if dist > 6.0 else speed)
-				var target_angle = atan2(dir.x, dir.z)
+				var target_angle = atan2(-dir.x, -dir.z)
 				rotation.y = lerp_angle(rotation.y, target_angle, 12.0 * delta)
 				_play_anim("Run")
 			else:
@@ -96,7 +100,7 @@ func _physics_process(delta):
 				var dir = to_enemy.normalized()
 				velocity.x = dir.x * (speed * 1.2)
 				velocity.z = dir.z * (speed * 1.2)
-				var target_angle = atan2(dir.x, dir.z)
+				var target_angle = atan2(-dir.x, -dir.z)
 				rotation.y = lerp_angle(rotation.y, target_angle, 14.0 * delta)
 				_play_anim("Run")
 			else:
@@ -148,9 +152,16 @@ func _start_attack():
 			current_state = State.CHARGE
 	)
 
+var is_shield_wall: bool = false
+
 func take_damage(amount: float, knockback: Vector3 = Vector3.ZERO):
 	if is_dead:
 		return
+
+	if is_shield_wall:
+		amount *= 0.35
+		knockback *= 0.2
+		SoundManager.play("shield_block", 1.0)
 
 	current_health = max(0.0, current_health - amount)
 	_update_hp_display()
@@ -189,17 +200,27 @@ func _update_hp_display():
 		var filled = int(pct / 10)
 		for i in range(10):
 			bar += "■" if i < filled else "□"
-		hp_label.text = "Greek Hoplite\n[%s] %d HP" % [bar, int(current_health)]
+		var stance = " [SHIELD WALL]" if is_shield_wall else ""
+		hp_label.text = "Greek Hoplite%s\n[%s] %d HP" % [stance, bar, int(current_health)]
 
 func _on_army_command(cmd: String):
 	if is_dead:
 		return
 	if cmd == "charge":
+		is_shield_wall = false
 		target_enemy = _find_nearest_enemy(60.0)
 		current_state = State.CHARGE
-	elif cmd == "regroup":
+		_update_hp_display()
+	elif cmd == "shield_wall":
+		is_shield_wall = true
 		target_enemy = null
 		current_state = State.FOLLOW
+		_update_hp_display()
+	elif cmd == "regroup":
+		is_shield_wall = false
+		target_enemy = null
+		current_state = State.FOLLOW
+		_update_hp_display()
 
 func _play_anim(anim_name: String):
 	if anim_player and anim_player.has_animation(anim_name):

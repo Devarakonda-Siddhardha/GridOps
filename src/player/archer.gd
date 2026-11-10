@@ -8,6 +8,7 @@ enum State { IDLE, RUN, AIM, ATTACK, DODGE, PRAY, HIT, DEAD }
 
 @export var base_speed: float = 8.5
 @export var dodge_speed: float = 15.0
+@export var jump_velocity: float = 9.5
 @export var gravity: float = 24.0
 
 var max_health: float = 100.0
@@ -31,6 +32,10 @@ var arrow_scene = preload("res://src/player/arrow.tscn")
 
 func _ready():
 	add_to_group("player")
+	floor_max_angle = deg_to_rad(60.0)
+	floor_snap_length = 0.35
+	floor_constant_speed = true
+	floor_stop_on_slope = true
 	if ares_aura:
 		ares_aura.visible = false
 	emit_signal("health_changed", current_health, max_health)
@@ -74,7 +79,9 @@ func _physics_process(delta):
 	match current_state:
 		State.IDLE, State.RUN:
 			_handle_movement(delta)
-			if Input.is_action_pressed("attack") and shoot_cooldown <= 0.0 and current_stamina >= 10.0:
+			if is_on_floor() and Input.is_action_just_pressed("jump"):
+				_jump()
+			elif Input.is_action_pressed("attack") and shoot_cooldown <= 0.0 and current_stamina >= 10.0:
 				_shoot_arrow()
 			elif Input.is_action_just_pressed("dodge") and current_stamina >= 20.0:
 				_start_dodge()
@@ -166,15 +173,39 @@ func _shoot_arrow(is_fire: bool = false):
 		current_state = State.IDLE
 		_play_anim("Idle")
 
+func _jump():
+	velocity.y = jump_velocity
+	SoundManager.play("sword_swing", 1.4, -6.0)
+
+func _get_move_direction() -> Vector3:
+	var input_dir = Vector2.ZERO
+	if Input.is_action_pressed("move_forward"):
+		input_dir.y -= 1
+	if Input.is_action_pressed("move_backward"):
+		input_dir.y += 1
+	if Input.is_action_pressed("move_left"):
+		input_dir.x -= 1
+	if Input.is_action_pressed("move_right"):
+		input_dir.x += 1
+	input_dir = input_dir.normalized()
+	if input_dir.length_squared() < 0.01:
+		return -transform.basis.z
+	var cam_basis = Basis.IDENTITY
+	if camera_pivot and camera_pivot.has_method("get_camera_basis"):
+		cam_basis = camera_pivot.get_camera_basis()
+	return (cam_basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+
 func _start_dodge():
 	current_state = State.DODGE
 	is_invulnerable = true
 	current_stamina -= 20.0
 	emit_signal("stamina_changed", current_stamina, max_stamina)
 
-	var dodge_dir = -global_transform.basis.z
+	var dodge_dir = _get_move_direction()
+	rotation.y = atan2(-dodge_dir.x, -dodge_dir.z)
 	velocity = dodge_dir * dodge_speed
 	_play_anim("Dodge")
+	SoundManager.play("sword_swing", 1.1, -4.0)
 
 	await get_tree().create_timer(0.35).timeout
 	is_invulnerable = false

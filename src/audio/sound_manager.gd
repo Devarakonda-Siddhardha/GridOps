@@ -262,6 +262,31 @@ var dialogues = {
 		"text": "Behold, Castrum Roma! Marcus Aurelius hides behind stone ramparts. Sound the charge! Breach the fortress gates and reclaim the glory of Hellas!",
 		"color": Color(1.0, 0.85, 0.25)
 	},
+	"athena_level6_thermopylae": {
+		"speaker": "Athena",
+		"text": "We stand at the Hot Gates of Thermopylae! Form the shield wall across the narrow pass. Let their cohorts break against our bronze!",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_level7_delphi": {
+		"speaker": "Athena",
+		"text": "The sacred shrine of Delphi has been desecrated by Roman pillagers. Purge the defilers, Nikolaos, and awaken the Golden Aegis!",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_level8_delos": {
+		"speaker": "Athena",
+		"text": "The Isle of Delos! Seize their fleet of warships and liberate our trapped archers. Today, Greece takes the war to Roman shores!",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_level9_appian_way": {
+		"speaker": "Athena",
+		"text": "We march upon the Appian Way! Roman catapults and ballistas guard the road to Rome. Charge through their camps and smash their legions!",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_level10_rome_colosseum": {
+		"speaker": "Athena",
+		"text": "The Colosseum of Rome! Face Supreme Consul Titus Claudius and his Praetorian guard! End this tyranny and crown Hellas in eternal triumph!",
+		"color": Color(1.0, 0.85, 0.25)
+	},
 	"athena_low_health": {
 		"speaker": "Athena",
 		"text": "Stand strong, warrior! Do not falter now. Commune with the Gods and regain your vigor!",
@@ -365,6 +390,11 @@ func _ready():
 	_load_sound("athena_army_assembled", "res://assets/audio/athena_army_assembled.wav")
 	_load_sound("athena_level4_chasm", "res://assets/audio/athena_level4_chasm.wav")
 	_load_sound("athena_level5_siege", "res://assets/audio/athena_level5_siege.wav")
+	_load_sound("athena_level6_thermopylae", "res://assets/audio/athena_level6_thermopylae.wav")
+	_load_sound("athena_level7_delphi", "res://assets/audio/athena_level7_delphi.wav")
+	_load_sound("athena_level8_delos", "res://assets/audio/athena_level8_delos.wav")
+	_load_sound("athena_level9_appian_way", "res://assets/audio/athena_level9_appian_way.wav")
+	_load_sound("athena_level10_rome_colosseum", "res://assets/audio/athena_level10_rome_colosseum.wav")
 	_load_sound("athena_low_health", "res://assets/audio/athena_low_health.wav")
 	_load_sound("athena_victory", "res://assets/audio/athena_victory.wav")
 	_load_sound("athena_tactical_advice", "res://assets/audio/athena_tactical_advice.wav")

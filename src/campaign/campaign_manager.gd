@@ -5,6 +5,7 @@ signal army_command(command_type: String)
 signal objective_updated(text: String)
 signal level_completed(level_num: int)
 signal hero_class_changed(hero_type: String)
+signal codex_toggled
 
 var current_level: int = 1
 var army_count: int = 0
@@ -26,7 +27,12 @@ var level_scenes = {
 	2: "res://src/levels/level2_coast.tscn",
 	3: "res://src/levels/level3_valley.tscn",
 	4: "res://src/levels/level4_chasm.tscn",
-	5: "res://src/levels/level5_siege.tscn"
+	5: "res://src/levels/level5_siege.tscn",
+	6: "res://src/levels/level6_thermopylae.tscn",
+	7: "res://src/levels/level7_delphi.tscn",
+	8: "res://src/levels/level8_delos.tscn",
+	9: "res://src/levels/level9_appian_way.tscn",
+	10: "res://src/levels/level10_rome_colosseum.tscn"
 }
 
 func _ready():
@@ -37,7 +43,11 @@ func _input(event):
 		if event.keycode == KEY_G:
 			order_charge()
 		elif event.keycode == KEY_H:
+			order_shield_wall()
+		elif event.keycode == KEY_V:
 			order_regroup()
+		elif event.keycode == KEY_B or event.keycode == KEY_P:
+			toggle_codex()
 		elif event.keycode == KEY_T or event.keycode == KEY_TAB:
 			cycle_hero_class()
 
@@ -55,9 +65,17 @@ func order_charge():
 	SoundManager.play_dialogue("ally_charge")
 	DivineManager.emit_signal("message_broadcast", "ARMY CHARGE!", "Greek Phalanx charging enemy lines!")
 
+func order_shield_wall():
+	emit_signal("army_command", "shield_wall")
+	SoundManager.play("shield_block", 1.0)
+	DivineManager.emit_signal("message_broadcast", "SHIELD WALL!", "Hoplites raise shields in phalanx formation! (65% damage reduction)")
+
 func order_regroup():
 	emit_signal("army_command", "regroup")
 	DivineManager.emit_signal("message_broadcast", "REGROUP PHALANX!", "Soldiers falling back to defensive formation!")
+
+func toggle_codex():
+	emit_signal("codex_toggled")
 
 func cycle_hero_class():
 	var classes = ["warrior", "archer", "cavalry"]

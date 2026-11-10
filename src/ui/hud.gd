@@ -158,10 +158,16 @@ func _create_army_ui():
 	vbox.add_child(army_count_label)
 
 	army_hint_label = Label.new()
-	army_hint_label.text = "[G] Order Charge   [H] Regroup"
+	army_hint_label.text = "[G] Charge  [H] Shield Wall  [V] Rally  |  [B] Codex"
 	army_hint_label.add_theme_font_size_override("font_size", 11)
 	army_hint_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.85))
 	vbox.add_child(army_hint_label)
+
+	# Instantiate Codex Dialog
+	var codex_scene = load("res://src/ui/codex_dialog.tscn")
+	if codex_scene:
+		var codex_inst = codex_scene.instantiate()
+		add_child(codex_inst)
 
 	_on_army_changed(CampaignManager.army_count, CampaignManager.max_army_count)
 

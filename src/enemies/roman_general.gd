@@ -28,6 +28,10 @@ var target: Node3D = null
 func _ready():
 	add_to_group("enemies")
 	add_to_group("bosses")
+	floor_max_angle = deg_to_rad(60.0)
+	floor_snap_length = 0.35
+	floor_constant_speed = true
+	floor_stop_on_slope = true
 	current_health = max_health
 	emit_signal("boss_health_changed", current_health, max_health)
 	_update_hp_display()
@@ -72,7 +76,7 @@ func _physics_process(delta):
 				var dir = to_target.normalized()
 				velocity.x = dir.x * speed
 				velocity.z = dir.z * speed
-				var target_angle = atan2(dir.x, dir.z)
+				var target_angle = atan2(-dir.x, -dir.z)
 				rotation.y = lerp_angle(rotation.y, target_angle, 8.0 * delta)
 				_play_anim("Run")
 			else:

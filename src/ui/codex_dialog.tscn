@@ -1,0 +1,190 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/ui/codex_dialog.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_overlay"]
+bg_color = Color(0, 0, 0, 0.72)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.07, 0.08, 0.12, 0.96)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.9, 0.78, 0.32, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.6)
+shadow_size = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
+bg_color = Color(0.18, 0.14, 0.08, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.9, 0.78, 0.32, 0.9)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="CodexDialog" type="Control"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="DimOverlay" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_overlay")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -480.0
+offset_top = -310.0
+offset_right = 480.0
+offset_bottom = 310.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 18.0
+offset_right = -24.0
+offset_bottom = -18.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Panel/VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.88, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 22
+text = "📜 HELLENIC CODEX & HERO ARCHIVE"
+
+[node name="CloseButton" type="Button" parent="Panel/VBox/Header"]
+custom_minimum_size = Vector2(90, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+text = "CLOSE [ESC]"
+
+[node name="Scroll" type="ScrollContainer" parent="Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Content" type="VBoxContainer" parent="Panel/VBox/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
+
+[node name="HeroSection" type="VBoxContainer" parent="Panel/VBox/Scroll/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HeroTitle" type="Label" parent="Panel/VBox/Scroll/Content/HeroSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.75, 0.25, 1)
+theme_override_font_sizes/font_size = 17
+text = "🏛 HERO: NIKOLAOS OF SPARTA (Lion of Mount Taygetos)"
+
+[node name="HeroBio" type="RichTextLabel" parent="Panel/VBox/Scroll/Content/HeroSection"]
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+text = "[color=#d8d8d8]Once the revered Polemarch of the Spartan vanguard, [b]Nikolaos[/b] witnessed the legions of Rome storm across Greece, despoiling the sanctuaries of the Gods, burning olive groves, and locking thousands of Greek citizens into iron prisoner cages. Left for dead on the slopes of Mount Taygetos, Nikolaos was chosen by [b]Pallas Athena[/b] to receive the sacred aegis and divine favor of Mount Olympus.
+
+[color=#ffd700]Starting as a lone wanderer[/color], Nikolaos has sworn a blood-oath to liberate his enslaved countrymen across a 10-chapter campaign, assemble an invincible Greek Phalanx of Hoplites, Cretan Archers, and Thessalian Cavalry, cross the Adriatic Sea, and lay siege to Rome itself to overthrow the tyrannical Roman Consul Titus Claudius![/color]"
+
+[node name="ControlsSection" type="VBoxContainer" parent="Panel/VBox/Scroll/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ControlsTitle" type="Label" parent="Panel/VBox/Scroll/Content/ControlsSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.85, 1.0, 1)
+theme_override_font_sizes/font_size = 17
+text = "⚔ COMBAT & MOVEMENT CONTROLS"
+
+[node name="ControlsText" type="RichTextLabel" parent="Panel/VBox/Scroll/Content/ControlsSection"]
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+text = "[b]WASD[/b]: Move in full 3D  |  [b]Left Click / J[/b]: Attack Combo / Lance Thrust / Arrow
+[b]SPACEBAR[/b]: [color=#55ff55]Vertical Jump[/color] (Vault over obstacles, rocks, steps, and barricades)
+[b]SHIFT / ALT / K[/b]: [color=#55ffff]Directional Dodge Roll[/color] (Invulnerable dash in movement direction)
+[b]TAB / T[/b]: [color=#ffbb44]Cycle Hero Class[/color] (Spartan Champion, Cretan Archer, Thessalian Cavalry)
+[b]E[/b]: Pray at Deity Altars to commune with the Gods and unlock permanent divine powers
+[b]B / P[/b]: Open this Hellenic Codex & Lore Archive"
+
+[node name="ArmySection" type="VBoxContainer" parent="Panel/VBox/Scroll/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ArmyTitle" type="Label" parent="Panel/VBox/Scroll/Content/ArmySection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.9, 0.5, 1)
+theme_override_font_sizes/font_size = 17
+text = "🛡 GREEK PHALANX ORDERS (Command Your Army)"
+
+[node name="ArmyText" type="RichTextLabel" parent="Panel/VBox/Scroll/Content/ArmySection"]
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+text = "Smash Roman cages throughout chapters to recruit freed Greek soldiers into your personal army!
+• [b][G] ARMY CHARGE[/b]: Commands all allied Hoplites to break ranks and aggressively rush enemy lines.
+• [b][H] SHIELD WALL[/b]: Locks shields in phalanx formation. Hoplites gain [b]65% damage reduction[/b] and absorb incoming projectile/melee blows!
+• [b][V] REGROUP / RALLY[/b]: Recalls all soldiers immediately back to Nikolaos's side in defensive formation."
+
+[node name="CampaignSection" type="VBoxContainer" parent="Panel/VBox/Scroll/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="CampaignTitle" type="Label" parent="Panel/VBox/Scroll/Content/CampaignSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.6, 0.3, 1)
+theme_override_font_sizes/font_size = 17
+text = "🗺 10-CHAPTER CAMPAIGN ROADMAP"
+
+[node name="CampaignText" type="RichTextLabel" parent="Panel/VBox/Scroll/Content/CampaignSection"]
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+text = "[b]Chapter 1: Sanctuary of Mount Olympus[/b] — Receive divine blessings from Zeus, Poseidon, Hades, Ares, and Athena.
+[b]Chapter 2: Coast of Nauplia[/b] — Repel the Roman beachhead landing force and burn their triremes.
+[b]Chapter 3: Valley of Arcadia[/b] — Liberate captured Spartan hoplites from Roman cages and form your Phalanx.
+[b]Chapter 4: Chasm of Tartarus[/b] — Cleanse the underworld demonic rift and slay the Infernal Minotaur.
+[b]Chapter 5: Fortress of Corinth[/b] — Breach the castrum gate and defeat Legatus General Marcus Aurelius.
+[b]Chapter 6: Pass of Thermopylae[/b] — Hold the Hot Gates against Roman ballistas and legionary waves.
+[b]Chapter 7: Oracle of Delphi[/b] — Purge the defilers from Apollo's shrine and unlock the Golden Aegis.
+[b]Chapter 8: Isle of Delos[/b] — Free Cretan archers and Thessalian cavalry, seizing the Roman naval armada.
+[b]Chapter 9: The Appian Way[/b] — Invade Italy! Smash Roman siege camps, catapults, and military tents.
+[b]Chapter 10: Siege of Rome & Imperial Colosseum[/b] — Breach Rome, defeat Consul Titus Claudius, and restore the Greek Empire!"

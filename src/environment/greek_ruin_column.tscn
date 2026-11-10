@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://assets/models/greek_column_ruin.glb" id="1_model"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_1"]
+height = 5.0
+radius = 0.9
+
+[node name="GreekRuinColumn" type="StaticBody3D"]
+collision_layer = 1
+collision_mask = 7
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+shape = SubResource("CylinderShape3D_1")
+
+[node name="Model" parent="." instance=ExtResource("1_model")]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)

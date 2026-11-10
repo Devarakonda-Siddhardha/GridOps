@@ -22,6 +22,10 @@ var gravity: float = 24.0
 
 func _ready():
 	add_to_group("enemies")
+	floor_max_angle = deg_to_rad(60.0)
+	floor_snap_length = 0.35
+	floor_constant_speed = true
+	floor_stop_on_slope = true
 	current_health = max_health
 	_update_hp_display()
 	_play_anim("Idle")
@@ -56,7 +60,7 @@ func _physics_process(delta):
 				velocity.x = dir.x * speed
 				velocity.z = dir.z * speed
 				# Face moving direction
-				var target_angle = atan2(dir.x, dir.z)
+				var target_angle = atan2(-dir.x, -dir.z)
 				rotation.y = lerp_angle(rotation.y, target_angle, 10.0 * delta)
 				if current_state != State.CHASE:
 					current_state = State.CHASE
@@ -90,7 +94,7 @@ func _start_attack(player):
 
 	# Face player directly
 	var dir = (player.global_position - global_position).normalized()
-	rotation.y = atan2(dir.x, dir.z)
+	rotation.y = atan2(-dir.x, -dir.z)
 
 	# Strike frame at 0.35s
 	get_tree().create_timer(0.35).timeout.connect(func():

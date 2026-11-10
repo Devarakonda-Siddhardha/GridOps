@@ -76,7 +76,7 @@ func _on_gate_breached():
 func _on_boss_died(_general):
 	boss_defeated = true
 	get_tree().create_timer(2.0).timeout.connect(func():
-		SoundManager.play_dialogue("athena_victory", true)
+		SoundManager.play_dialogue("campaign_victory", true)
 		if hud:
-			hud.show_victory("THE GREEK EMPIRE IS RECLAIMED!", "Athena: Your courage and strategy have echoed into eternity. Hellas is free!")
+			hud.show_victory("FORTRESS OF CORINTH LIBERATED!", "General Marcus is routed! Advance north to the sacred Pass of Thermopylae!")
 	)
