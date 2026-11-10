@@ -280,8 +280,11 @@ var dialogues = {
 }
 
 func _ready():
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	# Sound effects
 	_load_sound("sword_swing", "res://assets/audio/sword_swing.wav")
+	_load_sound("campaign_intro_2", "res://assets/audio/campaign_victory.wav")
+	_load_sound("campaign_intro_3", "res://assets/audio/war_horn_roman.wav")
 	_load_sound("sword_hit", "res://assets/audio/sword_hit.wav")
 	_load_sound("lightning", "res://assets/audio/lightning.wav")
 	_load_sound("water_wave", "res://assets/audio/water_wave.wav")
@@ -378,9 +381,13 @@ func _ready():
 	add_child(dialogue_player)
 
 func _load_sound(sound_name: String, path: String):
-	if FileAccess.file_exists(path):
-		var s = load(path)
+	var s = load(path)
+	if s:
 		sounds[sound_name] = s
+	elif ResourceLoader.exists(path):
+		sounds[sound_name] = ResourceLoader.load(path)
+	elif FileAccess.file_exists(path):
+		sounds[sound_name] = load(path)
 
 func play(sound_name: String, pitch: float = 1.0, volume_db: float = 0.0):
 	if not sounds.has(sound_name):

@@ -79,7 +79,7 @@ transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42, 0, 0)
 [node name="AthenaSanctuary" type="Node3D" parent="."]
 
 [node name="GodAthena" parent="AthenaSanctuary" instance=ExtResource("8_athena")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -12)
+transform = Transform3D(-0.447214, 0, -0.894427, 0, 1, 0, 0.894427, 0, -0.447214, -16, 0, -8)
 god_id = "athena"
 title = "🦉 ATHENA, GODDESS OF WISDOM"
 

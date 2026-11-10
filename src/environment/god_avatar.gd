@@ -51,7 +51,7 @@ func _ready():
 	$ProximityArea.body_exited.connect(_on_body_exited)
 
 func _process(_delta):
-	if is_player_near and Input.is_action_just_pressed("interact"):
+	if is_player_near and (Input.is_action_just_pressed("interact_pray") or (InputMap.has_action("interact") and Input.is_action_just_pressed("interact"))):
 		_commune_with_god()
 
 func _on_body_entered(body: Node3D):

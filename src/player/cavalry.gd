@@ -260,7 +260,8 @@ func finish_prayer():
 
 func _try_cast(god_id: String):
 	if DivineManager.can_cast(god_id):
-		DivineManager.cast_power(god_id, self)
+		var forward = -global_transform.basis.z
+		DivineManager.cast_power(god_id, global_position, forward)
 		if god_id == "ares":
 			ares_buff_timer = 8.0
 			if ares_aura:

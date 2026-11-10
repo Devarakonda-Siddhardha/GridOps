@@ -70,15 +70,25 @@ def build_dedicated_temple(god_id):
         step.data.materials.append(mat_stone if i < 2 else mat_trim)
         mesh_parts.append(step)
 
+    # Monumental Greek Procession Ramp (Epichosis) at front entrance
+    bpy.ops.mesh.primitive_cube_add(size=1.0, location=(0, -11.0, 0.45))
+    ramp = bpy.context.active_object
+    ramp.scale = (8.0, 3.4, 0.2)
+    ramp.rotation_euler = (math.radians(15.0), 0, 0)
+    bpy.ops.object.transform_apply(scale=True, rotation=True)
+    ramp.data.materials.append(mat_trim)
+    mesh_parts.append(ramp)
+
     # 2. Peristyle Colonnade (Fluted Columns around perimeter)
-    # Front & Back: X = [-6.0, -3.6, -1.2, 1.2, 3.6, 6.0], Y = -9.6 (front) and Y = 9.6 (back)
-    # Sides: Y = [-6.4, -3.2, 0.0, 3.2, 6.4]
-    col_x_coords = [-5.8, -3.5, -1.2, 1.2, 3.5, 5.8]
+    # Front row has wide 3.6m central propylon opening for seamless entry on foot & horseback
+    front_col_x = [-5.8, -3.8, -1.8, 1.8, 3.8, 5.8]
+    back_col_x = [-5.8, -3.5, -1.2, 1.2, 3.5, 5.8]
     col_y_coords = [-9.4, -6.3, -3.1, 0.0, 3.1, 6.3, 9.4]
     column_positions = []
 
-    for x in col_x_coords:
+    for x in front_col_x:
         column_positions.append((x, -9.4)) # Front row
+    for x in back_col_x:
         column_positions.append((x, 9.4))  # Back row
 
     for y in col_y_coords[1:-1]:
