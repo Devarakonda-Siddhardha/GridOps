@@ -1,0 +1,5 @@
+# Godot 4.x .gitignore
+.godot/
+*.translation
+builds/
+screenshot.png
