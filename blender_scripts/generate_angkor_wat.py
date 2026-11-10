@@ -169,9 +169,21 @@ def create_vishnu_stone_material(name="Mat_Vishnu_Deity"):
     nodes = mat.node_tree.nodes
     bsdf = nodes.get("Principled BSDF")
     if bsdf:
-        bsdf.inputs["Base Color"].default_value = (0.08, 0.08, 0.09, 1.0)
-        bsdf.inputs["Metallic"].default_value = 0.18
-        bsdf.inputs["Roughness"].default_value = 0.25
+        # Deep consecrated black granite / basalt with sacred oil sheen
+        bsdf.inputs["Base Color"].default_value = (0.045, 0.045, 0.052, 1.0)
+        bsdf.inputs["Metallic"].default_value = 0.10
+        bsdf.inputs["Roughness"].default_value = 0.20
+    return mat
+
+def create_basic_color_material(name, color, roughness=0.3, metallic=0.0):
+    mat = bpy.data.materials.new(name=name)
+    mat.use_nodes = True
+    nodes = mat.node_tree.nodes
+    bsdf = nodes.get("Principled BSDF")
+    if bsdf:
+        bsdf.inputs["Base Color"].default_value = color
+        bsdf.inputs["Roughness"].default_value = roughness
+        bsdf.inputs["Metallic"].default_value = metallic
     return mat
 
 def create_lawn_material(name="Mat_Tropical_Lawn"):
@@ -217,6 +229,52 @@ def add_cylinder_mesh(bm, center, radius, depth, segments=12):
         bot_verts.append(bm.verts.new((x, y, cz - half_d)))
         top_verts.append(bm.verts.new((x, y, cz + half_d)))
     
+    bm.faces.new(reversed(bot_verts))
+    bm.faces.new(top_verts)
+    for i in range(segments):
+        next_i = (i + 1) % segments
+        bm.faces.new((bot_verts[i], bot_verts[next_i], top_verts[next_i], top_verts[i]))
+
+def add_disc_x(bm, center, radius, thickness, segments=16):
+    cx, cy, cz = center
+    half_t = thickness / 2.0
+    bot_verts = []
+    top_verts = []
+    for i in range(segments):
+        ang = 2 * math.pi * i / segments
+        y = cy + math.cos(ang) * radius
+        z = cz + math.sin(ang) * radius
+        bot_verts.append(bm.verts.new((cx - half_t, y, z)))
+        top_verts.append(bm.verts.new((cx + half_t, y, z)))
+    bm.faces.new(reversed(bot_verts))
+    bm.faces.new(top_verts)
+    for i in range(segments):
+        next_i = (i + 1) % segments
+        bm.faces.new((bot_verts[i], bot_verts[next_i], top_verts[next_i], top_verts[i]))
+
+def add_tube_segment(bm, p1, p2, radius, segments=8):
+    v1 = mathutils.Vector(p1)
+    v2 = mathutils.Vector(p2)
+    diff = v2 - v1
+    length = diff.length
+    if length < 1e-4:
+        return
+    center = (v1 + v2) / 2.0
+    dir_norm = diff.normalized()
+    up = 'X' if abs(dir_norm.y) > 0.9 else 'Y'
+    rot = dir_norm.to_track_quat('Z', up).to_matrix()
+    
+    bot_verts = []
+    top_verts = []
+    for i in range(segments):
+        ang = 2 * math.pi * i / segments
+        lx = math.cos(ang) * radius
+        ly = math.sin(ang) * radius
+        b_pt = rot @ mathutils.Vector((lx, ly, -length/2)) + center
+        t_pt = rot @ mathutils.Vector((lx, ly,  length/2)) + center
+        bot_verts.append(bm.verts.new(b_pt))
+        top_verts.append(bm.verts.new(t_pt))
+        
     bm.faces.new(reversed(bot_verts))
     bm.faces.new(top_verts)
     for i in range(segments):
@@ -296,8 +354,8 @@ def build_prasat_tower_obj(name, location, base_w, total_h, tiers, mat_stone, ma
         # East wall
         add_cube_mesh(bm_stone, (lx + half_w - wall_t/2, ly, current_z + base_h/2), (wall_t, half_w*2 - wall_t*2, base_h))
         # West wall with open doorway
-        door_w = 2.4
-        door_h = 4.2
+        door_w = 2.6
+        door_h = 5.6
         side_w = (half_w*2 - wall_t*2 - door_w) / 2
         add_cube_mesh(bm_stone, (lx - half_w + wall_t/2, ly + door_w/2 + side_w/2, current_z + base_h/2), (wall_t, side_w, base_h))
         add_cube_mesh(bm_stone, (lx - half_w + wall_t/2, ly - door_w/2 - side_w/2, current_z + base_h/2), (wall_t, side_w, base_h))
@@ -475,57 +533,262 @@ def build_library_fast(name, location, scale, rotation_z, mat_stone):
     obj.rotation_euler = (0, 0, rotation_z)
     return obj
 
-def build_vishnu_deity_fast(name, location, scale, mat_deity, mat_gold, mat_inscriptions):
+def build_chaturbhuja_vishnu_master(name, location, scale, mat_deity, mat_gold, mat_white, mat_red, mat_pink, mat_inscriptions):
     bm_deity = bmesh.new()
     bm_gold = bmesh.new()
+    bm_white = bmesh.new()
+    bm_red = bmesh.new()
+    bm_pink = bmesh.new()
     bm_insc = bmesh.new()
     s = scale
 
-    # Lotus Pedestal
-    add_cylinder_mesh(bm_gold, (0, 0, 0.55*s), radius=0.95*s, depth=0.35*s, segments=24)
-    # Legs & Royal Sampot
-    add_cylinder_mesh(bm_deity, (-0.22*s, 0, 1.4*s), radius=0.14*s, depth=1.4*s, segments=12)
-    add_cylinder_mesh(bm_deity, ( 0.22*s, 0, 1.4*s), radius=0.14*s, depth=1.4*s, segments=12)
-    add_cylinder_mesh(bm_deity, (0, 0, 2.3*s), radius=0.38*s, depth=1.1*s, segments=16) # Hip & Sampot
-    add_cylinder_mesh(bm_gold, (0, 0, 2.8*s), radius=0.40*s, depth=0.16*s, segments=20) # Royal jeweled belt
-    # Torso & Collar
-    add_cylinder_mesh(bm_deity, (0, 0, 3.25*s), radius=0.34*s, depth=0.9*s, segments=16) # Sculpted stone torso
-    add_cylinder_mesh(bm_gold, (0, 0, 3.6*s), radius=0.36*s, depth=0.2*s, segments=20) # Jeweled necklace collar
-    # Head & Royal Crown (Kirita-makuta)
-    add_cylinder_mesh(bm_deity, (0, 0, 4.15*s), radius=0.22*s, depth=0.45*s, segments=16)
-    add_cylinder_mesh(bm_gold, (0, 0, 4.5*s), radius=0.24*s, depth=0.3*s, segments=16)
-    add_cylinder_mesh(bm_gold, (0, 0, 4.8*s), radius=0.18*s, depth=0.3*s, segments=16)
-    add_cylinder_mesh(bm_gold, (0, 0, 5.05*s), radius=0.12*s, depth=0.25*s, segments=16)
-    add_cylinder_mesh(bm_gold, (0, 0, 5.25*s), radius=0.05*s, depth=0.2*s, segments=12)
+    # 1. Bhadra-pitha & Padma-pitha (Tiered Lotus Pedestal)
+    # Square stone base
+    add_cube_mesh(bm_deity, (0, 0, 0.2*s), (2.2*s, 2.2*s, 0.4*s))
+    # Stepped circular plinth
+    add_cylinder_mesh(bm_deity, (0, 0, 0.45*s), radius=1.05*s, depth=0.15*s, segments=24)
+    # Golden lotus pedestal
+    add_cylinder_mesh(bm_gold, (0, 0, 0.60*s), radius=0.92*s, depth=0.18*s, segments=24)
+    # 16 Golden & Pink lotus petals around pedestal rim
+    for i in range(16):
+        ang = 2 * math.pi * i / 16
+        px = math.cos(ang) * 0.90 * s
+        py = math.sin(ang) * 0.90 * s
+        add_cube_mesh(bm_pink, (px, py, 0.62*s), (0.24*s, 0.16*s, 0.12*s))
+        add_cube_mesh(bm_gold, (px*0.95, py*0.95, 0.65*s), (0.16*s, 0.12*s, 0.08*s))
 
-    # Divine Arms & Attributes
-    # Upper Right: Sudarshana Chakra (Discus)
-    add_cylinder_mesh(bm_deity, (0.75*s, 0, 3.7*s), radius=0.1*s, depth=0.9*s, segments=8)
-    add_cylinder_mesh(bm_gold, (1.05*s, 0, 4.25*s), radius=0.36*s, depth=0.08*s, segments=24)
-    # Upper Left: Panchajanya Shankha (Conch)
-    add_cylinder_mesh(bm_deity, (-0.75*s, 0, 3.7*s), radius=0.1*s, depth=0.9*s, segments=8)
-    add_cylinder_mesh(bm_gold, (-1.0*s, 0, 4.2*s), radius=0.2*s, depth=0.4*s, segments=12)
-    # Lower Right: Kaumodaki Gada (Mace)
-    add_cylinder_mesh(bm_deity, (0.55*s, 0.2*s, 2.5*s), radius=0.1*s, depth=0.9*s, segments=8)
-    add_cylinder_mesh(bm_gold, (0.65*s, 0.35*s, 1.8*s), radius=0.06*s, depth=1.8*s, segments=10)
-    add_cylinder_mesh(bm_gold, (0.65*s, 0.35*s, 2.5*s), radius=0.22*s, depth=0.45*s, segments=14)
-    # Lower Left: Padma (Lotus)
-    add_cylinder_mesh(bm_deity, (-0.55*s, 0.2*s, 2.5*s), radius=0.1*s, depth=0.9*s, segments=8)
-    add_cylinder_mesh(bm_gold, (-0.52*s, 0.38*s, 2.7*s), radius=0.18*s, depth=0.22*s, segments=14)
+    # 2. Lotus Feet (Charana Kamala) in Samabhanga Stance
+    add_cylinder_mesh(bm_deity, (0.05*s, -0.22*s, 0.72*s), radius=0.14*s, depth=0.12*s, segments=12)
+    add_cylinder_mesh(bm_deity, (0.05*s,  0.22*s, 0.72*s), radius=0.14*s, depth=0.12*s, segments=12)
+    # Feet toes extending forward (-X)
+    add_cube_mesh(bm_deity, (-0.08*s, -0.22*s, 0.72*s), (0.22*s, 0.18*s, 0.10*s))
+    add_cube_mesh(bm_deity, (-0.08*s,  0.22*s, 0.72*s), (0.22*s, 0.18*s, 0.10*s))
+    # Golden Anklets (Nupura)
+    add_cylinder_mesh(bm_gold, (0.05*s, -0.22*s, 0.80*s), radius=0.16*s, depth=0.06*s, segments=16)
+    add_cylinder_mesh(bm_gold, (0.05*s,  0.22*s, 0.80*s), radius=0.16*s, depth=0.06*s, segments=16)
 
-    # Flanking Inscribed Stone Stelae inside sanctum (flanking North and South on Y-axis)
+    # 3. Lower Legs & Pleated Royal Sampot (Dhoti)
+    # Shins
+    add_tube_segment(bm_deity, (0.04*s, -0.22*s, 0.82*s), (0.02*s, -0.22*s, 1.8*s), radius=0.14*s, segments=12)
+    add_tube_segment(bm_deity, (0.04*s,  0.22*s, 0.82*s), (0.02*s,  0.22*s, 1.8*s), radius=0.14*s, segments=12)
+    # Thighs
+    add_tube_segment(bm_deity, (0.02*s, -0.22*s, 1.8*s), (0.0, -0.20*s, 2.7*s), radius=0.18*s, segments=12)
+    add_tube_segment(bm_deity, (0.02*s,  0.22*s, 1.8*s), (0.0,  0.20*s, 2.7*s), radius=0.18*s, segments=12)
+    # Royal Sampot draped over thighs with pleat folds
+    add_cylinder_mesh(bm_deity, (0, 0, 2.2*s), radius=0.40*s, depth=1.1*s, segments=16)
+    # Delicate pleat ridges along front and sides
+    for pl_ang in (-0.6, -0.3, 0.0, 0.3, 0.6):
+        pl_x = -math.cos(pl_ang) * 0.40 * s
+        pl_y = math.sin(pl_ang) * 0.40 * s
+        add_cube_mesh(bm_gold, (pl_x, pl_y, 2.2*s), (0.04*s, 0.05*s, 1.0*s))
+    # Golden Jeweled Belt (Katisutra / Mekhala)
+    add_cylinder_mesh(bm_gold, (0, 0, 2.75*s), radius=0.42*s, depth=0.15*s, segments=20)
+    add_cylinder_mesh(bm_gold, (0, 0, 2.88*s), radius=0.44*s, depth=0.08*s, segments=20)
+    # Central Lion-head buckle & Hanging Sash (Urujala)
+    add_cube_mesh(bm_gold, (-0.43*s, 0, 2.80*s), (0.10*s, 0.18*s, 0.18*s))
+    add_cube_mesh(bm_gold, (-0.42*s, 0, 2.30*s), (0.05*s, 0.14*s, 0.85*s))
+
+    # 4. Torso, Divine Chest & Sacred Thread
+    # Slender waist (Damaru waist / Simha-kati)
+    add_cylinder_mesh(bm_deity, (0, 0, 3.10*s), radius=0.34*s, depth=0.45*s, segments=16)
+    # Auspicious Navel (Nabhi)
+    add_cylinder_mesh(bm_gold, (-0.33*s, 0, 3.08*s), radius=0.04*s, depth=0.03*s, segments=8)
+    # Broad athletic chest (Uras)
+    add_cylinder_mesh(bm_deity, (0, 0, 3.55*s), radius=0.44*s, depth=0.55*s, segments=16)
+    # Defined pectoral muscles
+    add_cylinder_mesh(bm_deity, (-0.08*s, -0.16*s, 3.65*s), radius=0.20*s, depth=0.22*s, segments=12)
+    add_cylinder_mesh(bm_deity, (-0.08*s,  0.16*s, 3.65*s), radius=0.20*s, depth=0.22*s, segments=12)
+
+    # Yajnopavita (Sacred Three-Strand Thread from left shoulder to right hip)
+    add_tube_segment(bm_gold, (0.02*s, -0.32*s, 3.90*s), (-0.28*s, -0.12*s, 3.60*s), radius=0.025*s, segments=6)
+    add_tube_segment(bm_gold, (-0.28*s, -0.12*s, 3.60*s), (-0.32*s, 0.10*s, 3.20*s), radius=0.025*s, segments=6)
+    add_tube_segment(bm_gold, (-0.32*s, 0.10*s, 3.20*s), (0.02*s, 0.36*s, 2.82*s), radius=0.025*s, segments=6)
+
+    # Kaustubha Mani & Royal Necklaces (Hara)
+    add_cylinder_mesh(bm_gold, (0, 0, 3.82*s), radius=0.36*s, depth=0.14*s, segments=20)
+    add_cylinder_mesh(bm_gold, (-0.36*s, 0, 3.75*s), radius=0.10*s, depth=0.06*s, segments=12) # Medallion
+    add_cylinder_mesh(bm_red, (-0.39*s, 0, 3.75*s), radius=0.05*s, depth=0.05*s, segments=8) # Kaustubha Gem!
+
+    # Vanamala (Garland of Flowers cascading past knees)
+    for side_m in (-1, 1):
+        add_tube_segment(bm_gold, (0, side_m*0.38*s, 3.85*s), (-0.20*s, side_m*0.42*s, 3.0*s), radius=0.035*s, segments=6)
+        add_tube_segment(bm_gold, (-0.20*s, side_m*0.42*s, 3.0*s), (-0.18*s, side_m*0.36*s, 2.0*s), radius=0.035*s, segments=6)
+        add_tube_segment(bm_gold, (-0.18*s, side_m*0.36*s, 2.0*s), (-0.10*s, side_m*0.28*s, 1.4*s), radius=0.035*s, segments=6)
+    # Joining bottom garland loop
+    add_tube_segment(bm_gold, (-0.10*s, -0.28*s, 1.4*s), (-0.15*s, 0, 1.35*s), radius=0.035*s, segments=6)
+    add_tube_segment(bm_gold, (-0.15*s, 0, 1.35*s), (-0.10*s, 0.28*s, 1.4*s), radius=0.035*s, segments=6)
+
+    # 5. Neck & Serene Divine Face
+    # Neck with Tri-rekha rings
+    add_cylinder_mesh(bm_deity, (0, 0, 4.08*s), radius=0.22*s, depth=0.28*s, segments=16)
+    for r_z in (4.00, 4.08, 4.16):
+        add_cylinder_mesh(bm_gold, (0, 0, r_z*s), radius=0.23*s, depth=0.02*s, segments=16)
+    # Head core (extending up through forehead)
+    add_cylinder_mesh(bm_deity, (0, 0, 4.55*s), radius=0.25*s, depth=0.75*s, segments=20)
+    # Cheeks & Chin
+    add_cube_mesh(bm_deity, (-0.12*s, 0, 4.28*s), (0.16*s, 0.22*s, 0.16*s)) # Chin
+    # Serene smiling lips (Khmer divine smile)
+    add_cube_mesh(bm_deity, (-0.22*s, 0, 4.36*s), (0.06*s, 0.14*s, 0.05*s)) # Lip ridge
+    add_cube_mesh(bm_red,   (-0.23*s, 0, 4.36*s), (0.03*s, 0.10*s, 0.03*s)) # Subtle red smile
+    # Aristocratic straight nose (Nasika)
+    add_cube_mesh(bm_deity, (-0.24*s, 0, 4.54*s), (0.10*s, 0.06*s, 0.24*s))
+    # Almond-shaped meditative eyes (Kamalanayana)
+    add_cube_mesh(bm_white, (-0.21*s, -0.09*s, 4.60*s), (0.04*s, 0.08*s, 0.035*s))
+    add_cube_mesh(bm_white, (-0.21*s,  0.09*s, 4.60*s), (0.04*s, 0.08*s, 0.035*s))
+    add_cube_mesh(bm_deity, (-0.22*s, -0.09*s, 4.60*s), (0.03*s, 0.03*s, 0.035*s)) # Pupil
+    add_cube_mesh(bm_deity, (-0.22*s,  0.09*s, 4.60*s), (0.03*s, 0.03*s, 0.035*s)) # Pupil
+    # Arched Eyebrows (Bhrulata)
+    add_cube_mesh(bm_deity, (-0.24*s, -0.09*s, 4.68*s), (0.04*s, 0.09*s, 0.02*s))
+    add_cube_mesh(bm_deity, (-0.24*s,  0.09*s, 4.68*s), (0.04*s, 0.09*s, 0.02*s))
+
+    # --- 6. SACRED URDHVAPUNDRA (उर्ध्वपुण्ड्र / VAISHNAVA TILAKA) ---
+    # Centered proudly on the forehead above the nose bridge
+    # White 'U' shaped outer prongs (Gopichandana)
+    add_cube_mesh(bm_white, (-0.258*s,  0.0,     4.70*s), (0.02*s, 0.075*s, 0.03*s)) # Base connecting bridge
+    add_cube_mesh(bm_white, (-0.258*s,  0.0,     4.66*s), (0.02*s, 0.024*s, 0.04*s)) # Downward nasal stem
+    add_cube_mesh(bm_white, (-0.258*s,  0.032*s, 4.82*s), (0.02*s, 0.016*s, 0.22*s)) # Left upright prong
+    add_cube_mesh(bm_white, (-0.258*s, -0.032*s, 4.82*s), (0.02*s, 0.016*s, 0.22*s)) # Right upright prong
+    # Red Sri-churnam streak (Lakshmi sacred vermilion in exact center!)
+    add_cube_mesh(bm_red,   (-0.264*s,  0.0,     4.81*s), (0.02*s, 0.012*s, 0.26*s))
+
+    # 7. Kiriṭa-Makuṭa (Conical Royal Crown) & Makara-Kundala Earrings
+    add_cylinder_mesh(bm_gold, (0, 0, 4.98*s), radius=0.26*s, depth=0.16*s, segments=20)
+    add_cylinder_mesh(bm_gold, (0, 0, 5.10*s), radius=0.28*s, depth=0.08*s, segments=20)
+    add_cylinder_mesh(bm_gold, (0, 0, 5.30*s), radius=0.23*s, depth=0.32*s, segments=18)
+    add_cylinder_mesh(bm_gold, (0, 0, 5.58*s), radius=0.18*s, depth=0.28*s, segments=16)
+    add_cylinder_mesh(bm_gold, (0, 0, 5.82*s), radius=0.13*s, depth=0.22*s, segments=14)
+    add_cylinder_mesh(bm_gold, (0, 0, 5.96*s), radius=0.15*s, depth=0.08*s, segments=14)
+    add_cylinder_mesh(bm_gold, (0, 0, 6.12*s), radius=0.07*s, depth=0.24*s, segments=10)
+    add_cylinder_mesh(bm_gold, (0, 0, 6.28*s), radius=0.02*s, depth=0.10*s, segments=6)
+    # Makara-Kundala Earrings
+    for side_m in (-1, 1):
+        add_cylinder_mesh(bm_gold, (0, side_m*0.27*s, 4.52*s), radius=0.05*s, depth=0.18*s, segments=8)
+        add_cylinder_mesh(bm_gold, (0, side_m*0.27*s, 4.38*s), radius=0.08*s, depth=0.14*s, segments=8)
+
+    # 8. THE FOUR DIVINE ARMS & SACRED EMBLEMS (Chaturbhuja)
+    # All arms positioned laterally on the Y-axis so they frame the deity majestically!
+    
+    # === A. UPPER RIGHT ARM: SUDARSHANA CHAKRA (Discus) ===
+    add_tube_segment(bm_deity, (0.02*s, 0.44*s, 3.82*s), (-0.02*s, 0.70*s, 3.95*s), radius=0.12*s, segments=10)
+    add_cylinder_mesh(bm_gold, (-0.01*s, 0.62*s, 3.90*s), radius=0.15*s, depth=0.10*s, segments=12)
+    add_tube_segment(bm_deity, (-0.02*s, 0.70*s, 3.95*s), (-0.05*s, 0.82*s, 4.60*s), radius=0.10*s, segments=10)
+    add_cylinder_mesh(bm_gold, (-0.05*s, 0.82*s, 4.58*s), radius=0.12*s, depth=0.08*s, segments=12)
+    add_cube_mesh(bm_deity, (-0.05*s, 0.83*s, 4.70*s), (0.12*s, 0.10*s, 0.16*s)) # Hand
+    # Sudarshana Chakra: Golden Solar Discus
+    ch_x = -0.05 * s
+    ch_y =  0.84 * s
+    ch_z =  4.90 * s
+    # Hub and central Ruby bead
+    add_disc_x(bm_gold, (ch_x, ch_y, ch_z), radius=0.10*s, thickness=0.06*s, segments=16)
+    add_disc_x(bm_red,  (ch_x - 0.035*s, ch_y, ch_z), radius=0.04*s, thickness=0.02*s, segments=12)
+    # Circular Solar Discus Wheel
+    add_disc_x(bm_gold, (ch_x, ch_y, ch_z), radius=0.30*s, thickness=0.03*s, segments=24)
+    # Radiating Flaming Solar Rays and Spokes
+    for ray_i in range(8):
+        ray_a = math.pi * ray_i / 4.0
+        ry = math.cos(ray_a)
+        rz = math.sin(ray_a)
+        add_tube_segment(bm_gold, (ch_x, ch_y + ry*0.08*s, ch_z + rz*0.08*s), (ch_x, ch_y + ry*0.30*s, ch_z + rz*0.30*s), radius=0.015*s, segments=6)
+        add_cube_mesh(bm_gold, (ch_x, ch_y + ry*0.35*s, ch_z + rz*0.35*s), (0.025*s, 0.08*s, 0.08*s))
+
+    # === B. UPPER LEFT ARM: PANCHAJANYA SHANKHA (Conch) ===
+    add_tube_segment(bm_deity, (0.02*s, -0.44*s, 3.82*s), (-0.02*s, -0.70*s, 3.95*s), radius=0.12*s, segments=10)
+    add_cylinder_mesh(bm_gold, (-0.01*s, -0.62*s, 3.90*s), radius=0.15*s, depth=0.10*s, segments=12)
+    add_tube_segment(bm_deity, (-0.02*s, -0.70*s, 3.95*s), (-0.05*s, -0.82*s, 4.60*s), radius=0.10*s, segments=10)
+    add_cylinder_mesh(bm_gold, (-0.05*s, -0.82*s, 4.58*s), radius=0.12*s, depth=0.08*s, segments=12)
+    add_cube_mesh(bm_deity, (-0.05*s, -0.83*s, 4.70*s), (0.12*s, 0.10*s, 0.16*s)) # Hand
+    # Panchajanya Shankha
+    sh_x = -0.05 * s
+    sh_y = -0.84 * s
+    sh_z =  4.88 * s
+    add_cylinder_mesh(bm_white, (sh_x, sh_y, sh_z), radius=0.15*s, depth=0.34*s, segments=16)
+    add_cylinder_mesh(bm_white, (sh_x, sh_y, sh_z + 0.22*s), radius=0.07*s, depth=0.18*s, segments=12)
+    add_cylinder_mesh(bm_gold,  (sh_x, sh_y, sh_z + 0.32*s), radius=0.03*s, depth=0.08*s, segments=8)
+    add_cube_mesh(bm_white, (sh_x - 0.08*s, sh_y, sh_z), (0.14*s, 0.18*s, 0.26*s))
+    add_cube_mesh(bm_gold,  (sh_x - 0.14*s, sh_y, sh_z), (0.03*s, 0.12*s, 0.20*s))
+
+    # === C. LOWER RIGHT ARM: KAUMODAKI GADA (Mace) ===
+    add_tube_segment(bm_deity, (0.02*s, 0.42*s, 3.65*s), (-0.14*s, 0.56*s, 3.10*s), radius=0.11*s, segments=10)
+    add_tube_segment(bm_deity, (-0.14*s, 0.56*s, 3.10*s), (-0.22*s, 0.64*s, 2.50*s), radius=0.10*s, segments=10)
+    add_cylinder_mesh(bm_gold, (-0.22*s, 0.64*s, 2.52*s), radius=0.12*s, depth=0.08*s, segments=12)
+    add_cube_mesh(bm_deity, (-0.22*s, 0.64*s, 2.44*s), (0.12*s, 0.11*s, 0.14*s)) # Hand
+    # Kaumodaki Gada
+    gada_x = -0.22 * s
+    gada_y =  0.64 * s
+    add_cylinder_mesh(bm_gold, (gada_x, gada_y, 0.88*s), radius=0.20*s, depth=0.28*s, segments=16)
+    add_cylinder_mesh(bm_gold, (gada_x, gada_y, 1.10*s), radius=0.15*s, depth=0.20*s, segments=16)
+    add_cylinder_mesh(bm_gold, (gada_x, gada_y, 1.80*s), radius=0.07*s, depth=1.20*s, segments=12)
+    for gz in (1.35, 1.70, 2.05):
+        add_cylinder_mesh(bm_gold, (gada_x, gada_y, gz*s), radius=0.09*s, depth=0.05*s, segments=12)
+    add_cylinder_mesh(bm_gold, (gada_x, gada_y, 2.58*s), radius=0.10*s, depth=0.12*s, segments=12)
+    add_cylinder_mesh(bm_gold, (gada_x, gada_y, 2.68*s), radius=0.04*s, depth=0.08*s, segments=8)
+
+    # === D. LOWER LEFT ARM: PADMA (Sacred Lotus) ===
+    add_tube_segment(bm_deity, (0.02*s, -0.42*s, 3.65*s), (-0.14*s, -0.54*s, 3.10*s), radius=0.11*s, segments=10)
+    add_tube_segment(bm_deity, (-0.14*s, -0.54*s, 3.10*s), (-0.26*s, -0.52*s, 2.85*s), radius=0.10*s, segments=10)
+    add_cylinder_mesh(bm_gold, (-0.26*s, -0.52*s, 2.88*s), radius=0.12*s, depth=0.08*s, segments=12)
+    add_cube_mesh(bm_deity, (-0.28*s, -0.52*s, 2.80*s), (0.12*s, 0.11*s, 0.14*s)) # Hand
+    # Blooming Padma facing forward towards viewer
+    lot_stem_start = (-0.28*s, -0.52*s, 2.80*s)
+    lot_base = (-0.36*s, -0.52*s, 3.02*s)
+    add_tube_segment(bm_gold, lot_stem_start, lot_base, radius=0.022*s, segments=6)
+    # Lotus Calyx & Golden Pericarp cup
+    add_disc_x(bm_gold, (-0.38*s, -0.52*s, 3.06*s), radius=0.08*s, thickness=0.05*s, segments=16)
+    add_disc_x(bm_red,  (-0.41*s, -0.52*s, 3.06*s), radius=0.03*s, thickness=0.01*s, segments=8)
+    # Blooming Pink Lotus Petals facing the camera
+    for pet_i in range(12):
+        pet_a = 2 * math.pi * pet_i / 12.0
+        pet_py = -0.52*s + math.cos(pet_a) * 0.16 * s
+        pet_pz =  3.06*s + math.sin(pet_a) * 0.16 * s
+        add_cube_mesh(bm_pink, (-0.39*s, pet_py, pet_pz), (0.03*s, 0.08*s, 0.08*s))
+    # Inner tier of 6 pink petals
+    for pet_i in range(6):
+        pet_a = 2 * math.pi * pet_i / 6.0 + 0.25
+        pet_py = -0.52*s + math.cos(pet_a) * 0.10 * s
+        pet_pz =  3.06*s + math.sin(pet_a) * 0.10 * s
+        add_cube_mesh(bm_pink, (-0.40*s, pet_py, pet_pz), (0.025*s, 0.06*s, 0.06*s))
+
+    # 9. Prabhavali (Sacred Arch Aureole / Halo framing Lord Vishnu)
+    prabh_x = 0.15 * s
+    add_tube_segment(bm_gold, (prabh_x, -1.05*s, 0.75*s), (prabh_x, -1.05*s, 4.4*s), radius=0.08*s, segments=10)
+    add_tube_segment(bm_gold, (prabh_x,  1.05*s, 0.75*s), (prabh_x,  1.05*s, 4.4*s), radius=0.08*s, segments=10)
+    arch_pts = []
+    arch_r = 1.05 * s
+    arch_cz = 4.4 * s
+    for ai in range(13):
+        a_ang = math.pi * ai / 12.0
+        ay = -math.cos(a_ang) * arch_r
+        az = arch_cz + math.sin(a_ang) * arch_r * 1.55
+        arch_pts.append((prabh_x, ay, az))
+    for ai in range(len(arch_pts) - 1):
+        add_tube_segment(bm_gold, arch_pts[ai], arch_pts[ai+1], radius=0.08*s, segments=10)
+        mid_ay = (arch_pts[ai][1] + arch_pts[ai+1][1]) / 2.0
+        mid_az = (arch_pts[ai][2] + arch_pts[ai+1][2]) / 2.0
+        norm_y = mid_ay / arch_r
+        norm_z = (mid_az - arch_cz) / (arch_r * 1.55)
+        add_cube_mesh(bm_gold, (prabh_x, mid_ay + norm_y*0.14*s, mid_az + norm_z*0.14*s), (0.04*s, 0.12*s, 0.12*s))
+    add_cube_mesh(bm_gold, (prabh_x, 0, arch_cz + arch_r*1.65), (0.12*s, 0.28*s, 0.28*s))
+
+    # 10. Flanking Inscribed Stone Stelae inside sanctum (flanking North and South on Y-axis)
     add_cube_mesh(bm_insc, (0, -1.6*s, 2.0*s), (0.4*s, 0.5*s, 3.6*s))
     add_cube_mesh(bm_insc, (0,  1.6*s, 2.0*s), (0.4*s, 0.5*s, 3.6*s))
 
+    # Create scene objects
     deity_obj = create_mesh_object(f"{name}_DeityBody", bm_deity, mat_deity)
     gold_obj = create_mesh_object(f"{name}_GoldOrnaments", bm_gold, mat_gold)
+    white_obj = create_mesh_object(f"{name}_SacredWhite", bm_white, mat_white)
+    red_obj = create_mesh_object(f"{name}_SacredRed", bm_red, mat_red)
+    pink_obj = create_mesh_object(f"{name}_LotusPink", bm_pink, mat_pink)
     insc_obj = create_mesh_object(f"{name}_Inscriptions", bm_insc, mat_inscriptions)
 
     deity_obj.location = location
-    gold_obj.location = (0, 0, 0)
-    insc_obj.location = (0, 0, 0)
-    gold_obj.parent = deity_obj
-    insc_obj.parent = deity_obj
+    for child in (gold_obj, white_obj, red_obj, pink_obj, insc_obj):
+        child.parent = deity_obj
+        child.matrix_parent_inverse.identity()
+        child.location = (0, 0, 0)
+        child.rotation_euler = (0, 0, 0)
+        child.scale = (1, 1, 1)
+
     return deity_obj
 
 # -------------------------------------------------------------------------
@@ -592,6 +855,9 @@ def build_angkor_wat():
     mat_gold = create_gold_material("Mat_Khmer_Gold")
     mat_vishnu = create_vishnu_stone_material("Mat_Vishnu_Deity")
     mat_lawn = create_lawn_material("Mat_Tropical_Lawn")
+    mat_white = create_basic_color_material("Mat_Urdhva_White", (0.98, 0.98, 0.96, 1.0), roughness=0.25)
+    mat_red = create_basic_color_material("Mat_Urdhva_Red", (0.88, 0.06, 0.05, 1.0), roughness=0.30)
+    mat_pink = create_basic_color_material("Mat_Lotus_Pink", (0.92, 0.42, 0.58, 1.0), roughness=0.35)
 
     # 1. Terrain & Moat
     log("Building 1: Terrain, Moat & Embankments...")
@@ -816,9 +1082,11 @@ def build_angkor_wat():
     set_active_collection(col_sanctum)
     sanctum_z = bakan_floor_z
 
-    build_vishnu_deity_fast(
-        "Murti_Lord_Vishnu", (center_x, center_y, sanctum_z + 0.2),
-        scale=1.1, mat_deity=mat_vishnu, mat_gold=mat_gold, mat_inscriptions=mat_inscriptions
+    build_chaturbhuja_vishnu_master(
+        "Murti_Lord_Vishnu", (center_x + 0.6, center_y, sanctum_z + 0.2),
+        scale=0.75, mat_deity=mat_vishnu, mat_gold=mat_gold,
+        mat_white=mat_white, mat_red=mat_red, mat_pink=mat_pink,
+        mat_inscriptions=mat_inscriptions
     )
 
     # 9. Atmospheric Lighting & Cameras
@@ -857,16 +1125,16 @@ def build_angkor_wat():
     bpy.context.collection.objects.link(sky_obj)
     sky_obj.rotation_euler = (math.radians(85), 0, 0)
 
-    # Sanctum Direct Illumination (gentle warm spotlight illuminating Lord Vishnu)
+    # Sanctum Direct Illumination (shaft of divine golden light illuminating Lord Vishnu)
     sanctum_lamp = bpy.data.lights.new(name="Sanctum_Shaft_Light", type='SPOT')
-    sanctum_lamp.energy = 220.0
-    sanctum_lamp.spot_size = math.radians(65)
-    sanctum_lamp.spot_blend = 0.5
-    sanctum_lamp.color = (1.0, 0.88, 0.65)
+    sanctum_lamp.energy = 450.0
+    sanctum_lamp.spot_size = math.radians(68)
+    sanctum_lamp.spot_blend = 0.45
+    sanctum_lamp.color = (1.0, 0.90, 0.72)
     sanctum_lamp_obj = bpy.data.objects.new("Sanctum_Shaft_Light", sanctum_lamp)
     bpy.context.collection.objects.link(sanctum_lamp_obj)
-    sanctum_lamp_obj.location = (center_x - 4.5, 0, sanctum_z + 4.2)
-    s_dir = (mathutils.Vector((center_x, 0, sanctum_z + 2.5)) - sanctum_lamp_obj.location).normalized()
+    sanctum_lamp_obj.location = (center_x - 3.5, 0, sanctum_z + 4.8)
+    s_dir = (mathutils.Vector((center_x + 0.6, 0, sanctum_z + 2.55)) - sanctum_lamp_obj.location).normalized()
     sanctum_lamp_obj.rotation_euler = s_dir.to_track_quat('-Z', 'Y').to_euler()
 
     # Inscription Accent Light
@@ -881,13 +1149,21 @@ def build_angkor_wat():
     stela_lamp_obj.rotation_euler = st_dir.to_track_quat('-Z', 'Y').to_euler()
 
     # Sacred Deepa (Oil Lamps) illuminating Lord Vishnu in Garbhagriha
-    for lamp_name, l_y in [("Sanctum_Deepa_North", 1.2), ("Sanctum_Deepa_South", -1.2)]:
+    for lamp_name, l_y in [("Sanctum_Deepa_North", 1.4), ("Sanctum_Deepa_South", -1.4)]:
         dlamp = bpy.data.lights.new(name=lamp_name, type='POINT')
-        dlamp.energy = 85.0
-        dlamp.color = (1.0, 0.68, 0.32)
+        dlamp.energy = 160.0
+        dlamp.color = (1.0, 0.65, 0.28)
         dlamp_obj = bpy.data.objects.new(lamp_name, dlamp)
         bpy.context.collection.objects.link(dlamp_obj)
-        dlamp_obj.location = (center_x - 1.2, l_y, sanctum_z + 1.5)
+        dlamp_obj.location = (center_x - 0.8, l_y, sanctum_z + 1.8)
+
+    # Soft eye-level warm fill for torso, divine ornaments, and pleated sampot
+    tlamp = bpy.data.lights.new(name="Sanctum_Torso_Fill", type='POINT')
+    tlamp.energy = 95.0
+    tlamp.color = (1.0, 0.90, 0.78)
+    tlamp_obj = bpy.data.objects.new("Sanctum_Torso_Fill", tlamp)
+    bpy.context.collection.objects.link(tlamp_obj)
+    tlamp_obj.location = (center_x - 2.8, 0.0, sanctum_z + 2.4)
 
     # Gallery Corridor Illumination for Bas-Relief View
     glamp = bpy.data.lights.new(name="Gallery_Warm_Light", type='POINT')
@@ -925,8 +1201,8 @@ def build_angkor_wat():
     # 4. Bas-Relief Gallery (Inside East gallery looking along colonnade and Samudra Manthana mural)
     create_cam("Cam_04_BasRelief_Gallery", loc=(74.8, -25.0, 2.2), target=(76.8, -14.0, 2.4), fl=30.0)
 
-    # 5. Holy Garbhagriha Sanctum (Directly framed onto Four-Armed Lord Vishnu in the central shrine)
-    create_cam("Cam_05_Garbhagriha_Vishnu", loc=(center_x - 6.5, 0.0, sanctum_z + 2.5), target=(center_x, 0.0, sanctum_z + 2.5), fl=34.0)
+    # 5. Holy Garbhagriha Sanctum (Directly framed onto Four-Armed Lord Vishnu: Shankha, Chakra, Gada, Padma, Urdhvapundra)
+    create_cam("Cam_05_Garbhagriha_Vishnu", loc=(center_x - 4.2, 0.0, sanctum_z + 2.55), target=(center_x + 0.6, 0.0, sanctum_z + 2.55), fl=21.0)
 
     # 6. Macro Inscriptions Detail (Freestanding Royal Stela inscribed with Sanskrit & Old Khmer)
     create_cam("Cam_06_Inscription_Macro", loc=(landing_x - 1.2, 4.5, 2.7), target=(landing_x + 2.0, 4.5, 2.7), fl=50.0)
