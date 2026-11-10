@@ -3,11 +3,12 @@ shader_type spatial;
 uniform vec4 stone_color_1 : source_color = vec4(0.85, 0.82, 0.78, 1.0);
 uniform vec4 stone_color_2 : source_color = vec4(0.72, 0.69, 0.64, 1.0);
 uniform vec4 grout_color : source_color = vec4(0.28, 0.25, 0.22, 1.0);
+uniform float mesh_dimension = 140.0;
 uniform float tile_size = 2.5;
 uniform float grout_width = 0.035;
 
 void fragment() {
-	vec2 uv_scaled = UV * (60.0 / tile_size);
+	vec2 uv_scaled = UV * (mesh_dimension / tile_size);
 	vec2 f = fract(uv_scaled);
 	vec2 id = floor(uv_scaled);
 

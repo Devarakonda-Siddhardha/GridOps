@@ -1,27 +1,32 @@
 [gd_scene load_steps=10 format=3]
 
 [ext_resource type="Shader" path="res://src/environment/temple_floor.gdshader" id="1_floor_shader"]
-[ext_resource type="PackedScene" path="res://assets/models/temple_column.glb" id="2_col"]
-[ext_resource type="PackedScene" path="res://assets/models/temple_brazier.glb" id="3_brazier"]
-[ext_resource type="PackedScene" path="res://src/environment/altar.tscn" id="4_altar"]
-[ext_resource type="PackedScene" path="res://src/environment/god_avatar.tscn" id="5_god"]
+[ext_resource type="PackedScene" path="res://src/environment/temple_zeus.tscn" id="2_tzeus"]
+[ext_resource type="PackedScene" path="res://src/environment/temple_poseidon.tscn" id="3_tpos"]
+[ext_resource type="PackedScene" path="res://src/environment/temple_hades.tscn" id="4_thad"]
+[ext_resource type="PackedScene" path="res://src/environment/temple_ares.tscn" id="5_tares"]
+[ext_resource type="PackedScene" path="res://assets/models/temple_brazier.glb" id="6_brazier"]
+[ext_resource type="PackedScene" path="res://assets/models/temple_column.glb" id="7_column"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_floor"]
 render_priority = 0
 shader = ExtResource("1_floor_shader")
+shader_parameter/mesh_dimension = 140.0
+shader_parameter/tile_size = 2.5
+shader_parameter/grout_width = 0.035
 
 [sub_resource type="BoxMesh" id="BoxMesh_floor"]
 material = SubResource("ShaderMaterial_floor")
-size = Vector3(60, 1, 60)
+size = Vector3(140, 1, 140)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
-size = Vector3(60, 1, 60)
+size = Vector3(140, 1, 140)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wall_z"]
-size = Vector3(60, 8, 2)
+size = Vector3(140, 12, 2)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wall_x"]
-size = Vector3(2, 8, 60)
+size = Vector3(2, 12, 140)
 
 [node name="TempleArena" type="Node3D"]
 
@@ -41,137 +46,95 @@ collision_layer = 1
 collision_mask = 3
 
 [node name="WallN" type="CollisionShape3D" parent="BoundaryWalls"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, -29)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, -69)
 shape = SubResource("BoxShape3D_wall_z")
 
 [node name="WallS" type="CollisionShape3D" parent="BoundaryWalls"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 29)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, 69)
 shape = SubResource("BoxShape3D_wall_z")
 
 [node name="WallW" type="CollisionShape3D" parent="BoundaryWalls"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29, 4, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -69, 6, 0)
 shape = SubResource("BoxShape3D_wall_x")
 
 [node name="WallE" type="CollisionShape3D" parent="BoundaryWalls"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 29, 4, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 69, 6, 0)
 shape = SubResource("BoxShape3D_wall_x")
 
-[node name="Altars" type="Node3D" parent="."]
+[node name="DedicatedTemples" type="Node3D" parent="."]
 
-[node name="AltarZeus" parent="Altars" instance=ExtResource("4_altar")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -18)
-god = "zeus"
-altar_title = "Altar of Zeus (Wrath of Olympus)"
+[node name="TempleZeus" parent="DedicatedTemples" instance=ExtResource("2_tzeus")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -42)
 
-[node name="AltarPoseidon" parent="Altars" instance=ExtResource("4_altar")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -18, 0, 0)
-god = "poseidon"
-altar_title = "Altar of Poseidon (Tidal Cataclysm)"
+[node name="TempleHades" parent="DedicatedTemples" instance=ExtResource("4_thad")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 42)
 
-[node name="AltarHades" parent="Altars" instance=ExtResource("4_altar")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 18)
-god = "hades"
-altar_title = "Altar of Hades (Soul Leech)"
+[node name="TemplePoseidon" parent="DedicatedTemples" instance=ExtResource("3_tpos")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -42, 0, 0)
 
-[node name="AltarAres" parent="Altars" instance=ExtResource("4_altar")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 18, 0, 0)
-god = "ares"
-altar_title = "Altar of Ares (Bloodlust of War)"
+[node name="TempleAres" parent="DedicatedTemples" instance=ExtResource("5_tares")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 42, 0, 0)
 
-[node name="Gods" type="Node3D" parent="."]
+[node name="CentralPlazaDecor" type="Node3D" parent="."]
 
-[node name="GodZeus" parent="Gods" instance=ExtResource("5_god")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -22)
-god_id = "zeus"
-title = "⚡ ZEUS, KING OF OLYMPUS"
+[node name="BrazierNW" parent="CentralPlazaDecor" instance=ExtResource("6_brazier")]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, -18, 0, -18)
 
-[node name="GodPoseidon" parent="Gods" instance=ExtResource("5_god")]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -22, 0, 0)
-god_id = "poseidon"
-title = "🔱 POSEIDON, MASTER OF OCEANS"
-
-[node name="GodHades" parent="Gods" instance=ExtResource("5_god")]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 22)
-god_id = "hades"
-title = "💀 HADES, SOVEREIGN OF THE DEAD"
-
-[node name="GodAres" parent="Gods" instance=ExtResource("5_god")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 22, 0, 0)
-god_id = "ares"
-title = "⚔️ ARES, GOD OF WAR"
-
-[node name="Columns" type="Node3D" parent="."]
-
-[node name="Col1" parent="Columns" instance=ExtResource("2_col")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24, 0, -24)
-
-[node name="Col2" parent="Columns" instance=ExtResource("2_col")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, -24)
-
-[node name="Col3" parent="Columns" instance=ExtResource("2_col")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -24)
-
-[node name="Col4" parent="Columns" instance=ExtResource("2_col")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0, -24)
-
-[node name="Col5" parent="Columns" instance=ExtResource("2_col")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24, 0, 24)
-
-[node name="Col6" parent="Columns" instance=ExtResource("2_col")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, 24)
-
-[node name="Col7" parent="Columns" instance=ExtResource("2_col")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 24)
-
-[node name="Col8" parent="Columns" instance=ExtResource("2_col")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0, 24)
-
-[node name="Col9" parent="Columns" instance=ExtResource("2_col")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24, 0, -12)
-
-[node name="Col10" parent="Columns" instance=ExtResource("2_col")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0, -12)
-
-[node name="Col11" parent="Columns" instance=ExtResource("2_col")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24, 0, 12)
-
-[node name="Col12" parent="Columns" instance=ExtResource("2_col")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0, 12)
-
-[node name="Braziers" type="Node3D" parent="."]
-
-[node name="Brazier1" parent="Braziers" instance=ExtResource("3_brazier")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, -8)
-
-[node name="Light1" type="OmniLight3D" parent="Braziers/Brazier1"]
+[node name="LightNW" type="OmniLight3D" parent="CentralPlazaDecor/BrazierNW"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
-light_color = Color(1, 0.6, 0.2, 1)
-light_energy = 3.5
-omni_range = 10.0
+light_color = Color(1, 0.65, 0.2, 1)
+light_energy = 4.0
+omni_range = 12.0
 
-[node name="Brazier2" parent="Braziers" instance=ExtResource("3_brazier")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -8)
+[node name="BrazierNE" parent="CentralPlazaDecor" instance=ExtResource("6_brazier")]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 18, 0, -18)
 
-[node name="Light2" type="OmniLight3D" parent="Braziers/Brazier2"]
+[node name="LightNE" type="OmniLight3D" parent="CentralPlazaDecor/BrazierNE"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
-light_color = Color(1, 0.6, 0.2, 1)
-light_energy = 3.5
-omni_range = 10.0
+light_color = Color(1, 0.65, 0.2, 1)
+light_energy = 4.0
+omni_range = 12.0
 
-[node name="Brazier3" parent="Braziers" instance=ExtResource("3_brazier")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 8)
+[node name="BrazierSW" parent="CentralPlazaDecor" instance=ExtResource("6_brazier")]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, -18, 0, 18)
 
-[node name="Light3" type="OmniLight3D" parent="Braziers/Brazier3"]
+[node name="LightSW" type="OmniLight3D" parent="CentralPlazaDecor/BrazierSW"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
-light_color = Color(1, 0.6, 0.2, 1)
-light_energy = 3.5
-omni_range = 10.0
+light_color = Color(1, 0.65, 0.2, 1)
+light_energy = 4.0
+omni_range = 12.0
 
-[node name="Brazier4" parent="Braziers" instance=ExtResource("3_brazier")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 8)
+[node name="BrazierSE" parent="CentralPlazaDecor" instance=ExtResource("6_brazier")]
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 18, 0, 18)
 
-[node name="Light4" type="OmniLight3D" parent="Braziers/Brazier4"]
+[node name="LightSE" type="OmniLight3D" parent="CentralPlazaDecor/BrazierSE"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
-light_color = Color(1, 0.6, 0.2, 1)
-light_energy = 3.5
-omni_range = 10.0
+light_color = Color(1, 0.65, 0.2, 1)
+light_energy = 4.0
+omni_range = 12.0
+
+[node name="PromenadeColumns" type="Node3D" parent="CentralPlazaDecor"]
+
+[node name="ColN1" parent="CentralPlazaDecor/PromenadeColumns" instance=ExtResource("7_column")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, -26)
+
+[node name="ColN2" parent="CentralPlazaDecor/PromenadeColumns" instance=ExtResource("7_column")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, -26)
+
+[node name="ColS1" parent="CentralPlazaDecor/PromenadeColumns" instance=ExtResource("7_column")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 26)
+
+[node name="ColS2" parent="CentralPlazaDecor/PromenadeColumns" instance=ExtResource("7_column")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 26)
+
+[node name="ColW1" parent="CentralPlazaDecor/PromenadeColumns" instance=ExtResource("7_column")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26, 0, -10)
+
+[node name="ColW2" parent="CentralPlazaDecor/PromenadeColumns" instance=ExtResource("7_column")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26, 0, 10)
+
+[node name="ColE1" parent="CentralPlazaDecor/PromenadeColumns" instance=ExtResource("7_column")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, 0, -10)
+
+[node name="ColE2" parent="CentralPlazaDecor/PromenadeColumns" instance=ExtResource("7_column")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, 0, 10)

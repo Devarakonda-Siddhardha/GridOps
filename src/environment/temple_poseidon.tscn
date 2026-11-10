@@ -1,0 +1,99 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="PackedScene" path="res://assets/models/temple_poseidon.glb" id="1_mesh"]
+[ext_resource type="PackedScene" path="res://src/environment/god_avatar.tscn" id="2_god"]
+[ext_resource type="PackedScene" path="res://src/environment/altar.tscn" id="3_altar"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(16.2, 0.9, 23.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wall_side"]
+size = Vector3(0.6, 5.0, 14.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wall_back"]
+size = Vector3(8.0, 5.0, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_dais"]
+size = Vector3(5.5, 0.6, 4.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_col_row"]
+size = Vector3(14.0, 5.0, 1.0)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_col_flank"]
+size = Vector3(1.0, 5.0, 16.0)
+
+[node name="TemplePoseidon" type="Node3D"]
+
+[node name="Model" parent="." instance=ExtResource("1_mesh")]
+
+[node name="Collisions" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 3
+
+[node name="FloorCol" type="CollisionShape3D" parent="Collisions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+shape = SubResource("BoxShape3D_floor")
+
+[node name="LeftWallCol" type="CollisionShape3D" parent="Collisions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.8, 3.4, -1.0)
+shape = SubResource("BoxShape3D_wall_side")
+
+[node name="RightWallCol" type="CollisionShape3D" parent="Collisions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.8, 3.4, -1.0)
+shape = SubResource("BoxShape3D_wall_side")
+
+[node name="BackWallCol" type="CollisionShape3D" parent="Collisions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.4, -8.0)
+shape = SubResource("BoxShape3D_wall_back")
+
+[node name="DaisCol" type="CollisionShape3D" parent="Collisions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -5.0)
+shape = SubResource("BoxShape3D_dais")
+
+[node name="RearColCol" type="CollisionShape3D" parent="Collisions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.4, -9.4)
+shape = SubResource("BoxShape3D_col_row")
+
+[node name="LeftFlankCol" type="CollisionShape3D" parent="Collisions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.8, 3.4, 0)
+shape = SubResource("BoxShape3D_col_flank")
+
+[node name="RightFlankCol" type="CollisionShape3D" parent="Collisions"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.8, 3.4, 0)
+shape = SubResource("BoxShape3D_col_flank")
+
+[node name="Lights" type="Node3D" parent="."]
+
+[node name="LightFrontPediment" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.5, 9.8)
+light_color = Color(0.2, 0.95, 0.85, 1)
+light_energy = 4.0
+omni_range = 14.0
+
+[node name="LightLeftBrazier" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6, 2.3, -3.0)
+light_color = Color(0.2, 0.95, 0.85, 1)
+light_energy = 4.5
+omni_range = 10.0
+
+[node name="LightRightBrazier" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6, 2.3, -3.0)
+light_color = Color(0.2, 0.95, 0.85, 1)
+light_energy = 4.5
+omni_range = 10.0
+
+[node name="LightSanctumHalo" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.0, -5.0)
+light_color = Color(0.3, 1.0, 0.9, 1)
+light_energy = 6.0
+omni_range = 16.0
+
+[node name="HighAltar" parent="." instance=ExtResource("3_altar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, -1.5)
+god = "poseidon"
+altar_title = "High Altar of Poseidon (Tidal Cataclysm)"
+
+[node name="GodPoseidon" parent="." instance=ExtResource("2_god")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.45, -5.0)
+god_id = "poseidon"
+title = "🔱 POSEIDON, MASTER OF OCEANS"
