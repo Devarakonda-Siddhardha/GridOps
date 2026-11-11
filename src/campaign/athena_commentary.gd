@@ -29,7 +29,7 @@ func play_athena(key: String, force: bool = false):
 	if not force and (current_time - last_commentary_time) < commentary_cooldown:
 		return
 	last_commentary_time = current_time
-	SoundManager.play_dialogue(key, force)
+	SoundManager.play_athena(key, force)
 
 func _on_hero_class_changed(new_class: String):
 	if voiced_classes.has(new_class):

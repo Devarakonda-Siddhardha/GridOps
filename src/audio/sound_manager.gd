@@ -7,6 +7,8 @@ var pool_size = 16
 var players = []
 var next_player_idx = 0
 var dialogue_player: AudioStreamPlayer
+var athena_player: AudioStreamPlayer
+var music_player: AudioStreamPlayer
 
 var last_dialogue_time: float = -10.0
 var min_dialogue_interval: float = 1.2
@@ -410,6 +412,26 @@ func _ready():
 	dialogue_player.volume_db = 4.0
 	add_child(dialogue_player)
 
+	# Dedicated Athena player (Sudha Devarakonda)
+	athena_player = AudioStreamPlayer.new()
+	athena_player.volume_db = 5.5
+	add_child(athena_player)
+
+	# Background Ambience / Music player
+	music_player = AudioStreamPlayer.new()
+	music_player.volume_db = -8.0
+	add_child(music_player)
+	_start_bgm()
+
+func _start_bgm():
+	if sounds.has("prayer"):
+		music_player.stream = sounds["prayer"]
+		music_player.play()
+		music_player.finished.connect(func():
+			if music_player:
+				music_player.play()
+		)
+
 func _load_sound(sound_name: String, path: String):
 	var s = load(path)
 	if s:
@@ -448,4 +470,20 @@ func play_dialogue(key: String, force: bool = false):
 		var dur = 3.5
 		if stream is AudioStream:
 			dur = max(2.5, stream.get_length())
+		emit_signal("dialogue_started", info["speaker"], info["text"], info["color"], dur)
+
+func play_athena(key: String, force: bool = false):
+	if not sounds.has(key):
+		return
+
+	var stream = sounds[key]
+	athena_player.stream = stream
+	athena_player.pitch_scale = 1.0
+	athena_player.play()
+
+	if dialogues.has(key):
+		var info = dialogues[key]
+		var dur = 4.0
+		if stream is AudioStream:
+			dur = max(3.0, stream.get_length())
 		emit_signal("dialogue_started", info["speaker"], info["text"], info["color"], dur)

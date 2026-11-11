@@ -86,7 +86,11 @@ func _ready():
 		var current_god = god
 		slot.gui_input.connect(func(ev):
 			if (ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT) or (ev is InputEventScreenTouch and ev.pressed):
-				DivineManager.cast_power(current_god)
+				var pl = get_tree().get_first_node_in_group("player")
+				if pl and pl.has_method("_try_cast"):
+					pl._try_cast(current_god)
+				else:
+					DivineManager.cast_power(current_god)
 		)
 
 func _create_dialogue_ui():
@@ -461,8 +465,7 @@ func _setup_touch_controls():
 	center_icon.text = "🏛️"
 	center_icon.position = Vector2(72, 70)
 	center_icon.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	center_icon.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	center_icon.theme_override_font_sizes/font_size = 24
+	center_icon.add_theme_font_size_override("font_size", 24)
 	center_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	dpad.add_child(center_icon)
 

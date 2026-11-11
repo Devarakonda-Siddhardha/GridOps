@@ -72,9 +72,16 @@ func can_cast(god: String) -> bool:
 		return false
 	return powers[god]["unlocked"] and powers[god]["timer"] <= 0.0
 
-func cast_power(god: String, origin: Vector3, forward_dir: Vector3) -> bool:
+func cast_power(god: String, origin: Vector3 = Vector3.ZERO, forward_dir: Vector3 = Vector3.ZERO) -> bool:
 	if not can_cast(god):
 		return false
+
+	var p = get_tree().get_first_node_in_group("player")
+	if origin == Vector3.ZERO and p:
+		origin = p.global_position
+		forward_dir = -p.transform.basis.z
+	elif forward_dir == Vector3.ZERO:
+		forward_dir = Vector3.FORWARD
 
 	var info = powers[god]
 	info["timer"] = info["cooldown"]

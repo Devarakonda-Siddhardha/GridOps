@@ -45,16 +45,24 @@ func _process(delta):
 				_complete_prayer()
 		else:
 			pray_time = max(0.0, pray_time - delta * 2.0)
+			if player and player.has_method("stop_praying") and player.current_state == player.State.PRAY:
+				player.stop_praying()
 			if prompt_label:
 				prompt_label.text = "[E] Pray to " + god.capitalize()
 				prompt_label.visible = true
 	else:
 		pray_time = 0.0
+		var player = get_tree().get_first_node_in_group("player")
+		if player and player.has_method("stop_praying") and player.current_state == player.State.PRAY:
+			player.stop_praying()
 		if prompt_label:
 			prompt_label.visible = false
 
 func _complete_prayer():
 	is_attuned = true
+	var player = get_tree().get_first_node_in_group("player")
+	if player and player.has_method("stop_praying"):
+		player.stop_praying()
 	DivineManager.unlock_blessing(god)
 	SoundManager.play("prayer", 1.0, 3.0)
 	SoundManager.play_dialogue("god_" + god + "_blessing", true)
