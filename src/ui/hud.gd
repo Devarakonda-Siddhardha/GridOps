@@ -276,16 +276,50 @@ func _create_boss_bar_ui():
 	vbox.add_child(boss_hp_bar)
 
 func _setup_victory_panel():
-	var btn_vbox = victory_panel.get_node_or_null("VBox")
-	if btn_vbox and not btn_vbox.has_node("NextLevelBtn"):
-		next_level_btn = Button.new()
-		next_level_btn.name = "NextLevelBtn"
-		next_level_btn.text = "⚔ ADVANCE TO NEXT CHAPTER ⚔"
-		next_level_btn.custom_minimum_size = Vector2(280, 48)
-		next_level_btn.add_theme_font_size_override("font_size", 16)
-		next_level_btn.connect("pressed", Callable(self, "_on_next_level_pressed"))
-		btn_vbox.add_child(next_level_btn)
-		btn_vbox.move_child(next_level_btn, 0)
+	var btn_vbox = victory_panel.get_node_or_null("Center/VBox")
+	if btn_vbox:
+		if not btn_vbox.has_node("NextLevelBtn"):
+			next_level_btn = Button.new()
+			next_level_btn.name = "NextLevelBtn"
+			next_level_btn.text = "⚔ ADVANCE TO NEXT CHAPTER ⚔"
+			next_level_btn.custom_minimum_size = Vector2(320, 52)
+			next_level_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+			var style_gold = StyleBoxFlat.new()
+			style_gold.bg_color = Color(0.85, 0.65, 0.15, 0.95)
+			style_gold.set_corner_radius_all(8)
+			style_gold.border_color = Color(1.0, 0.9, 0.5)
+			style_gold.set_border_width_all(2)
+			next_level_btn.add_theme_stylebox_override("normal", style_gold)
+			next_level_btn.add_theme_color_override("font_color", Color(0.08, 0.08, 0.1))
+			next_level_btn.add_theme_font_size_override("font_size", 18)
+			next_level_btn.pressed.connect(Callable(self, "_on_next_level_pressed"))
+			btn_vbox.add_child(next_level_btn)
+			btn_vbox.move_child(next_level_btn, 2)
+
+		if not btn_vbox.has_node("MainMenuBtn"):
+			var menu_btn = Button.new()
+			menu_btn.name = "MainMenuBtn"
+			menu_btn.text = "🏛 RETURN TO MAIN MENU"
+			menu_btn.custom_minimum_size = Vector2(260, 44)
+			menu_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+			menu_btn.add_theme_font_size_override("font_size", 16)
+			menu_btn.pressed.connect(func():
+				get_tree().change_scene_to_file("res://src/ui/main_menu.tscn")
+			)
+			btn_vbox.add_child(menu_btn)
+
+	var go_vbox = game_over_panel.get_node_or_null("Center/VBox")
+	if go_vbox and not go_vbox.has_node("MainMenuBtn"):
+		var go_menu_btn = Button.new()
+		go_menu_btn.name = "MainMenuBtn"
+		go_menu_btn.text = "🏛 RETURN TO MAIN MENU"
+		go_menu_btn.custom_minimum_size = Vector2(240, 44)
+		go_menu_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		go_menu_btn.add_theme_font_size_override("font_size", 16)
+		go_menu_btn.pressed.connect(func():
+			get_tree().change_scene_to_file("res://src/ui/main_menu.tscn")
+		)
+		go_vbox.add_child(go_menu_btn)
 
 func _on_boss_spawned(boss_name: String, max_hp: float):
 	if boss_bar_container:
@@ -395,12 +429,20 @@ func show_banner(title: String, subtitle: String):
 	tween.tween_property(banner_panel, "modulate:a", 0.0, 0.5)
 
 func show_victory(custom_title: String = "VICTORY ACHIEVED!", custom_sub: String = "The Roman Cohort has been routed!"):
-	var v_title = victory_panel.get_node_or_null("VBox/Title")
+	var v_title = victory_panel.get_node_or_null("Center/VBox/Title")
 	if v_title:
 		v_title.text = custom_title
-	var v_sub = victory_panel.get_node_or_null("VBox/Subtitle")
+	var v_sub = victory_panel.get_node_or_null("Center/VBox/Desc")
 	if v_sub:
 		v_sub.text = custom_sub
+	if next_level_btn:
+		var nxt_chapter = CampaignManager.current_level + 1
+		if nxt_chapter <= 10:
+			next_level_btn.text = "⚔ ADVANCE TO CHAPTER %d ⚔" % nxt_chapter
+			next_level_btn.visible = true
+		else:
+			next_level_btn.text = "🏆 CAMPAIGN CONQUERED! 🏆"
+			next_level_btn.visible = true
 	victory_panel.visible = true
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 

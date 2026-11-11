@@ -1,0 +1,490 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/ui/main_menu.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/main_menu_bg.jpg" id="2_bg"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
+bg_color = Color(0.1, 0.12, 0.18, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.85, 0.72, 0.28, 0.9)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_play_btn"]
+bg_color = Color(0.85, 0.65, 0.15, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.9, 0.55, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal"]
+bg_color = Color(0.06, 0.07, 0.11, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.9, 0.78, 0.3, 0.95)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Vignette" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.05, 0.08, 0.55)
+
+[node name="MainLayout" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 64
+theme_override_constants/margin_top = 48
+theme_override_constants/margin_right = 64
+theme_override_constants/margin_bottom = 48
+
+[node name="VBox" type="VBoxContainer" parent="MainLayout"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Header" type="VBoxContainer" parent="MainLayout/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Emblem" type="Label" parent="MainLayout/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 28
+text = "🏛️ OLYMPIAN EPIC SAGA"
+
+[node name="Title" type="Label" parent="MainLayout/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 12
+theme_override_font_sizes/font_size = 54
+text = "PANTHEON'S WRATH"
+
+[node name="Subtitle" type="Label" parent="MainLayout/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.88, 0.8, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 20
+text = "CHAMPIONS OF HELLAS • CAMPAIGN EDITION"
+
+[node name="HeroBadge" type="Label" parent="MainLayout/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "✦ Nikolaos of Sparta — Polemarch of Hellas & Chosen Champion of Olympus"
+
+[node name="Spacer" type="Control" parent="MainLayout/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ButtonContainer" type="VBoxContainer" parent="MainLayout/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="PlayBtn" type="Button" parent="MainLayout/VBox/ButtonContainer"]
+custom_minimum_size = Vector2(320, 56)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_colors/font_color = Color(0.08, 0.08, 0.1, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_play_btn")
+text = "⚔ START CAMPAIGN"
+
+[node name="ChapterSelectBtn" type="Button" parent="MainLayout/VBox/ButtonContainer"]
+custom_minimum_size = Vector2(320, 48)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_colors/font_color = Color(1, 0.95, 0.8, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+text = "🗺 CHAPTER SELECT (1–10)"
+
+[node name="SettingsBtn" type="Button" parent="MainLayout/VBox/ButtonContainer"]
+custom_minimum_size = Vector2(320, 48)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_colors/font_color = Color(1, 0.95, 0.8, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+text = "⚙ SETTINGS & AUDIO"
+
+[node name="CodexBtn" type="Button" parent="MainLayout/VBox/ButtonContainer"]
+custom_minimum_size = Vector2(320, 48)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_colors/font_color = Color(1, 0.95, 0.8, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+text = "📜 HELLENIC CODEX & LORE"
+
+[node name="QuitBtn" type="Button" parent="MainLayout/VBox/ButtonContainer"]
+custom_minimum_size = Vector2(320, 44)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_colors/font_color = Color(0.85, 0.45, 0.45, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+text = "🚪 EXIT GAME"
+
+[node name="Footer" type="Label" parent="MainLayout/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.65, 0.7, 1)
+theme_override_font_sizes/font_size = 12
+text = "Godot 4.7 • Pallas Athena voiced exclusively by Sudha Devarakonda (ElevenLabs v4) • Sketchfab 3D Assets"
+
+[node name="ChapterModal" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.03, 0.05, 0.85)
+
+[node name="Panel" type="PanelContainer" parent="ChapterModal"]
+custom_minimum_size = Vector2(940, 620)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -470.0
+offset_top = -310.0
+offset_right = 470.0
+offset_bottom = 310.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal")
+
+[node name="VBox" type="VBoxContainer" parent="ChapterModal/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TitleBar" type="HBoxContainer" parent="ChapterModal/Panel/VBox"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="ChapterModal/Panel/VBox/TitleBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_font_sizes/font_size = 22
+text = "  🗺️ 10-CHAPTER CAMPAIGN: RECLAIM HELLAS"
+
+[node name="CloseBtn" type="Button" parent="ChapterModal/Panel/VBox/TitleBar"]
+custom_minimum_size = Vector2(100, 36)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+text = "✖ CLOSE"
+
+[node name="Scroll" type="ScrollContainer" parent="ChapterModal/Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ChapterList" type="VBoxContainer" parent="ChapterModal/Panel/VBox/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="SettingsModal" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.03, 0.05, 0.85)
+
+[node name="Panel" type="PanelContainer" parent="SettingsModal"]
+custom_minimum_size = Vector2(760, 560)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -380.0
+offset_top = -280.0
+offset_right = 380.0
+offset_bottom = 280.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal")
+
+[node name="VBox" type="VBoxContainer" parent="SettingsModal/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TitleBar" type="HBoxContainer" parent="SettingsModal/Panel/VBox"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="SettingsModal/Panel/VBox/TitleBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_font_sizes/font_size = 22
+text = "  ⚙ GAME & AUDIO SETTINGS"
+
+[node name="CloseBtn" type="Button" parent="SettingsModal/Panel/VBox/TitleBar"]
+custom_minimum_size = Vector2(100, 36)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+text = "✖ CLOSE"
+
+[node name="Scroll" type="ScrollContainer" parent="SettingsModal/Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="VBox" type="VBoxContainer" parent="SettingsModal/Panel/VBox/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
+
+[node name="AudioHeader" type="Label" parent="SettingsModal/Panel/VBox/Scroll/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "🔊 AUDIO VOLUMES"
+
+[node name="MasterRow" type="HBoxContainer" parent="SettingsModal/Panel/VBox/Scroll/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="SettingsModal/Panel/VBox/Scroll/VBox/MasterRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Master Volume"
+
+[node name="Slider" type="HSlider" parent="SettingsModal/Panel/VBox/Scroll/VBox/MasterRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+value = 85.0
+
+[node name="AthenaRow" type="HBoxContainer" parent="SettingsModal/Panel/VBox/Scroll/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="SettingsModal/Panel/VBox/Scroll/VBox/AthenaRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Athena Voice Commentary"
+
+[node name="Slider" type="HSlider" parent="SettingsModal/Panel/VBox/Scroll/VBox/AthenaRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+value = 100.0
+
+[node name="SfxRow" type="HBoxContainer" parent="SettingsModal/Panel/VBox/Scroll/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="SettingsModal/Panel/VBox/Scroll/VBox/SfxRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Combat SFX"
+
+[node name="Slider" type="HSlider" parent="SettingsModal/Panel/VBox/Scroll/VBox/SfxRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+value = 85.0
+
+[node name="MusicRow" type="HBoxContainer" parent="SettingsModal/Panel/VBox/Scroll/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="SettingsModal/Panel/VBox/Scroll/VBox/MusicRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Atmospheric Music / Ambient"
+
+[node name="Slider" type="HSlider" parent="SettingsModal/Panel/VBox/Scroll/VBox/MusicRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+value = 75.0
+
+[node name="VideoHeader" type="Label" parent="SettingsModal/Panel/VBox/Scroll/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "🖥️ DISPLAY & CONTROLS"
+
+[node name="DisplayRow" type="HBoxContainer" parent="SettingsModal/Panel/VBox/Scroll/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="SettingsModal/Panel/VBox/Scroll/VBox/DisplayRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Window Mode"
+
+[node name="FullscreenBtn" type="Button" parent="SettingsModal/Panel/VBox/Scroll/VBox/DisplayRow"]
+custom_minimum_size = Vector2(160, 36)
+layout_mode = 2
+text = "FULLSCREEN"
+
+[node name="TouchRow" type="HBoxContainer" parent="SettingsModal/Panel/VBox/Scroll/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="SettingsModal/Panel/VBox/Scroll/VBox/TouchRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "On-Screen Touch Controls"
+
+[node name="TouchToggleBtn" type="Button" parent="SettingsModal/Panel/VBox/Scroll/VBox/TouchRow"]
+custom_minimum_size = Vector2(160, 36)
+layout_mode = 2
+text = "TOGGLE"
+
+[node name="CodexModal" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.03, 0.05, 0.85)
+
+[node name="Panel" type="PanelContainer" parent="CodexModal"]
+custom_minimum_size = Vector2(860, 580)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -430.0
+offset_top = -290.0
+offset_right = 430.0
+offset_bottom = 290.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal")
+
+[node name="VBox" type="VBoxContainer" parent="CodexModal/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TitleBar" type="HBoxContainer" parent="CodexModal/Panel/VBox"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="CodexModal/Panel/VBox/TitleBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_font_sizes/font_size = 22
+text = "  📜 HELLENIC CODEX & LORE ARCHIVE"
+
+[node name="CloseBtn" type="Button" parent="CodexModal/Panel/VBox/TitleBar"]
+custom_minimum_size = Vector2(100, 36)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+text = "✖ CLOSE"
+
+[node name="Scroll" type="ScrollContainer" parent="CodexModal/Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Content" type="VBoxContainer" parent="CodexModal/Panel/VBox/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 14
+
+[node name="HeroSection" type="Label" parent="CodexModal/Panel/VBox/Scroll/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_font_sizes/font_size = 18
+text = "⚔ NIKOLAOS OF SPARTA — THE LION OF MOUNT TAYGETOS"
+
+[node name="HeroText" type="Label" parent="CodexModal/Panel/VBox/Scroll/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
+theme_override_font_sizes/font_size = 14
+text = "A direct descendant of King Leonidas I, Nikolaos once served as Polemarch of the Spartan army. When Roman legions swept across Greece, despoiling temples and chaining citizens in iron cages, Nikolaos swore an oath to rise from solitary exile, liberate his countrymen, assemble the unbreakable Greek Phalanx, and march to Rome to defeat Consul Titus Claudius."
+autowrap_mode = 3
+
+[node name="GodsSection" type="Label" parent="CodexModal/Panel/VBox/Scroll/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "⚡ THE OLYMPIAN PANTHEON & DIVINE POWERS"
+
+[node name="GodsText" type="Label" parent="CodexModal/Panel/VBox/Scroll/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
+theme_override_font_sizes/font_size = 14
+text = "• ZEUS [1 / Q]: Wrath of Olympus — Calls down celestial thunderbolts to disintegrate approaching legions.
+• POSEIDON [2 / F]: Tidal Surge — Summons an oceanic crest that knocks back and stuns enemies.
+• HADES [3 / R]: Abyssal Siphon — Drains enemy soul vitality to restore health and stamina.
+• ARES [4 / C]: Spartan Berserk — Ignites warrior bloodlust, granting +220% melee damage boost."
+autowrap_mode = 3
+
+[node name="PhalanxSection" type="Label" parent="CodexModal/Panel/VBox/Scroll/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.6, 0.2, 1)
+theme_override_font_sizes/font_size = 18
+text = "🛡️ GREEK PHALANX TACTICAL COMMANDS"
+
+[node name="PhalanxText" type="Label" parent="CodexModal/Panel/VBox/Scroll/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.88, 0.95, 1)
+theme_override_font_sizes/font_size = 14
+text = "• [G] CHARGE: Commands your rescued hoplites, archers, and cavalry to charge forward.
+• [H] SHIELD WALL: Hoplites lock bronze shields in dense formation, gaining 65% damage reduction!
+• [V] REGROUP: Immediately orders all allied soldiers to fall back to Nikolaos in defensive perimeter."
+autowrap_mode = 3
+
+[connection signal="pressed" from="MainLayout/VBox/ButtonContainer/PlayBtn" to="." method="_on_play_pressed"]
+[connection signal="pressed" from="MainLayout/VBox/ButtonContainer/ChapterSelectBtn" to="." method="_on_chapter_select_pressed"]
+[connection signal="pressed" from="MainLayout/VBox/ButtonContainer/SettingsBtn" to="." method="_on_settings_pressed"]
+[connection signal="pressed" from="MainLayout/VBox/ButtonContainer/CodexBtn" to="." method="_on_codex_pressed"]
+[connection signal="pressed" from="MainLayout/VBox/ButtonContainer/QuitBtn" to="." method="_on_quit_pressed"]
+[connection signal="pressed" from="ChapterModal/Panel/VBox/TitleBar/CloseBtn" to="." method="_on_close_modal_pressed"]
+[connection signal="pressed" from="SettingsModal/Panel/VBox/TitleBar/CloseBtn" to="." method="_on_close_modal_pressed"]
+[connection signal="pressed" from="CodexModal/Panel/VBox/TitleBar/CloseBtn" to="." method="_on_close_modal_pressed"]

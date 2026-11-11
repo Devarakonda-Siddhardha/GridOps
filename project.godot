@@ -8,7 +8,7 @@ config_version=5
 
 config/name="Pantheon's Wrath: Champions of Hellas"
 config/description="3D Greek Action Combat game with Olympian blessings and Tartarus demons"
-run/main_scene="res://src/levels/level1_sanctuary.tscn"
+run/main_scene="res://src/ui/main_menu.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 
 [autoload]
