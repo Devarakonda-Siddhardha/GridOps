@@ -90,12 +90,12 @@ func _shoot_arrow(dir: Vector3):
 		return
 
 	var arrow = arrow_scene.instantiate()
-	arrow.global_position = global_position + Vector3(0, 1.3, 0)
 	arrow.direction = dir.normalized()
 	arrow.speed = 32.0
 	arrow.damage = arrow_damage
 	arrow.is_enemy_arrow = true
 	get_parent().add_child(arrow)
+	arrow.global_position = global_position + Vector3(0, 1.3, 0)
 	SoundManager.play("arrow_shoot", randf_range(0.95, 1.05))
 
 	await get_tree().create_timer(0.3).timeout

@@ -28,9 +28,10 @@ background_mode = 2
 sky = SubResource("Sky_rome")
 ambient_light_source = 3
 ambient_light_color = Color(0.95, 0.85, 0.75, 1)
-ambient_light_energy = 1.15
-tonemap_mode = 2
-glow_enabled = true
+ambient_light_energy = 0.5
+tonemap_mode = 3
+tonemap_exposure = 0.45
+glow_enabled = false
 glow_intensity = 0.7
 glow_bloom = 0.25
 
@@ -65,7 +66,7 @@ environment = SubResource("Environment_rome")
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.707107, -0.612372, 0.353553, 0, 0.5, 0.866025, -0.707107, -0.612372, 0.353553, 0, 40, 0)
 light_color = Color(1, 0.90, 0.75, 1)
-light_energy = 1.45
+light_energy = 0.95
 shadow_enabled = true
 
 [node name="ArenaFloor" type="StaticBody3D" parent="."]
@@ -80,13 +81,18 @@ mesh = SubResource("CylinderMesh_arena_floor")
 shape = SubResource("CylinderShape3D_arena_floor")
 
 [node name="CameraPivot" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 2, 38)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 38)
 script = ExtResource("2_cam")
 
-[node name="Camera3D" type="Camera3D" parent="CameraPivot"]
-transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 3, 7.5)
+[node name="SpringArm3D" type="SpringArm3D" parent="CameraPivot"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 0, 0)
+spring_length = 5.5
+margin = 0.2
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot/SpringArm3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5.5)
 current = true
-fov = 68.0
+fov = 70.0
 
 [node name="HUD" parent="." instance=ExtResource("3_hud")]
 

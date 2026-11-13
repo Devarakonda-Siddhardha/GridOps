@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://src/enemies/roman_centurion.gd" id="1_script"]
-[ext_resource type="PackedScene" path="res://assets/models/roman_centurion.glb" id="2_model"]
+[ext_resource type="Script" path="res://src/util/auto_fit.gd" id="2_model"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.5
@@ -16,7 +16,13 @@ script = ExtResource("1_script")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("CapsuleShape3D_1")
 
-[node name="Model" parent="." instance=ExtResource("2_model")]
+[node name="Model" type="Node3D" parent="."]
+script = ExtResource("2_model")
+model_path = "res://assets/models/sf_roman_soldier.glb"
+target_size = 2.2
+yaw_degrees = 180.0
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Model"]
 
 [node name="HpLabel" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.4, 0)

@@ -91,7 +91,7 @@ transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, -18, 0, -18)
 [node name="LightNW" type="OmniLight3D" parent="CentralPlazaDecor/BrazierNW"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
 light_color = Color(1, 0.65, 0.2, 1)
-light_energy = 4.0
+light_energy = 1.6
 omni_range = 12.0
 
 [node name="BrazierNE" parent="CentralPlazaDecor" instance=ExtResource("6_brazier")]
@@ -100,7 +100,7 @@ transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 18, 0, -18)
 [node name="LightNE" type="OmniLight3D" parent="CentralPlazaDecor/BrazierNE"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
 light_color = Color(1, 0.65, 0.2, 1)
-light_energy = 4.0
+light_energy = 1.6
 omni_range = 12.0
 
 [node name="BrazierSW" parent="CentralPlazaDecor" instance=ExtResource("6_brazier")]
@@ -109,7 +109,7 @@ transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, -18, 0, 18)
 [node name="LightSW" type="OmniLight3D" parent="CentralPlazaDecor/BrazierSW"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
 light_color = Color(1, 0.65, 0.2, 1)
-light_energy = 4.0
+light_energy = 1.6
 omni_range = 12.0
 
 [node name="BrazierSE" parent="CentralPlazaDecor" instance=ExtResource("6_brazier")]
@@ -118,7 +118,7 @@ transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 18, 0, 18)
 [node name="LightSE" type="OmniLight3D" parent="CentralPlazaDecor/BrazierSE"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
 light_color = Color(1, 0.65, 0.2, 1)
-light_energy = 4.0
+light_energy = 1.6
 omni_range = 12.0
 
 [node name="PromenadeColumns" type="Node3D" parent="CentralPlazaDecor"]

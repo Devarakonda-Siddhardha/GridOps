@@ -5,6 +5,7 @@ extends Node3D
 @onready var spawner = $DemonSpawner
 
 func _ready():
+	Scenery.populate(self)
 	CampaignManager.current_level = 1
 	CampaignManager.army_count = 0
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)

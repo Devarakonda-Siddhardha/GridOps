@@ -8,6 +8,7 @@ extends Node3D
 var boss_defeated: bool = false
 
 func _ready():
+	Scenery.populate(self)
 	CampaignManager.current_level = 10
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 

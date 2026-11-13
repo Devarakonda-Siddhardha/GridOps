@@ -9,6 +9,7 @@ var remaining_enemies: int = 0
 var is_cleared: bool = false
 
 func _ready():
+	Scenery.populate(self)
 	CampaignManager.current_level = 7
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
