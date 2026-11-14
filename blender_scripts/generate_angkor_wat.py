@@ -74,22 +74,21 @@ def create_pbr_material(name, diff_tex=None, norm_tex=None, rough_tex=None,
     bsdf.inputs["Metallic"].default_value = metallic
     links.new(bsdf.outputs["BSDF"], node_out.inputs["Surface"])
 
-    # Box-projection coordinates & mapping for seamless texturing
+    # UV coordinates & mapping (glTF 2.0 compatible so Three.js renders all textures & normal maps)
     node_coord = nodes.new(type="ShaderNodeTexCoord")
     node_coord.location = (-800, 0)
 
     node_mapping = nodes.new(type="ShaderNodeMapping")
     node_mapping.location = (-600, 0)
-    node_mapping.inputs["Scale"].default_value = (tex_scale, tex_scale, tex_scale)
-    links.new(node_coord.outputs["Object"], node_mapping.inputs["Vector"])
+    node_mapping.inputs["Scale"].default_value = (tex_scale, tex_scale, 1.0)
+    links.new(node_coord.outputs["UV"], node_mapping.inputs["Vector"])
 
     x_offset = -300
     if diff_tex and os.path.exists(diff_tex):
         img_diff = bpy.data.images.load(diff_tex)
         node_diff = nodes.new(type="ShaderNodeTexImage")
         node_diff.image = img_diff
-        node_diff.projection = 'BOX'
-        node_diff.projection_blend = 0.15
+        node_diff.projection = 'FLAT'
         node_diff.location = (x_offset, 250)
         links.new(node_mapping.outputs["Vector"], node_diff.inputs["Vector"])
         links.new(node_diff.outputs["Color"], bsdf.inputs["Base Color"])
@@ -99,8 +98,7 @@ def create_pbr_material(name, diff_tex=None, norm_tex=None, rough_tex=None,
         img_rough.colorspace_settings.name = 'Non-Color'
         node_rough = nodes.new(type="ShaderNodeTexImage")
         node_rough.image = img_rough
-        node_rough.projection = 'BOX'
-        node_rough.projection_blend = 0.15
+        node_rough.projection = 'FLAT'
         node_rough.location = (x_offset, -50)
         links.new(node_mapping.outputs["Vector"], node_rough.inputs["Vector"])
         links.new(node_rough.outputs["Color"], bsdf.inputs["Roughness"])
@@ -110,13 +108,12 @@ def create_pbr_material(name, diff_tex=None, norm_tex=None, rough_tex=None,
         img_norm.colorspace_settings.name = 'Non-Color'
         node_norm_tex = nodes.new(type="ShaderNodeTexImage")
         node_norm_tex.image = img_norm
-        node_norm_tex.projection = 'BOX'
-        node_norm_tex.projection_blend = 0.15
+        node_norm_tex.projection = 'FLAT'
         node_norm_tex.location = (x_offset, -350)
 
         node_norm_map = nodes.new(type="ShaderNodeNormalMap")
         node_norm_map.location = (0, -350)
-        node_norm_map.inputs["Strength"].default_value = 1.8
+        node_norm_map.inputs["Strength"].default_value = 1.6
         links.new(node_mapping.outputs["Vector"], node_norm_tex.inputs["Vector"])
         links.new(node_norm_tex.outputs["Color"], node_norm_map.inputs["Color"])
         links.new(node_norm_map.outputs["Normal"], bsdf.inputs["Normal"])
@@ -323,7 +320,47 @@ def add_corbelled_roof_mesh(bm, center, length, width, height, orientation='X'):
         if s == steps - 1:
             bm.faces.new((v5, v6, v7, v8))
 
-def create_mesh_object(name, bm, material=None):
+def apply_box_uv(bm, scale=0.5):
+    uv_layer = bm.loops.layers.uv.active
+    if uv_layer is None:
+        uv_layer = bm.loops.layers.uv.new("UVMap")
+    bm.normal_update()
+    for face in bm.faces:
+        nx, ny, nz = abs(face.normal.x), abs(face.normal.y), abs(face.normal.z)
+        for loop in face.loops:
+            co = loop.vert.co
+            if nz >= nx and nz >= ny:
+                u, v = co.x * scale, co.y * scale
+            elif nx >= ny and nx >= nz:
+                u, v = co.y * scale, co.z * scale
+            else:
+                u, v = co.x * scale, co.z * scale
+            loop[uv_layer].uv = (u, v)
+
+
+def add_uv_panel_mesh(bm, center, width, height, normal_axis='+X'):
+    """Creates a quad with exact 0..1 UV mapping so full murals/inscriptions/devatas display cleanly."""
+    uv_layer = bm.loops.layers.uv.verify()
+    cx, cy, cz = center
+    hw, hh = width / 2.0, height / 2.0
+    if normal_axis == '+X':
+        coords = [(cx, cy - hw, cz - hh), (cx, cy + hw, cz - hh), (cx, cy + hw, cz + hh), (cx, cy - hw, cz + hh)]
+    elif normal_axis == '-X':
+        coords = [(cx, cy + hw, cz - hh), (cx, cy - hw, cz - hh), (cx, cy - hw, cz + hh), (cx, cy + hw, cz + hh)]
+    elif normal_axis == '+Y':
+        coords = [(cx + hw, cy, cz - hh), (cx - hw, cy, cz - hh), (cx - hw, cy, cz + hh), (cx + hw, cy, cz + hh)]
+    else:  # '-Y'
+        coords = [(cx - hw, cy, cz - hh), (cx + hw, cy, cz - hh), (cx + hw, cy, cz + hh), (cx - hw, cy, cz + hh)]
+    verts = [bm.verts.new(c) for c in coords]
+    face = bm.faces.new(verts)
+    uvs = [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)]
+    for loop, uv in zip(face.loops, uvs):
+        loop[uv_layer].uv = uv
+
+
+def create_mesh_object(name, bm, material=None, auto_uv=True, uv_scale=0.5):
+    if auto_uv and bm.loops.layers.uv.active is None:
+        apply_box_uv(bm, scale=uv_scale)
     me = bpy.data.meshes.new(f"{name}_Mesh")
     bm.to_mesh(me)
     bm.free()
@@ -941,6 +978,50 @@ def build_angkor_wat():
         tex_scale=0.35
     )
 
+    # 1:1 UV-mapped exhibition panel materials (for 0..1 UV quads)
+    mat_inscriptions_panel = create_pbr_material(
+        "Mat_Inscriptions_Panel",
+        diff_tex=os.path.join(TEXTURE_DIR, "angkor_inscriptions_diff.png"),
+        norm_tex=os.path.join(TEXTURE_DIR, "angkor_inscriptions_norm.png"),
+        roughness=0.72,
+        tex_scale=1.0
+    )
+    mat_devata_panel = create_pbr_material(
+        "Mat_Devata_Panel",
+        diff_tex=os.path.join(TEXTURE_DIR, "angkor_apsara_relief_diff.png"),
+        norm_tex=os.path.join(TEXTURE_DIR, "angkor_apsara_relief_norm.png"),
+        roughness=0.75,
+        tex_scale=1.0
+    )
+    mat_samudra_panel = create_pbr_material(
+        "Mat_Samudra_Panel",
+        diff_tex=os.path.join(TEXTURE_DIR, "angkor_basrelief_samudramanthana_diff.png"),
+        norm_tex=os.path.join(TEXTURE_DIR, "angkor_basrelief_samudramanthana_norm.png"),
+        roughness=0.78,
+        tex_scale=1.0
+    )
+    mat_kurukshetra_panel = create_pbr_material(
+        "Mat_Kurukshetra_Panel",
+        diff_tex=os.path.join(TEXTURE_DIR, "angkor_basrelief_kurukshetra_diff.png"),
+        norm_tex=os.path.join(TEXTURE_DIR, "angkor_basrelief_kurukshetra_norm.png"),
+        roughness=0.78,
+        tex_scale=1.0
+    )
+    mat_lanka_panel = create_pbr_material(
+        "Mat_Lanka_Panel",
+        diff_tex=os.path.join(TEXTURE_DIR, "angkor_basrelief_lanka_diff.png"),
+        norm_tex=os.path.join(TEXTURE_DIR, "angkor_basrelief_lanka_norm.png"),
+        roughness=0.78,
+        tex_scale=1.0
+    )
+    mat_suryavarman_panel = create_pbr_material(
+        "Mat_Suryavarman_Panel",
+        diff_tex=os.path.join(TEXTURE_DIR, "angkor_basrelief_suryavarman_diff.png"),
+        norm_tex=os.path.join(TEXTURE_DIR, "angkor_basrelief_suryavarman_norm.png"),
+        roughness=0.78,
+        tex_scale=1.0
+    )
+
     mat_laterite = create_pbr_material(
         "Mat_Angkor_Laterite",
         diff_tex=os.path.join(TEXTURE_DIR, "angkor_laterite_diff.png"),
@@ -1057,13 +1138,18 @@ def build_angkor_wat():
         add_cube_mesh(bm_coping, (pool_x + 17.2, py_c, 0.15), (0.8, 27.4, 0.3))
     create_mesh_object("Reflection_Pools_Coping", bm_coping, mat_sandstone)
 
-    # Royal Inscribed Stela on Avenue Landing (Freestanding Monument for macro inspection)
+    # Royal Inscribed Stela on Avenue Landing (Freestanding Monument with 0..1 UV faces)
     bm_stela_mon = bmesh.new()
     add_cube_mesh(bm_stela_mon, (landing_x + 2.0, 4.5, 0.9), (1.4, 1.0, 0.2))
     add_cube_mesh(bm_stela_mon, (landing_x + 2.0, 4.5, 1.1), (1.1, 0.8, 0.2))
     add_cube_mesh(bm_stela_mon, (landing_x + 2.0, 4.5, 2.5), (0.24, 1.4, 2.6))
     add_cube_mesh(bm_stela_mon, (landing_x + 2.0, 4.5, 4.0), (0.32, 1.5, 0.4))
-    create_mesh_object("Royal_Inscribed_Stela_Suryavarman", bm_stela_mon, mat_inscriptions)
+    create_mesh_object("Royal_Inscribed_Stela_Suryavarman", bm_stela_mon, mat_sandstone)
+
+    bm_stela_face = bmesh.new()
+    add_uv_panel_mesh(bm_stela_face, (landing_x + 2.0 - 0.13, 4.5, 2.5), 1.32, 2.45, '-X')
+    add_uv_panel_mesh(bm_stela_face, (landing_x + 2.0 + 0.13, 4.5, 2.5), 1.32, 2.45, '+X')
+    create_mesh_object("Royal_Stela_Inscription_Face", bm_stela_face, mat_inscriptions_panel, auto_uv=False)
 
     # 4. First Enclosure (Gallery of Bas-Reliefs)
     log("Building 4: First Enclosure & Epic Bas-Relief Galleries...")
@@ -1089,6 +1175,17 @@ def build_angkor_wat():
     build_gallery_unified("Gal_North_E", (enc1_mid_x + 3.2, y_max), (x_max, y_max), width=gal_w, height=enc1_h, mat_stone=mat_sandstone, mat_relief=mat_inscriptions, base_z=enc1_base_z)
     build_gallery_unified("Gal_South_W", (x_min, y_min), (enc1_mid_x - 3.2, y_min), width=gal_w, height=enc1_h, mat_stone=mat_sandstone, mat_relief=mat_relief_suryavarman, base_z=enc1_base_z)
     build_gallery_unified("Gal_South_E", (enc1_mid_x + 3.2, y_min), (x_max, y_min), width=gal_w, height=enc1_h, mat_stone=mat_sandstone, mat_relief=mat_inscriptions, base_z=enc1_base_z)
+
+    # Framed 0..1 UV-mapped Bas-Relief Murals inside First Enclosure galleries at eye level
+    for m_name, m_center, m_w, m_h, m_norm, m_mat in [
+        ("Mural_Samudra_Manthana", (x_max + 1.72, -24.0, 2.8), 28.0, 3.4, '-X', mat_samudra_panel),
+        ("Mural_Battle_Kurukshetra", (x_min - 1.72, -24.0, 2.8), 28.0, 3.4, '+X', mat_kurukshetra_panel),
+        ("Mural_Battle_Lanka", (x_min + 1.72, 24.0, 2.8), 28.0, 3.4, '-X', mat_lanka_panel),
+        ("Mural_Suryavarman_II", (-8.0, y_min - 1.72, 2.8), 28.0, 3.4, '+Y', mat_suryavarman_panel),
+    ]:
+        bm_m = bmesh.new()
+        add_uv_panel_mesh(bm_m, m_center, m_w, m_h, m_norm)
+        create_mesh_object(m_name, bm_m, m_mat, auto_uv=False)
 
     for cx, cy, cname in [
         (x_min, y_max, "Enc1_Corner_NW"),
@@ -1160,6 +1257,28 @@ def build_angkor_wat():
         (enc2_x_min, enc2_y_min, "Enc2_Corner_SW")
     ]:
         build_prasat_tower_obj(cname, (cx, cy, enc2_plinth_h), base_w=5.2, total_h=12.0, tiers=3, mat_stone=mat_sandstone, mat_gold=mat_gold)
+
+    # 3D Sculpted Devata & Apsara Niches along Second Enclosure West & East Galleries
+    bm_devata_frames = bmesh.new()
+    bm_devata_panels = bmesh.new()
+    for dy in (-18.0, -14.0, -10.0, 10.0, 14.0, 18.0):
+        # West gallery inner wall face (at x = enc2_x_min + 1.45 = -3.55, facing -X)
+        nx = enc2_x_min + 1.45
+        nz = enc2_plinth_h + 1.75
+        add_cube_mesh(bm_devata_frames, (nx - 0.12, dy, enc2_plinth_h + 0.25), (0.35, 1.9, 0.5)) # Lotus pedestal
+        add_cube_mesh(bm_devata_frames, (nx - 0.08, dy - 0.85, nz), (0.24, 0.20, 2.7)) # Left pilaster
+        add_cube_mesh(bm_devata_frames, (nx - 0.08, dy + 0.85, nz), (0.24, 0.20, 2.7)) # Right pilaster
+        add_cube_mesh(bm_devata_frames, (nx - 0.12, dy, nz + 1.45), (0.32, 2.0, 0.35)) # Pediment lintel
+        add_uv_panel_mesh(bm_devata_panels, (nx - 0.04, dy, nz), 1.45, 2.5, '-X')
+        # East gallery inner wall face (at x = enc2_x_max - 1.45 = 43.55, facing +X)
+        ex = enc2_x_max - 1.45
+        add_cube_mesh(bm_devata_frames, (ex + 0.12, dy, enc2_plinth_h + 0.25), (0.35, 1.9, 0.5))
+        add_cube_mesh(bm_devata_frames, (ex + 0.08, dy - 0.85, nz), (0.24, 0.20, 2.7))
+        add_cube_mesh(bm_devata_frames, (ex + 0.08, dy + 0.85, nz), (0.24, 0.20, 2.7))
+        add_cube_mesh(bm_devata_frames, (ex + 0.12, dy, nz + 1.45), (0.32, 2.0, 0.35))
+        add_uv_panel_mesh(bm_devata_panels, (ex + 0.04, dy, nz), 1.45, 2.5, '+X')
+    create_mesh_object("Enc2_Devata_Niche_Frames", bm_devata_frames, mat_sandstone)
+    create_mesh_object("Enc2_Devata_Niche_Panels", bm_devata_panels, mat_devata_panel, auto_uv=False)
 
     # 7. Third Enclosure: The Bakan (Upper Sanctuary / Temple Mountain Pyramid)
     log("Building 7: The Bakan (Mount Meru) & The Quincunx of 5 Towers...")
