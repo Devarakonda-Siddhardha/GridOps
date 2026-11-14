@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Explore Angkor Wat (Paramavishnuloka) — First-Person 3D Temple Experience</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.165.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.165.0/examples/jsm/"
+      }
+    }
+  </script>
+  <style>
+    html, body { margin: 0; padding: 0; overflow: hidden; background: #0f172a; user-select: none; }
+    #canvas-container { width: 100vw; height: 100vh; position: fixed; inset: 0; }
+  </style>
+</head>
+<body class="text-slate-100 font-sans antialiased">
+
+  <!-- 3D Viewport -->
+  <div id="canvas-container"></div>
+
+  <!-- Top HUD Bar -->
+  <header class="fixed top-0 inset-x-0 z-20 pointer-events-none p-3 sm:p-4 flex flex-wrap items-center justify-between gap-2">
+    <div class="pointer-events-auto flex items-center gap-2.5 bg-slate-950/75 backdrop-blur-md border border-slate-800/90 px-3 py-1.5 rounded-xl shadow-lg">
+      <a href="./index.html" class="text-amber-400 hover:text-amber-300 font-bold text-sm flex items-center gap-1.5 transition" title="Back to Showcase">
+        <span>←</span>
+        <span class="hidden sm:inline">Showcase</span>
+      </a>
+      <span class="text-slate-600">|</span>
+      <span class="text-xs sm:text-sm font-semibold text-amber-200" id="hud-zone">Western Approach Grounds</span>
+    </div>
+
+    <div class="pointer-events-auto flex items-center gap-2 bg-slate-950/75 backdrop-blur-md border border-slate-800/90 px-3 py-1.5 rounded-xl shadow-lg text-xs">
+      <label for="spawn-select" class="text-slate-400 hidden md:inline">Warp:</label>
+      <select id="spawn-select" class="bg-slate-900 border border-slate-700 text-slate-100 rounded-lg px-2 py-1 text-xs focus:outline-none focus:border-amber-500"></select>
+      <button id="btn-audio" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 hover:border-amber-500 text-slate-200 transition">🔇 Sound: OFF</button>
+      <span id="hud-coords" class="hidden lg:inline font-mono text-slate-400 pl-1">Elev: 0.0m</span>
+      <span id="hud-fps" class="font-mono text-emerald-400 pl-1">60 FPS</span>
+    </div>
+  </header>
+
+  <!-- Center Crosshair -->
+  <div class="fixed inset-0 pointer-events-none flex items-center justify-center z-10">
+    <div class="w-2 h-2 rounded-full bg-amber-300/80 ring-2 ring-slate-950/60"></div>
+  </div>
+
+  <!-- Proximity Interact Prompt -->
+  <div id="interact-prompt" class="hidden fixed bottom-16 inset-x-0 z-20 flex justify-center pointer-events-none px-4">
+    <div class="bg-slate-950/85 backdrop-blur-md border border-amber-500/60 px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-3">
+      <span class="px-2 py-0.5 rounded bg-amber-500 text-black font-bold text-xs">E</span>
+      <span class="text-sm text-amber-100 font-medium">Inspect: <strong id="interact-title" class="text-amber-400"></strong></span>
+    </div>
+  </div>
+
+  <!-- Bottom Controls Hint -->
+  <footer class="fixed bottom-3 inset-x-0 z-10 pointer-events-none flex justify-center px-4">
+    <div class="bg-slate-950/65 backdrop-blur-sm border border-slate-800/80 px-3.5 py-1 rounded-full text-[11px] text-slate-300 flex flex-wrap items-center gap-3">
+      <span><b>WASD</b> Walk</span>
+      <span><b>Shift</b> Sprint</span>
+      <span><b>Space</b> Jump</span>
+      <span><b>Mouse</b> Look</span>
+      <span><b>E</b> Inspect Plaque</span>
+      <span><b>1–6</b> Quick Warp</span>
+      <span><b>M</b> Sound</span>
+    </div>
+  </footer>
+
+  <!-- Loading Screen -->
+  <div id="loading-screen" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center p-6 text-center space-y-4">
+    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-2xl font-bold text-black shadow-lg shadow-amber-500/30">
+      ॐ
+    </div>
+    <h1 class="text-2xl sm:text-3xl font-bold text-amber-200">Angkor Wat (Paramavishnuloka)</h1>
+    <p id="loading-text" class="text-sm text-slate-400">Loading 3D Temple Complex...</p>
+    <div class="w-64 sm:w-80 h-2 bg-slate-800 rounded-full overflow-hidden">
+      <div id="loading-bar" class="h-full bg-gradient-to-r from-amber-500 to-amber-300 w-0 transition-all duration-200"></div>
+    </div>
+  </div>
+
+  <!-- Start / Pause Overlay -->
+  <div id="start-overlay" class="hidden fixed inset-0 z-30 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-lg w-full bg-slate-900/95 border border-amber-500/40 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-5 text-center">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs">
+        12th Century CE • King Suryavarman II • Cambodia
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Walkable 3D Reconstruction</h2>
+      <p class="text-sm text-slate-300 leading-relaxed">
+        Cross the western causeway over the sacred moat, explore the bas-relief galleries, climb the Mount Meru terraces, and enter the central Garbhagriha sanctuary of Chaturbhuja Lord Vishnu.
+      </p>
+      <div class="grid grid-cols-2 gap-2 text-left text-xs bg-slate-950/70 p-3.5 rounded-xl border border-slate-800">
+        <div><b class="text-amber-400">WASD / Arrows:</b> Walk</div>
+        <div><b class="text-amber-400">Mouse:</b> Look Around</div>
+        <div><b class="text-amber-400">Shift:</b> Sprint</div>
+        <div><b class="text-amber-400">Space:</b> Jump</div>
+        <div><b class="text-amber-400">E:</b> Inspect Carvings</div>
+        <div><b class="text-amber-400">1–6 / Top Menu:</b> Warp</div>
+      </div>
+      <button id="btn-enter" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-black font-bold text-base shadow-lg shadow-amber-500/25 transition">
+        Enter Temple (Lock Mouse)
+      </button>
+      <p class="text-[11px] text-slate-400">Press <b>ESC</b> anytime to pause or use the Warp dropdown.</p>
+    </div>
+  </div>
+
+  <!-- Historical Information Modal -->
+  <div id="info-modal" class="hidden fixed inset-0 z-40 bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="max-w-xl w-full bg-slate-900 border border-amber-500/50 rounded-2xl p-6 shadow-2xl space-y-4">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <span id="modal-category" class="text-xs font-semibold uppercase tracking-wider text-amber-400"></span>
+          <h3 id="modal-title" class="text-xl sm:text-2xl font-bold text-white mt-0.5"></h3>
+          <p id="modal-sanskrit" class="text-xs font-mono text-amber-200/90 mt-1"></p>
+        </div>
+        <button id="btn-close-modal" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold">Close [ESC]</button>
+      </div>
+      <div class="space-y-3 text-sm text-slate-300 leading-relaxed max-h-[60vh] overflow-y-auto pr-1">
+        <div>
+          <h4 class="text-xs font-bold uppercase text-slate-400 mb-1">Historical Context</h4>
+          <p id="modal-context"></p>
+        </div>
+        <div>
+          <h4 class="text-xs font-bold uppercase text-slate-400 mb-1">Architectural & Iconographic Significance</h4>
+          <p id="modal-significance"></p>
+        </div>
+        <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3">
+          <h4 class="text-xs font-bold uppercase text-emerald-400 mb-1">Documented Evidence vs. Reconstruction</h4>
+          <p id="modal-evidence" class="text-xs text-slate-300"></p>
+        </div>
+      </div>
+      <p id="modal-source" class="text-[11px] text-slate-400 border-t border-slate-800 pt-2"></p>
+    </div>
+  </div>
+
+  <script type="module" src="./js/angkor-explorer.js"></script>
+</body>
+</html>

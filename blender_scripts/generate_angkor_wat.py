@@ -336,7 +336,7 @@ def create_mesh_object(name, bm, material=None):
 # -------------------------------------------------------------------------
 # Architectural Builders
 # -------------------------------------------------------------------------
-def build_prasat_tower_obj(name, location, base_w, total_h, tiers, mat_stone, mat_gold, is_central=False):
+def build_prasat_tower_obj(name, location, base_w, total_h, tiers, mat_stone, mat_gold, is_central=False, pass_through=None):
     bm_stone = bmesh.new()
     bm_gold = bmesh.new()
     lx, ly, lz = location
@@ -360,8 +360,34 @@ def build_prasat_tower_obj(name, location, base_w, total_h, tiers, mat_stone, ma
         add_cube_mesh(bm_stone, (lx - half_w + wall_t/2, ly + door_w/2 + side_w/2, current_z + base_h/2), (wall_t, side_w, base_h))
         add_cube_mesh(bm_stone, (lx - half_w + wall_t/2, ly - door_w/2 - side_w/2, current_z + base_h/2), (wall_t, side_w, base_h))
         add_cube_mesh(bm_stone, (lx - half_w + wall_t/2, ly, current_z + door_h + (base_h - door_h)/2), (wall_t, door_w, base_h - door_h))
+    elif pass_through in ('WE', 'NS', 'CROSS'):
+        # Walkable Gopura Pavilion with open arched passage(s)
+        door_w = min(3.6, half_w * 0.9)
+        door_h = min(4.6, base_h * 0.82)
+        if pass_through == 'WE':
+            # Open West-East passage, solid North & South piers
+            pier_y = (half_w * 2 - door_w) / 2.0
+            add_cube_mesh(bm_stone, (lx, ly + door_w/2 + pier_y/2, current_z + base_h/2), (half_w*1.75, pier_y, base_h))
+            add_cube_mesh(bm_stone, (lx, ly - door_w/2 - pier_y/2, current_z + base_h/2), (half_w*1.75, pier_y, base_h))
+            if base_h > door_h:
+                add_cube_mesh(bm_stone, (lx, ly, current_z + door_h + (base_h - door_h)/2), (half_w*1.75, door_w, base_h - door_h))
+        elif pass_through == 'NS':
+            # Open North-South passage, solid West & East piers
+            pier_x = (half_w * 2 - door_w) / 2.0
+            add_cube_mesh(bm_stone, (lx + door_w/2 + pier_x/2, ly, current_z + base_h/2), (pier_x, half_w*1.75, base_h))
+            add_cube_mesh(bm_stone, (lx - door_w/2 - pier_x/2, ly, current_z + base_h/2), (pier_x, half_w*1.75, base_h))
+            if base_h > door_h:
+                add_cube_mesh(bm_stone, (lx, ly, current_z + door_h + (base_h - door_h)/2), (door_w, half_w*1.75, base_h - door_h))
+        else:  # 'CROSS' — 4 corner piers open in all 4 cardinal directions
+            pier_x = (half_w * 1.75 - door_w) / 2.0
+            pier_y = (half_w * 1.75 - door_w) / 2.0
+            for sx in (-1, 1):
+                for sy in (-1, 1):
+                    add_cube_mesh(bm_stone, (lx + sx*(door_w/2 + pier_x/2), ly + sy*(door_w/2 + pier_y/2), current_z + base_h/2), (pier_x, pier_y, base_h))
+            if base_h > door_h:
+                add_cube_mesh(bm_stone, (lx, ly, current_z + door_h + (base_h - door_h)/2), (half_w*1.75, half_w*1.75, base_h - door_h))
     else:
-        # Solid core for subsidiary towers
+        # Solid core for subsidiary corner towers
         add_cube_mesh(bm_stone, (lx, ly, current_z + base_h/2), (half_w*1.64, half_w*1.64, base_h))
         pw = half_w * 1.2
         pe = half_w * 0.3
@@ -423,7 +449,7 @@ def build_prasat_tower_obj(name, location, base_w, total_h, tiers, mat_stone, ma
     gold_obj.parent = stone_obj
     return stone_obj
 
-def build_gallery_unified(name, start_pt, end_pt, width, height, mat_stone, mat_relief=None, has_colonnade=True):
+def build_gallery_unified(name, start_pt, end_pt, width, height, mat_stone, mat_relief=None, has_colonnade=True, base_z=0.0):
     bm_stone = bmesh.new()
     bm_relief = bmesh.new() if mat_relief else None
 
@@ -437,7 +463,7 @@ def build_gallery_unified(name, start_pt, end_pt, width, height, mat_stone, mat_
     sin_a = math.sin(angle)
 
     orient = 'X' if abs(cos_a) > abs(sin_a) else 'Y'
-    add_cube_mesh(bm_stone, (0, 0, 0.25), (length, width, 0.5))
+    add_cube_mesh(bm_stone, (0, 0, 0.15), (length, width, 0.3))
     add_corbelled_roof_mesh(bm_stone, (0, 0, height), length=length, width=width, height=height*0.35, orientation=orient)
 
     if has_colonnade:
@@ -445,11 +471,11 @@ def build_gallery_unified(name, start_pt, end_pt, width, height, mat_stone, mat_
         num_cols = max(2, int(length / col_spacing))
         col_off_y = (width / 2.0) - 0.45
         radius = 0.22
-        shaft_h = height - 0.7
+        shaft_h = height - 0.6
         for i in range(num_cols):
             t = (i + 0.5) / num_cols
             col_x = (t - 0.5) * length
-            add_cube_mesh(bm_stone, (col_x, col_off_y, 0.3), (radius*2.8, radius*2.8, 0.24))
+            add_cube_mesh(bm_stone, (col_x, col_off_y, 0.35), (radius*2.8, radius*2.8, 0.24))
             add_cube_mesh(bm_stone, (col_x, col_off_y, 0.35 + shaft_h/2), (radius*2, radius*2, shaft_h))
             cap_z = 0.35 + shaft_h
             add_cube_mesh(bm_stone, (col_x, col_off_y, cap_z + 0.1), (radius*2.6, radius*2.6, 0.16))
@@ -457,21 +483,21 @@ def build_gallery_unified(name, start_pt, end_pt, width, height, mat_stone, mat_
 
     wall_off_y = -(width / 2.0) + 0.25
     target_bm = bm_relief if bm_relief else bm_stone
-    add_cube_mesh(target_bm, (0, wall_off_y, (height - 0.5)/2.0 + 0.5), (length, 0.35, height - 0.5))
+    add_cube_mesh(target_bm, (0, wall_off_y, (height - 0.3)/2.0 + 0.3), (length, 0.35, height - 0.3))
 
     gal_obj = create_mesh_object(f"{name}_Stone", bm_stone, mat_stone)
-    gal_obj.location = (mid_x, mid_y, 0)
+    gal_obj.location = (mid_x, mid_y, base_z)
     gal_obj.rotation_euler = (0, 0, angle)
 
     if bm_relief:
         relief_obj = create_mesh_object(f"{name}_ReliefWall", bm_relief, mat_relief)
-        relief_obj.location = (mid_x, mid_y, 0)
-        relief_obj.rotation_euler = (0, 0, angle)
         relief_obj.parent = gal_obj
+        relief_obj.location = (0, 0, 0)
+        relief_obj.rotation_euler = (0, 0, 0)
 
     return gal_obj
 
-def build_naga_balustrade_fast(name, start_pt, end_pt, count, mat_stone):
+def build_naga_balustrade_fast(name, start_pt, end_pt, count, mat_stone, base_z=0.4):
     bm = bmesh.new()
     dx = end_pt[0] - start_pt[0]
     dy = end_pt[1] - start_pt[1]
@@ -480,18 +506,23 @@ def build_naga_balustrade_fast(name, start_pt, end_pt, count, mat_stone):
     mid_y = (start_pt[1] + end_pt[1]) / 2.0
     angle = math.atan2(dy, dx)
 
-    add_cylinder_mesh(bm, (0, 0, 0.65), radius=0.18, depth=length, segments=10)
+    # Horizontal Naga serpent body along local X-axis
+    add_tube_segment(bm, (-length/2.0, 0, 0.72), (length/2.0, 0, 0.72), radius=0.18, segments=10)
+    # Stone support balusters along local X-axis
     for i in range(count):
-        t = (i / (count - 1)) - 0.5
-        add_cube_mesh(bm, (0, t * length, 0.3), (0.32, 0.32, 0.6))
+        t = (i / max(1, count - 1)) - 0.5
+        add_cube_mesh(bm, (t * length, 0, 0.35), (0.30, 0.28, 0.70))
 
+    # 7-Headed Naga Hood Fan at the western entrance end (-length/2)
+    hx = -length/2.0 - 0.25
+    add_cube_mesh(bm, (hx, 0, 0.60), (0.45, 0.45, 1.20))
     for h in range(-3, 4):
-        hz = 1.0 + (3 - abs(h)) * 0.22
-        add_cylinder_mesh(bm, (h * 0.16, -length/2 - 0.3, hz), radius=0.1 + (3-abs(h))*0.02, depth=0.55, segments=8)
+        hz = 1.45 + (3 - abs(h)) * 0.16
+        add_cylinder_mesh(bm, (hx, h * 0.16, hz), radius=0.09 + (3 - abs(h))*0.015, depth=0.42, segments=8)
 
     obj = create_mesh_object(name, bm, mat_stone)
-    obj.location = (mid_x, mid_y, 0)
-    obj.rotation_euler = (math.radians(90), 0, angle - math.radians(90))
+    obj.location = (mid_x, mid_y, base_z)
+    obj.rotation_euler = (0, 0, angle)
     return obj
 
 def build_steep_staircase_fast(name, location, width, depth, height, steps_count, mat_stone, rotation_z=0):
@@ -791,6 +822,48 @@ def build_chaturbhuja_vishnu_master(name, location, scale, mat_deity, mat_gold, 
 
     return deity_obj
 
+def build_tropical_foliage_cluster(col_foliage, mat_trunk, mat_frond, mat_canopy):
+    set_active_collection(col_foliage)
+    bm_trunks = bmesh.new()
+    bm_fronds = bmesh.new()
+    bm_canopy = bmesh.new()
+
+    # Sugar Palms (Borassus flabellifer) & Tropical Trees framing the approach and outer grounds
+    palm_positions = [
+        (-222, 18), (-225, -18), (-228, 42), (-226, -42), (-224, 75), (-224, -75),
+        (-125, 48), (-125, -48), (-108, 54), (-108, -54), (-86, 56), (-86, -56),
+        (-62, 56), (-62, -56), (-45, 62), (-45, -62),
+        (10, 74), (10, -74), (45, 76), (45, -76), (88, 68), (88, -68),
+        (102, 24), (102, -24), (-15, 88), (-15, -88), (65, 92), (65, -92)
+    ]
+    for idx, (px, py) in enumerate(palm_positions):
+        h = 9.0 + (idx % 4) * 1.8
+        lean_x = 0.35 if idx % 2 == 0 else -0.3
+        add_tube_segment(bm_trunks, (px, py, 0.0), (px + lean_x, py + 0.2, h), radius=0.22, segments=6)
+        top_x, top_y, top_z = px + lean_x, py + 0.2, h
+        for f_i in range(6):
+            ang = 2 * math.pi * f_i / 6.0 + (idx * 0.4)
+            fx = top_x + math.cos(ang) * 2.2
+            fy = top_y + math.sin(ang) * 2.2
+            add_tube_segment(bm_fronds, (top_x, top_y, top_z), (fx, fy, top_z - 0.6), radius=0.26, segments=4)
+
+    # Tropical Dipterocarp / Banyan Canopy Trees along outer laterite enclosure
+    tree_positions = [
+        (-232, 105), (-232, -105), (-180, 195), (-180, -195), (-90, 195), (-90, -195),
+        (20, 195), (20, -195), (140, 195), (140, -195), (185, 80), (185, -80),
+        (185, 0), (-120, 96), (-120, -96), (-70, 98), (-70, -98), (95, 96), (95, -96)
+    ]
+    for idx, (tx, ty) in enumerate(tree_positions):
+        th = 6.0 + (idx % 3) * 1.4
+        add_tube_segment(bm_trunks, (tx, ty, 0.0), (tx, ty, th), radius=0.42, segments=6)
+        r_can = 3.8 + (idx % 3) * 0.7
+        add_cylinder_mesh(bm_canopy, (tx, ty, th + 1.2), radius=r_can, depth=3.2, segments=7)
+        add_cylinder_mesh(bm_canopy, (tx + 0.8, ty - 0.6, th + 2.4), radius=r_can * 0.72, depth=2.4, segments=7)
+
+    create_mesh_object("Tropical_Palm_Trunks", bm_trunks, mat_trunk)
+    create_mesh_object("Tropical_Palm_Fronds", bm_fronds, mat_frond)
+    create_mesh_object("Tropical_Canopy_Trees", bm_canopy, mat_canopy)
+
 # -------------------------------------------------------------------------
 # Master Scene Assembly
 # -------------------------------------------------------------------------
@@ -807,6 +880,7 @@ def build_angkor_wat():
     col_bakan = setup_collection("07_Bakan_Central_Pyramid_And_Towers")
     col_sanctum = setup_collection("08_Central_Garbhagriha_Vishnu")
     col_lighting = setup_collection("09_Lighting_And_Cameras")
+    col_foliage = setup_collection("10_Tropical_Foliage")
 
     log("Loading PBR materials...")
     mat_sandstone = create_pbr_material(
@@ -835,6 +909,30 @@ def build_angkor_wat():
         tex_scale=0.25
     )
 
+    mat_relief_kurukshetra = create_pbr_material(
+        "Mat_Relief_Kurukshetra",
+        diff_tex=os.path.join(TEXTURE_DIR, "angkor_basrelief_kurukshetra_diff.png"),
+        norm_tex=os.path.join(TEXTURE_DIR, "angkor_basrelief_kurukshetra_norm.png"),
+        roughness=0.80,
+        tex_scale=0.22
+    )
+
+    mat_relief_lanka = create_pbr_material(
+        "Mat_Relief_Lanka",
+        diff_tex=os.path.join(TEXTURE_DIR, "angkor_basrelief_lanka_diff.png"),
+        norm_tex=os.path.join(TEXTURE_DIR, "angkor_basrelief_lanka_norm.png"),
+        roughness=0.80,
+        tex_scale=0.22
+    )
+
+    mat_relief_suryavarman = create_pbr_material(
+        "Mat_Relief_Suryavarman",
+        diff_tex=os.path.join(TEXTURE_DIR, "angkor_basrelief_suryavarman_diff.png"),
+        norm_tex=os.path.join(TEXTURE_DIR, "angkor_basrelief_suryavarman_norm.png"),
+        roughness=0.80,
+        tex_scale=0.22
+    )
+
     mat_devata = create_pbr_material(
         "Mat_Angkor_Devata",
         diff_tex=os.path.join(TEXTURE_DIR, "angkor_apsara_relief_diff.png"),
@@ -858,81 +956,113 @@ def build_angkor_wat():
     mat_white = create_basic_color_material("Mat_Urdhva_White", (0.98, 0.98, 0.96, 1.0), roughness=0.25)
     mat_red = create_basic_color_material("Mat_Urdhva_Red", (0.88, 0.06, 0.05, 1.0), roughness=0.30)
     mat_pink = create_basic_color_material("Mat_Lotus_Pink", (0.92, 0.42, 0.58, 1.0), roughness=0.35)
+    mat_trunk = create_basic_color_material("Mat_Palm_Trunk", (0.34, 0.24, 0.16, 1.0), roughness=0.88)
+    mat_frond = create_basic_color_material("Mat_Palm_Frond", (0.14, 0.34, 0.11, 1.0), roughness=0.78)
+    mat_canopy = create_basic_color_material("Mat_Tree_Canopy", (0.11, 0.28, 0.09, 1.0), roughness=0.84)
 
-    # 1. Terrain & Moat
-    log("Building 1: Terrain, Moat & Embankments...")
+    # 1. Terrain, Complete 4-Sided Moat & Outer Laterite Enclosure
+    log("Building 1: Terrain, 4-Sided Moat, Embankments & Outer Wall...")
     set_active_collection(col_terrain)
     bm_t = bmesh.new()
-    add_cube_mesh(bm_t, (0, 0, -0.4), (520, 400, 0.8))
+    add_cube_mesh(bm_t, (-20, 0, -0.4), (560, 440, 0.8))
     create_mesh_object("Sacred_Precinct_Ground", bm_t, mat_lawn)
 
+    # 4-sided rectangular moat surrounding Angkor Wat (water surface at z=0.05 above lawn z=0.0)
     bm_w = bmesh.new()
-    add_cube_mesh(bm_w, (-175, 0, -0.15), (70, 360, 0.3))
-    create_mesh_object("Moat_West_Water", bm_w, mat_water)
+    add_cube_mesh(bm_w, (-175, 0, -0.10), (70, 360, 0.3))    # West Moat (x: -210..-140)
+    add_cube_mesh(bm_w, (145, 0, -0.10), (50, 360, 0.3))     # East Moat (x: 120..170)
+    add_cube_mesh(bm_w, (-10, 160, -0.10), (260, 40, 0.3))   # North Moat (x: -140..120)
+    add_cube_mesh(bm_w, (-10, -160, -0.10), (260, 40, 0.3))  # South Moat (x: -140..120)
+    create_mesh_object("Moat_Surrounding_Water", bm_w, mat_water)
 
+    # Laterite Moat Retaining Banks (4-sided inner & outer embankments)
     bm_lat = bmesh.new()
-    add_cube_mesh(bm_lat, (-210, 0, 0.1), (3.0, 360, 1.0))
-    add_cube_mesh(bm_lat, (-140, 0, 0.1), (3.0, 360, 1.0))
+    # West Banks
+    add_cube_mesh(bm_lat, (-210, 0, 0.1), (3.0, 363, 1.0))
+    add_cube_mesh(bm_lat, (-140, 0, 0.1), (3.0, 283, 1.0))
+    # East Banks
+    add_cube_mesh(bm_lat, (120, 0, 0.1), (3.0, 283, 1.0))
+    add_cube_mesh(bm_lat, (170, 0, 0.1), (3.0, 363, 1.0))
+    # North & South Banks
+    add_cube_mesh(bm_lat, (-10, 140, 0.1), (263, 3.0, 1.0))
+    add_cube_mesh(bm_lat, (-20, 180, 0.1), (383, 3.0, 1.0))
+    add_cube_mesh(bm_lat, (-10, -140, 0.1), (263, 3.0, 1.0))
+    add_cube_mesh(bm_lat, (-20, -180, 0.1), (383, 3.0, 1.0))
     create_mesh_object("Moat_Banks", bm_lat, mat_laterite)
 
-    # 2. Western Causeway Across Moat & Outer Gopura
-    log("Building 2: Western Causeway & Outer Gopura...")
+    # Outer Laterite Enclosure Wall (enclosing the 30m ground apron inside the moat)
+    bm_owall = bmesh.new()
+    add_cube_mesh(bm_owall, (-135, 76, 1.6), (1.8, 108, 3.2))    # West Wall North
+    add_cube_mesh(bm_owall, (-135, -76, 1.6), (1.8, 108, 3.2))   # West Wall South
+    add_cube_mesh(bm_owall, (115, 0, 1.6), (1.8, 260, 3.2))      # East Wall
+    add_cube_mesh(bm_owall, (-10, 130, 1.6), (250, 1.8, 3.2))    # North Wall
+    add_cube_mesh(bm_owall, (-10, -130, 1.6), (250, 1.8, 3.2))   # South Wall
+    create_mesh_object("Outer_Enclosure_Laterite_Wall", bm_owall, mat_laterite)
+
+    # 2. Western Causeway Across Moat & Outer Gopura (Walkable!)
+    log("Building 2: Western Causeway & Walkable Outer Gopura...")
     set_active_collection(col_outer)
     bm_bridge = bmesh.new()
-    add_cube_mesh(bm_bridge, (-175, 0, 0.2), (70, 7.5, 0.4))
+    add_cube_mesh(bm_bridge, (-175, 0, 0.2), (70.0, 7.5, 0.4))   # x: -210..-140
+    # Entry apron & steps from ground (z=0) onto causeway (z=0.4)
+    add_cube_mesh(bm_bridge, (-212.5, 0, 0.1), (3.0, 9.0, 0.2))  # x: -214..-211
+    add_cube_mesh(bm_bridge, (-210.5, 0, 0.15), (1.0, 8.5, 0.3)) # x: -211..-210
     create_mesh_object("Moat_Causeway_Bridge", bm_bridge, mat_sandstone)
 
-    build_naga_balustrade_fast("Moat_Naga_North", (-210,  4.1), (-140,  4.1), count=14, mat_stone=mat_sandstone)
-    build_naga_balustrade_fast("Moat_Naga_South", (-210, -4.1), (-140, -4.1), count=14, mat_stone=mat_sandstone)
+    build_naga_balustrade_fast("Moat_Naga_North", (-210,  4.1), (-140,  4.1), count=14, mat_stone=mat_sandstone, base_z=0.4)
+    build_naga_balustrade_fast("Moat_Naga_South", (-210, -4.1), (-140, -4.1), count=14, mat_stone=mat_sandstone, base_z=0.4)
 
     gopura_x = -135
-    build_prasat_tower_obj("West_Gopura_Central_Prasat", (gopura_x, 0, 0.4), base_w=9.0, total_h=21.0, tiers=4, mat_stone=mat_sandstone, mat_gold=mat_gold)
+    build_prasat_tower_obj("West_Gopura_Central_Prasat", (gopura_x, 0, 0.4), base_w=9.0, total_h=21.0, tiers=4, mat_stone=mat_sandstone, mat_gold=mat_gold, pass_through='WE')
     build_prasat_tower_obj("West_Gopura_North_Prasat", (gopura_x,  18.0, 0.4), base_w=7.0, total_h=16.0, tiers=3, mat_stone=mat_sandstone, mat_gold=mat_gold)
     build_prasat_tower_obj("West_Gopura_South_Prasat", (gopura_x, -18.0, 0.4), base_w=7.0, total_h=16.0, tiers=3, mat_stone=mat_sandstone, mat_gold=mat_gold)
 
-    build_gallery_unified("West_Gopura_Gal_N", (gopura_x, 4.5), (gopura_x, 14.5), width=4.5, height=5.5, mat_stone=mat_sandstone)
-    build_gallery_unified("West_Gopura_Gal_S", (gopura_x, -4.5), (gopura_x, -14.5), width=4.5, height=5.5, mat_stone=mat_sandstone)
+    build_gallery_unified("West_Gopura_Gal_N", (gopura_x, 4.5), (gopura_x, 14.5), width=4.5, height=5.5, mat_stone=mat_sandstone, base_z=0.25)
+    build_gallery_unified("West_Gopura_Gal_S", (gopura_x, -4.5), (gopura_x, -14.5), width=4.5, height=5.5, mat_stone=mat_sandstone, base_z=0.25)
 
     # 3. Processional Avenue, Libraries & Sacred Reflection Pools
     log("Building 3: Processional Avenue, Libraries & Reflection Pools...")
     set_active_collection(col_avenue)
-    ave_len = 82.0
-    ave_x = -130 + ave_len / 2.0
+    ave_len = 96.0
+    ave_x = -131.0 + ave_len / 2.0
     bm_ave = bmesh.new()
-    add_cube_mesh(bm_ave, (ave_x, 0, 0.45), (ave_len, 9.6, 0.9))
+    # Smooth step-up from Gopura (z=0.4) to Processional Avenue (z=0.8)
+    add_cube_mesh(bm_ave, (-135.5, 0, 0.2), (9.0, 9.6, 0.4))    # x: -140..-131
+    add_cube_mesh(bm_ave, (-131.5, 0, 0.3), (1.0, 9.6, 0.6))
+    add_cube_mesh(bm_ave, (ave_x, 0, 0.4), (ave_len, 9.6, 0.8))
     mid_x = -88.0
-    add_cube_mesh(bm_ave, (mid_x, 0, 0.6), (13.0, 18.0, 1.2))
+    add_cube_mesh(bm_ave, (mid_x, 0, 0.405), (13.0, 18.0, 0.81))
     landing_x = -42.0
-    add_cube_mesh(bm_ave, (landing_x, 0, 0.8), (14.0, 22.0, 1.6))
+    add_cube_mesh(bm_ave, (landing_x, 0, 0.405), (14.0, 22.0, 0.81))
     create_mesh_object("Grand_Avenue_Terraces", bm_ave, mat_sandstone)
 
-    build_naga_balustrade_fast("Ave_Naga_N", (-130,  5.1), (-48,  5.1), count=16, mat_stone=mat_sandstone)
-    build_naga_balustrade_fast("Ave_Naga_S", (-130, -5.1), (-48, -5.1), count=16, mat_stone=mat_sandstone)
+    build_naga_balustrade_fast("Ave_Naga_N", (-130,  5.1), (-48,  5.1), count=16, mat_stone=mat_sandstone, base_z=0.8)
+    build_naga_balustrade_fast("Ave_Naga_S", (-130, -5.1), (-48, -5.1), count=16, mat_stone=mat_sandstone, base_z=0.8)
 
     build_library_fast("Avenue_Library_North", (mid_x,  22.0, 0), scale=1.0, rotation_z=0, mat_stone=mat_sandstone)
     build_library_fast("Avenue_Library_South", (mid_x, -22.0, 0), scale=1.0, rotation_z=0, mat_stone=mat_sandstone)
 
-    # Reflection Pools
+    # Reflection Pools (water at z=0.16, surrounded by hollow stone coping rim at z=0.25)
     pool_x = -62.0
     bm_pools = bmesh.new()
-    add_cube_mesh(bm_pools, (pool_x,  24.0, -0.15), (34.0, 26.0, 0.5))
-    add_cube_mesh(bm_pools, (pool_x, -24.0, -0.15), (34.0, 26.0, 0.5))
+    add_cube_mesh(bm_pools, (pool_x,  24.0, 0.06), (34.0, 26.0, 0.20))
+    add_cube_mesh(bm_pools, (pool_x, -24.0, 0.06), (34.0, 26.0, 0.20))
     create_mesh_object("Reflection_Pools_Water", bm_pools, mat_water)
 
     bm_coping = bmesh.new()
-    add_cube_mesh(bm_coping, (pool_x,  24.0, 0.15), (35.2, 27.2, 0.3))
-    add_cube_mesh(bm_coping, (pool_x, -24.0, 0.15), (35.2, 27.2, 0.3))
+    for py_c in (24.0, -24.0):
+        add_cube_mesh(bm_coping, (pool_x, py_c + 13.3, 0.15), (35.2, 0.8, 0.3))
+        add_cube_mesh(bm_coping, (pool_x, py_c - 13.3, 0.15), (35.2, 0.8, 0.3))
+        add_cube_mesh(bm_coping, (pool_x - 17.2, py_c, 0.15), (0.8, 27.4, 0.3))
+        add_cube_mesh(bm_coping, (pool_x + 17.2, py_c, 0.15), (0.8, 27.4, 0.3))
     create_mesh_object("Reflection_Pools_Coping", bm_coping, mat_sandstone)
 
     # Royal Inscribed Stela on Avenue Landing (Freestanding Monument for macro inspection)
     bm_stela_mon = bmesh.new()
-    # Ornate stepped base
-    add_cube_mesh(bm_stela_mon, (landing_x + 2.0, 4.5, 1.0), (1.4, 1.0, 0.4))
-    add_cube_mesh(bm_stela_mon, (landing_x + 2.0, 4.5, 1.3), (1.1, 0.8, 0.2))
-    # Inscribed Stela slab (front face facing West towards camera)
-    add_cube_mesh(bm_stela_mon, (landing_x + 2.0, 4.5, 2.7), (0.24, 1.4, 2.6))
-    # Carved pediment cap
-    add_cube_mesh(bm_stela_mon, (landing_x + 2.0, 4.5, 4.2), (0.32, 1.5, 0.4))
+    add_cube_mesh(bm_stela_mon, (landing_x + 2.0, 4.5, 0.9), (1.4, 1.0, 0.2))
+    add_cube_mesh(bm_stela_mon, (landing_x + 2.0, 4.5, 1.1), (1.1, 0.8, 0.2))
+    add_cube_mesh(bm_stela_mon, (landing_x + 2.0, 4.5, 2.5), (0.24, 1.4, 2.6))
+    add_cube_mesh(bm_stela_mon, (landing_x + 2.0, 4.5, 4.0), (0.32, 1.5, 0.4))
     create_mesh_object("Royal_Inscribed_Stela_Suryavarman", bm_stela_mon, mat_inscriptions)
 
     # 4. First Enclosure (Gallery of Bas-Reliefs)
@@ -940,19 +1070,25 @@ def build_angkor_wat():
     set_active_collection(col_first_enc)
     x_min, x_max = -35.0, 75.0
     y_min, y_max = -48.0, 48.0
+    enc1_mid_x = (x_min + x_max) / 2.0
     enc1_h = 6.2
     gal_w = 4.4
+    enc1_base_z = 0.65
 
     bm_p1 = bmesh.new()
-    add_cube_mesh(bm_p1, ((x_min+x_max)/2, 0, 0.4), (x_max - x_min + 4, y_max*2 + 4, 0.8))
+    add_cube_mesh(bm_p1, (enc1_mid_x, 0, 0.395), (x_max - x_min + 4, y_max*2 + 4, 0.79))
     create_mesh_object("First_Enclosure_Plinth", bm_p1, mat_laterite)
 
-    build_gallery_unified("Gal_West_North", (x_min, 4.0), (x_min, y_max), width=gal_w, height=enc1_h, mat_stone=mat_sandstone, mat_relief=mat_basrelief)
-    build_gallery_unified("Gal_West_South", (x_min, -4.0), (x_min, y_min), width=gal_w, height=enc1_h, mat_stone=mat_sandstone, mat_relief=mat_basrelief)
-    # East Gallery (Samudra Manthana bas-relief)
-    build_gallery_unified("Gal_East_SamudraManthana", (x_max, y_min), (x_max, y_max), width=gal_w, height=enc1_h, mat_stone=mat_sandstone, mat_relief=mat_basrelief)
-    build_gallery_unified("Gal_North", (x_min, y_max), (x_max, y_max), width=gal_w, height=enc1_h, mat_stone=mat_sandstone, mat_relief=mat_inscriptions)
-    build_gallery_unified("Gal_South", (x_min, y_min), (x_max, y_min), width=gal_w, height=enc1_h, mat_stone=mat_sandstone, mat_relief=mat_inscriptions)
+    build_gallery_unified("Gal_West_North", (x_min, 3.6), (x_min, y_max), width=gal_w, height=enc1_h, mat_stone=mat_sandstone, mat_relief=mat_relief_lanka, base_z=enc1_base_z)
+    build_gallery_unified("Gal_West_South", (x_min, -3.6), (x_min, y_min), width=gal_w, height=enc1_h, mat_stone=mat_sandstone, mat_relief=mat_relief_kurukshetra, base_z=enc1_base_z)
+    # East Gallery split at y=0 for walkable East Gopura
+    build_gallery_unified("Gal_East_North", (x_max, 3.2), (x_max, y_max), width=gal_w, height=enc1_h, mat_stone=mat_sandstone, mat_relief=mat_basrelief, base_z=enc1_base_z)
+    build_gallery_unified("Gal_East_SamudraManthana", (x_max, y_min), (x_max, -3.2), width=gal_w, height=enc1_h, mat_stone=mat_sandstone, mat_relief=mat_basrelief, base_z=enc1_base_z)
+    # North & South Galleries split at x=enc1_mid_x for walkable North/South Gopuras
+    build_gallery_unified("Gal_North_W", (x_min, y_max), (enc1_mid_x - 3.2, y_max), width=gal_w, height=enc1_h, mat_stone=mat_sandstone, mat_relief=mat_inscriptions, base_z=enc1_base_z)
+    build_gallery_unified("Gal_North_E", (enc1_mid_x + 3.2, y_max), (x_max, y_max), width=gal_w, height=enc1_h, mat_stone=mat_sandstone, mat_relief=mat_inscriptions, base_z=enc1_base_z)
+    build_gallery_unified("Gal_South_W", (x_min, y_min), (enc1_mid_x - 3.2, y_min), width=gal_w, height=enc1_h, mat_stone=mat_sandstone, mat_relief=mat_relief_suryavarman, base_z=enc1_base_z)
+    build_gallery_unified("Gal_South_E", (enc1_mid_x + 3.2, y_min), (x_max, y_min), width=gal_w, height=enc1_h, mat_stone=mat_sandstone, mat_relief=mat_inscriptions, base_z=enc1_base_z)
 
     for cx, cy, cname in [
         (x_min, y_max, "Enc1_Corner_NW"),
@@ -962,32 +1098,32 @@ def build_angkor_wat():
     ]:
         build_prasat_tower_obj(cname, (cx, cy, 0.8), base_w=6.0, total_h=13.5, tiers=3, mat_stone=mat_sandstone, mat_gold=mat_gold)
 
-    build_prasat_tower_obj("Enc1_Gopura_West", (x_min, 0, 0.8), base_w=7.5, total_h=16.0, tiers=3, mat_stone=mat_sandstone, mat_gold=mat_gold)
-    build_prasat_tower_obj("Enc1_Gopura_East", (x_max, 0, 0.8), base_w=6.5, total_h=14.0, tiers=3, mat_stone=mat_sandstone, mat_gold=mat_gold)
-    build_prasat_tower_obj("Enc1_Gopura_North", ((x_min+x_max)/2, y_max, 0.8), base_w=6.5, total_h=14.0, tiers=3, mat_stone=mat_sandstone, mat_gold=mat_gold)
-    build_prasat_tower_obj("Enc1_Gopura_South", ((x_min+x_max)/2, y_min, 0.8), base_w=6.5, total_h=14.0, tiers=3, mat_stone=mat_sandstone, mat_gold=mat_gold)
+    build_prasat_tower_obj("Enc1_Gopura_West", (x_min, 0, 0.8), base_w=7.5, total_h=16.0, tiers=3, mat_stone=mat_sandstone, mat_gold=mat_gold, pass_through='CROSS')
+    build_prasat_tower_obj("Enc1_Gopura_East", (x_max, 0, 0.8), base_w=6.5, total_h=14.0, tiers=3, mat_stone=mat_sandstone, mat_gold=mat_gold, pass_through='WE')
+    build_prasat_tower_obj("Enc1_Gopura_North", (enc1_mid_x, y_max, 0.8), base_w=6.5, total_h=14.0, tiers=3, mat_stone=mat_sandstone, mat_gold=mat_gold, pass_through='NS')
+    build_prasat_tower_obj("Enc1_Gopura_South", (enc1_mid_x, y_min, 0.8), base_w=6.5, total_h=14.0, tiers=3, mat_stone=mat_sandstone, mat_gold=mat_gold, pass_through='NS')
 
     # 5. Preah Poan (Cruciform Cloister)
     log("Building 5: Preah Poan Cruciform Cloister...")
     set_active_collection(col_preah_poan)
-    pp_min_x, pp_max_x = -30.0, -8.0
+    pp_min_x, pp_max_x = -31.5, -8.5
     pp_mid_x = (pp_min_x + pp_max_x) / 2.0
     pp_h = 5.6
-    build_gallery_unified("PreahPoan_Axis_W_E", (pp_min_x, 0), (pp_max_x, 0), width=4.0, height=pp_h, mat_stone=mat_sandstone)
-    build_gallery_unified("PreahPoan_Trans_N", (pp_mid_x, 0), (pp_mid_x,  15.0), width=3.8, height=pp_h, mat_stone=mat_sandstone)
-    build_gallery_unified("PreahPoan_Trans_S", (pp_mid_x, 0), (pp_mid_x, -15.0), width=3.8, height=pp_h, mat_stone=mat_sandstone)
+    build_gallery_unified("PreahPoan_Axis_W_E", (pp_min_x, 0), (pp_max_x, 0), width=4.0, height=pp_h, mat_stone=mat_sandstone, base_z=enc1_base_z)
+    build_gallery_unified("PreahPoan_Trans_N", (pp_mid_x, 2.0), (pp_mid_x,  15.0), width=3.8, height=pp_h, mat_stone=mat_sandstone, base_z=enc1_base_z)
+    build_gallery_unified("PreahPoan_Trans_S", (pp_mid_x, -2.0), (pp_mid_x, -15.0), width=3.8, height=pp_h, mat_stone=mat_sandstone, base_z=enc1_base_z)
 
     bm_pp_basins = bmesh.new()
-    pool_sz = 9.0
+    pool_sz = 8.5
     for sx in (-1, 1):
         for sy in (-1, 1):
             px = pp_mid_x + sx * 6.5
             py = sy * 7.5
-            add_cube_mesh(bm_pp_basins, (px, py, 0.2), (pool_sz, pool_sz, 0.4))
+            add_cube_mesh(bm_pp_basins, (px, py, 0.65), (pool_sz, pool_sz, 0.35))
     create_mesh_object("PreahPoan_Basins", bm_pp_basins, mat_water)
 
-    build_library_fast("Courtyard1_Library_North", (pp_mid_x,  28.0, 0), scale=0.85, rotation_z=0, mat_stone=mat_sandstone)
-    build_library_fast("Courtyard1_Library_South", (pp_mid_x, -28.0, 0), scale=0.85, rotation_z=0, mat_stone=mat_sandstone)
+    build_library_fast("Courtyard1_Library_North", (pp_mid_x,  28.0, 0.8), scale=0.85, rotation_z=0, mat_stone=mat_sandstone)
+    build_library_fast("Courtyard1_Library_South", (pp_mid_x, -28.0, 0.8), scale=0.85, rotation_z=0, mat_stone=mat_sandstone)
 
     # 6. Second Enclosure (Middle Terrace)
     log("Building 6: Second Enclosure & Devata Gallery...")
@@ -996,20 +1132,26 @@ def build_angkor_wat():
     enc2_y_min, enc2_y_max = -26.0, 26.0
     enc2_plinth_h = 3.6
     enc2_gal_h = 5.2
+    enc2_base_z = 3.45
 
     bm_p2 = bmesh.new()
-    add_cube_mesh(bm_p2, ((enc2_x_min+enc2_x_max)/2, 0, 1.2), (enc2_x_max-enc2_x_min + 5.0, enc2_y_max*2 + 5.0, 2.4))
-    add_cube_mesh(bm_p2, ((enc2_x_min+enc2_x_max)/2, 0, 2.4), (enc2_x_max-enc2_x_min + 3.0, enc2_y_max*2 + 3.0, 2.4))
-    add_cube_mesh(bm_p2, ((enc2_x_min+enc2_x_max)/2, 0, 3.6), (enc2_x_max-enc2_x_min + 1.2, enc2_y_max*2 + 1.2, 2.4))
+    add_cube_mesh(bm_p2, ((enc2_x_min+enc2_x_max)/2, 0, 1.5), (enc2_x_max-enc2_x_min + 5.0, enc2_y_max*2 + 5.0, 1.4))
+    add_cube_mesh(bm_p2, ((enc2_x_min+enc2_x_max)/2, 0, 2.9), (enc2_x_max-enc2_x_min + 1.5, enc2_y_max*2 + 1.5, 1.4))
     create_mesh_object("Second_Enclosure_Plinth", bm_p2, mat_sandstone)
 
-    build_steep_staircase_fast("Enc2_Stairs_West", (enc2_x_min - 2.5, 0, 0), width=3.8, depth=2.8, height=3.6, steps_count=6, mat_stone=mat_sandstone, rotation_z=math.radians(-90))
-    build_steep_staircase_fast("Enc2_Stairs_East", (enc2_x_max + 2.5, 0, 0), width=3.8, depth=2.8, height=3.6, steps_count=6, mat_stone=mat_sandstone, rotation_z=math.radians(90))
+    # Flush walkable staircases from z=0.8 to z=3.6
+    build_steep_staircase_fast("Enc2_Stairs_West", (enc2_x_min - 4.0, 0, 0.8), width=4.0, depth=4.0, height=2.8, steps_count=10, mat_stone=mat_sandstone, rotation_z=math.radians(-90))
+    build_steep_staircase_fast("Enc2_Stairs_East", (enc2_x_max + 4.0, 0, 0.8), width=4.0, depth=4.0, height=2.8, steps_count=10, mat_stone=mat_sandstone, rotation_z=math.radians(90))
 
-    build_gallery_unified("Enc2_Gal_W", (enc2_x_min, enc2_y_min), (enc2_x_min, enc2_y_max), width=3.8, height=enc2_gal_h, mat_stone=mat_sandstone, mat_relief=mat_devata)
-    build_gallery_unified("Enc2_Gal_E", (enc2_x_max, enc2_y_min), (enc2_x_max, enc2_y_max), width=3.8, height=enc2_gal_h, mat_stone=mat_sandstone, mat_relief=mat_devata)
-    build_gallery_unified("Enc2_Gal_N", (enc2_x_min, enc2_y_max), (enc2_x_max, enc2_y_max), width=3.8, height=enc2_gal_h, mat_stone=mat_sandstone, mat_relief=mat_devata)
-    build_gallery_unified("Enc2_Gal_S", (enc2_x_min, enc2_y_min), (enc2_x_max, enc2_y_min), width=3.8, height=enc2_gal_h, mat_stone=mat_sandstone, mat_relief=mat_devata)
+    # Split Second Enclosure galleries at cardinal axes so player can walk straight through!
+    build_gallery_unified("Enc2_Gal_W_N", (enc2_x_min, 2.2), (enc2_x_min, enc2_y_max), width=3.8, height=enc2_gal_h, mat_stone=mat_sandstone, mat_relief=mat_devata, base_z=enc2_base_z)
+    build_gallery_unified("Enc2_Gal_W_S", (enc2_x_min, enc2_y_min), (enc2_x_min, -2.2), width=3.8, height=enc2_gal_h, mat_stone=mat_sandstone, mat_relief=mat_devata, base_z=enc2_base_z)
+    build_gallery_unified("Enc2_Gal_E_N", (enc2_x_max, 2.2), (enc2_x_max, enc2_y_max), width=3.8, height=enc2_gal_h, mat_stone=mat_sandstone, mat_relief=mat_devata, base_z=enc2_base_z)
+    build_gallery_unified("Enc2_Gal_E_S", (enc2_x_max, enc2_y_min), (enc2_x_max, -2.2), width=3.8, height=enc2_gal_h, mat_stone=mat_sandstone, mat_relief=mat_devata, base_z=enc2_base_z)
+    build_gallery_unified("Enc2_Gal_N_W", (enc2_x_min, enc2_y_max), (17.8, enc2_y_max), width=3.8, height=enc2_gal_h, mat_stone=mat_sandstone, mat_relief=mat_devata, base_z=enc2_base_z)
+    build_gallery_unified("Enc2_Gal_N_E", (22.2, enc2_y_max), (enc2_x_max, enc2_y_max), width=3.8, height=enc2_gal_h, mat_stone=mat_sandstone, mat_relief=mat_devata, base_z=enc2_base_z)
+    build_gallery_unified("Enc2_Gal_S_W", (enc2_x_min, enc2_y_min), (17.8, enc2_y_min), width=3.8, height=enc2_gal_h, mat_stone=mat_sandstone, mat_relief=mat_devata, base_z=enc2_base_z)
+    build_gallery_unified("Enc2_Gal_S_E", (22.2, enc2_y_min), (enc2_x_max, enc2_y_min), width=3.8, height=enc2_gal_h, mat_stone=mat_sandstone, mat_relief=mat_devata, base_z=enc2_base_z)
 
     for cx, cy, cname in [
         (enc2_x_min, enc2_y_max, "Enc2_Corner_NW"),
@@ -1024,39 +1166,54 @@ def build_angkor_wat():
     set_active_collection(col_bakan)
     center_x, center_y = 20.0, 0.0
     bakan_w = 26.0
-    pyramid_base_h = 7.5
+    pyramid_base_h = 10.0
 
     bm_pyr = bmesh.new()
-    add_cube_mesh(bm_pyr, (center_x, center_y, enc2_plinth_h + 2.5), (bakan_w*1.7, bakan_w*1.7, 5.0))
-    add_cube_mesh(bm_pyr, (center_x, center_y, enc2_plinth_h + 5.0), (bakan_w*1.5, bakan_w*1.5, 5.0))
-    add_cube_mesh(bm_pyr, (center_x, center_y, enc2_plinth_h + pyramid_base_h), (bakan_w*1.3, bakan_w*1.3, 5.0))
+    add_cube_mesh(bm_pyr, (center_x, center_y, enc2_plinth_h + 1.7), (bakan_w*1.5, bakan_w*1.5, 3.4))
+    add_cube_mesh(bm_pyr, (center_x, center_y, enc2_plinth_h + 5.05), (bakan_w*1.32, bakan_w*1.32, 3.3))
+    add_cube_mesh(bm_pyr, (center_x, center_y, enc2_plinth_h + 8.35), (bakan_w*1.12, bakan_w*1.12, 3.3))
     create_mesh_object("Bakan_Mount_Meru_Pyramid", bm_pyr, mat_sandstone)
 
-    bakan_floor_z = enc2_plinth_h + pyramid_base_h + 2.5
+    bakan_floor_z = enc2_plinth_h + pyramid_base_h
+    bakan_base_z = bakan_floor_z - 0.15
 
+    # 12 Steep Staircases properly oriented inward toward the Bakan summit (z=3.6 -> z=13.6)
     for angle_deg in (0, 90, 180, 270):
         rad = math.radians(angle_deg)
-        dist = bakan_w * 0.75
+        dist = 20.0
         sx = center_x + math.cos(rad) * dist
         sy = center_y + math.sin(rad) * dist
-        build_steep_staircase_fast(f"Bakan_Stairs_{angle_deg}_C", (sx, sy, enc2_plinth_h), width=2.4, depth=4.2, height=pyramid_base_h + 2.5, steps_count=8, mat_stone=mat_sandstone, rotation_z=rad - math.radians(90))
-        lx = sx - math.sin(rad) * 4.8
-        ly = sy + math.cos(rad) * 4.8
-        build_steep_staircase_fast(f"Bakan_Stairs_{angle_deg}_L", (lx, ly, enc2_plinth_h), width=2.0, depth=4.2, height=pyramid_base_h + 2.5, steps_count=8, mat_stone=mat_sandstone, rotation_z=rad - math.radians(90))
-        rx = sx + math.sin(rad) * 4.8
-        ry = sy - math.cos(rad) * 4.8
-        build_steep_staircase_fast(f"Bakan_Stairs_{angle_deg}_R", (rx, ry, enc2_plinth_h), width=2.0, depth=4.2, height=pyramid_base_h + 2.5, steps_count=8, mat_stone=mat_sandstone, rotation_z=rad - math.radians(90))
+        stair_rot = rad + math.radians(90)
+        build_steep_staircase_fast(f"Bakan_Stairs_{angle_deg}_C", (sx, sy, enc2_plinth_h), width=2.8, depth=8.0, height=pyramid_base_h, steps_count=24, mat_stone=mat_sandstone, rotation_z=stair_rot)
+        lx = sx - math.sin(rad) * 5.0
+        ly = sy + math.cos(rad) * 5.0
+        build_steep_staircase_fast(f"Bakan_Stairs_{angle_deg}_L", (lx, ly, enc2_plinth_h), width=2.2, depth=8.0, height=pyramid_base_h, steps_count=24, mat_stone=mat_sandstone, rotation_z=stair_rot)
+        rx = sx + math.sin(rad) * 5.0
+        ry = sy - math.cos(rad) * 5.0
+        build_steep_staircase_fast(f"Bakan_Stairs_{angle_deg}_R", (rx, ry, enc2_plinth_h), width=2.2, depth=8.0, height=pyramid_base_h, steps_count=24, mat_stone=mat_sandstone, rotation_z=stair_rot)
 
     b_min_x, b_max_x = center_x - 12.0, center_x + 12.0
     b_min_y, b_max_y = center_y - 12.0, center_y + 12.0
     b_gal_h = 4.6
-    build_gallery_unified("Bakan_Gal_W", (b_min_x, b_min_y), (b_min_x, b_max_y), width=3.2, height=b_gal_h, mat_stone=mat_sandstone)
-    build_gallery_unified("Bakan_Gal_E", (b_max_x, b_min_y), (b_max_x, b_max_y), width=3.2, height=b_gal_h, mat_stone=mat_sandstone)
-    build_gallery_unified("Bakan_Gal_N", (b_min_x, b_max_y), (b_max_x, b_max_y), width=3.2, height=b_gal_h, mat_stone=mat_sandstone)
-    build_gallery_unified("Bakan_Gal_S", (b_min_x, b_min_y), (b_max_x, b_min_y), width=3.2, height=b_gal_h, mat_stone=mat_sandstone)
+    # Split Bakan perimeter galleries at cardinal axes so stairs open directly into courtyard!
+    build_gallery_unified("Bakan_Gal_W_N", (b_min_x, 2.0), (b_min_x, b_max_y), width=3.2, height=b_gal_h, mat_stone=mat_sandstone, base_z=bakan_base_z)
+    build_gallery_unified("Bakan_Gal_W_S", (b_min_x, b_min_y), (b_min_x, -2.0), width=3.2, height=b_gal_h, mat_stone=mat_sandstone, base_z=bakan_base_z)
+    build_gallery_unified("Bakan_Gal_E_N", (b_max_x, 2.0), (b_max_x, b_max_y), width=3.2, height=b_gal_h, mat_stone=mat_sandstone, base_z=bakan_base_z)
+    build_gallery_unified("Bakan_Gal_E_S", (b_max_x, b_min_y), (b_max_x, -2.0), width=3.2, height=b_gal_h, mat_stone=mat_sandstone, base_z=bakan_base_z)
+    build_gallery_unified("Bakan_Gal_N_W", (b_min_x, b_max_y), (center_x - 2.0, b_max_y), width=3.2, height=b_gal_h, mat_stone=mat_sandstone, base_z=bakan_base_z)
+    build_gallery_unified("Bakan_Gal_N_E", (center_x + 2.0, b_max_y), (b_max_x, b_max_y), width=3.2, height=b_gal_h, mat_stone=mat_sandstone, base_z=bakan_base_z)
+    build_gallery_unified("Bakan_Gal_S_W", (b_min_x, b_min_y), (center_x - 2.0, b_min_y), width=3.2, height=b_gal_h, mat_stone=mat_sandstone, base_z=bakan_base_z)
+    build_gallery_unified("Bakan_Gal_S_E", (center_x + 2.0, b_min_y), (b_max_x, b_min_y), width=3.2, height=b_gal_h, mat_stone=mat_sandstone, base_z=bakan_base_z)
 
-    build_gallery_unified("Bakan_Cross_WE", (b_min_x, 0), (b_max_x, 0), width=3.0, height=b_gal_h, mat_stone=mat_sandstone)
-    build_gallery_unified("Bakan_Cross_NS", (center_x, b_min_y), (center_x, b_max_y), width=3.0, height=b_gal_h, mat_stone=mat_sandstone)
+    # Cruciform porticos connecting outer Bakan galleries to Central Prasat Thom without blocking the Garbhagriha
+    build_gallery_unified("Bakan_Cross_W", (b_min_x, 0), (center_x - 4.9, 0), width=3.0, height=b_gal_h, mat_stone=mat_sandstone, has_colonnade=True, base_z=bakan_base_z)
+    build_gallery_unified("Bakan_Cross_E", (center_x + 4.9, 0), (b_max_x, 0), width=3.0, height=b_gal_h, mat_stone=mat_sandstone, has_colonnade=True, base_z=bakan_base_z)
+    build_gallery_unified("Bakan_Cross_N", (center_x, center_y + 4.9), (center_x, b_max_y), width=3.0, height=b_gal_h, mat_stone=mat_sandstone, has_colonnade=True, base_z=bakan_base_z)
+    build_gallery_unified("Bakan_Cross_S", (center_x, b_min_y), (center_x, center_y - 4.9), width=3.0, height=b_gal_h, mat_stone=mat_sandstone, has_colonnade=True, base_z=bakan_base_z)
+
+    # Tropical Vegetation around outer precinct & moat
+    log("Building 10: Tropical Cambodian Foliage...")
+    build_tropical_foliage_cluster(col_foliage, mat_trunk, mat_frond, mat_canopy)
 
     corner_span = 10.5
     for sx in (-1, 1):
