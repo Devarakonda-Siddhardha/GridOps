@@ -20,8 +20,8 @@ var wave_configs = [
 ]
 
 func _ready():
-	# Start Wave 1 after short intro delay
-	get_tree().create_timer(2.0).timeout.connect(start_next_wave)
+	# Start Wave 1 after level intro dialogue finishes
+	get_tree().create_timer(4.5).timeout.connect(start_next_wave)
 
 func start_next_wave():
 	if current_wave >= total_waves:

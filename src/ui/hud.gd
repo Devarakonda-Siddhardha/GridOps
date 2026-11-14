@@ -462,7 +462,7 @@ func _setup_touch_controls():
 	touch_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(touch_layer)
 
-	var is_touch_device = OS.get_name() == "Android" or DisplayServer.is_touchscreen_available()
+	var is_touch_device = OS.get_name() == "Android" or OS.get_name() == "iOS"
 	touch_layer.visible = is_touch_device
 
 	# Toggle touch button in top-right

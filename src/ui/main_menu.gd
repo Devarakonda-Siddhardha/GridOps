@@ -107,14 +107,6 @@ func _ready():
 	_setup_chapter_list()
 	_setup_settings_values()
 
-	# Start menu background soundtrack
-	if SoundManager:
-		SoundManager.play_dialogue("warrior_intro", true)
-		get_tree().create_timer(3.0).timeout.connect(func():
-			if is_instance_valid(self):
-				SoundManager.play_athena("athena_intro", true)
-		)
-
 func _setup_background():
 	if bg_texture:
 		var tex_path = "res://assets/main_menu_bg.jpg"

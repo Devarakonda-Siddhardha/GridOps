@@ -4,7 +4,7 @@ signal health_changed(current, max_val)
 signal stamina_changed(current, max_val)
 signal died
 
-enum State { IDLE, RUN, AIM, ATTACK, DODGE, PRAY, HIT, DEAD }
+enum State { IDLE, RUN, AIM, ATTACK, BLOCK, DODGE, PRAY, HIT, DEAD }
 
 @export var base_speed: float = 8.5
 @export var dodge_speed: float = 15.0
@@ -38,6 +38,12 @@ func _ready():
 	floor_stop_on_slope = true
 	if ares_aura:
 		ares_aura.visible = false
+	if anim_player:
+		for aname in ["Idle", "Run"]:
+			if anim_player.has_animation(aname):
+				var anim = anim_player.get_animation(aname)
+				if anim:
+					anim.loop_mode = Animation.LOOP_LINEAR
 	emit_signal("health_changed", current_health, max_health)
 	emit_signal("stamina_changed", current_stamina, max_stamina)
 	_play_anim("Idle")
@@ -79,12 +85,25 @@ func _physics_process(delta):
 	match current_state:
 		State.IDLE, State.RUN:
 			_handle_movement(delta)
-			if is_on_floor() and Input.is_action_just_pressed("jump"):
+			if Input.is_action_pressed("block"):
+				current_state = State.BLOCK
+				_play_anim("Idle")
+			elif is_on_floor() and Input.is_action_just_pressed("jump"):
 				_jump()
 			elif Input.is_action_pressed("attack") and shoot_cooldown <= 0.0 and current_stamina >= 10.0:
 				_shoot_arrow()
 			elif Input.is_action_just_pressed("dodge") and current_stamina >= 20.0:
 				_start_dodge()
+
+		State.BLOCK:
+			velocity.x = move_toward(velocity.x, 0, 14.0 * delta)
+			velocity.z = move_toward(velocity.z, 0, 14.0 * delta)
+			move_and_slide()
+			if not Input.is_action_pressed("block"):
+				current_state = State.IDLE
+				_play_anim("Idle")
+			elif Input.is_action_pressed("attack") and shoot_cooldown <= 0.0 and current_stamina >= 10.0:
+				_shoot_arrow()
 
 		State.ATTACK:
 			velocity.x = move_toward(velocity.x, 0, 16.0 * delta)
@@ -216,6 +235,11 @@ func _start_dodge():
 func take_damage(amount: float, attacker_pos: Vector3 = Vector3.ZERO):
 	if is_invulnerable or is_dead:
 		return
+	if current_state == State.BLOCK and current_stamina >= 8.0:
+		current_stamina -= 8.0
+		emit_signal("stamina_changed", current_stamina, max_stamina)
+		SoundManager.play("shield_block", 1.1)
+		return
 	current_health = max(0.0, current_health - amount)
 	emit_signal("health_changed", current_health, max_health)
 	SoundManager.play("player_hurt", randf_range(0.9, 1.1))
@@ -265,6 +289,8 @@ func _try_cast(god_id: String):
 			if ares_aura:
 				ares_aura.visible = true
 
-func _play_anim(anim_name: String):
+func _play_anim(anim_name: String, blend: float = 0.14):
 	if anim_player and anim_player.has_animation(anim_name):
-		anim_player.play(anim_name)
+		if anim_player.current_animation == anim_name and anim_player.is_playing():
+			return
+		anim_player.play(anim_name, blend)

@@ -4,7 +4,7 @@ signal health_changed(current, max_val)
 signal stamina_changed(current, max_val)
 signal died
 
-enum State { IDLE, RUN, ATTACK, DODGE, PRAY, HIT, DEAD }
+enum State { IDLE, RUN, ATTACK, BLOCK, DODGE, PRAY, HIT, DEAD }
 
 @export var base_speed: float = 7.0
 @export var dodge_speed: float = 14.0
@@ -23,8 +23,10 @@ var combo_window_open: bool = false
 var is_invulnerable: bool = false
 var is_dead: bool = false
 var ares_buff_timer: float = 0.0
+var action_id: int = 0
 
 @onready var anim_player: AnimationPlayer = $Model/AnimationPlayer
+@onready var model_node: Node3D = $Model
 @onready var camera_pivot = get_parent().get_node_or_null("CameraPivot")
 @onready var ares_aura = $AresAura
 @onready var hit_spark = $HitSpark
@@ -37,18 +39,36 @@ func _ready():
 	floor_stop_on_slope = true
 	if ares_aura:
 		ares_aura.visible = false
+	_configure_loop_anims()
 	emit_signal("health_changed", current_health, max_health)
 	emit_signal("stamina_changed", current_stamina, max_stamina)
 	_play_anim("Idle")
+
+func _configure_loop_anims():
+	if not anim_player:
+		return
+	for anim_name in ["Idle", "Run"]:
+		if anim_player.has_animation(anim_name):
+			var anim = anim_player.get_animation(anim_name)
+			if anim:
+				anim.loop_mode = Animation.LOOP_LINEAR
 
 func _process(delta):
 	if is_dead:
 		return
 
-	# Stamina regeneration
+	# Stamina regeneration (slower while blocking)
 	if current_state != State.DODGE and current_state != State.ATTACK:
-		current_stamina = min(max_stamina, current_stamina + stamina_regen * delta)
+		var regen_mult = 0.35 if current_state == State.BLOCK else 1.0
+		current_stamina = min(max_stamina, current_stamina + stamina_regen * regen_mult * delta)
 		emit_signal("stamina_changed", current_stamina, max_stamina)
+
+	# Smoothly tilt model into guard stance when blocking
+	if model_node:
+		var target_rot_y = 0.45 if current_state == State.BLOCK else 0.0
+		var target_rot_x = 0.08 if current_state == State.BLOCK else 0.0
+		model_node.rotation.y = lerp_angle(model_node.rotation.y, target_rot_y, 14.0 * delta)
+		model_node.rotation.x = lerp(model_node.rotation.x, target_rot_x, 14.0 * delta)
 
 	# Ares buff decay
 	if ares_buff_timer > 0.0:
@@ -76,9 +96,21 @@ func _physics_process(delta):
 
 	match current_state:
 		State.IDLE, State.RUN:
-			_handle_movement(delta)
-			if is_on_floor() and Input.is_action_just_pressed("jump"):
+			_handle_movement(delta, 1.0)
+			if Input.is_action_pressed("block"):
+				_enter_block()
+			elif is_on_floor() and Input.is_action_just_pressed("jump"):
 				_jump()
+			elif Input.is_action_just_pressed("attack"):
+				_start_attack(1)
+			elif Input.is_action_just_pressed("dodge") and current_stamina >= 25.0:
+				_start_dodge()
+
+		State.BLOCK:
+			_handle_movement(delta, 0.45)
+			if not Input.is_action_pressed("block"):
+				current_state = State.IDLE
+				_play_anim("Idle")
 			elif Input.is_action_just_pressed("attack"):
 				_start_attack(1)
 			elif Input.is_action_just_pressed("dodge") and current_stamina >= 25.0:
@@ -92,6 +124,8 @@ func _physics_process(delta):
 			if combo_window_open and Input.is_action_just_pressed("attack"):
 				if attack_combo == 1:
 					_start_attack(2)
+			elif combo_window_open and Input.is_action_pressed("block"):
+				_enter_block()
 
 		State.DODGE:
 			move_and_slide()
@@ -110,7 +144,18 @@ func _jump():
 	velocity.y = jump_velocity
 	SoundManager.play("sword_swing", 1.3, -4.0)
 
-func _handle_movement(delta):
+func _enter_block():
+	action_id += 1
+	current_state = State.BLOCK
+	combo_window_open = false
+	attack_combo = 0
+	if anim_player and anim_player.has_animation("ShieldBlock"):
+		_play_anim("ShieldBlock")
+	else:
+		_play_anim("Idle")
+	SoundManager.play("shield_block", 1.2, -6.0)
+
+func _handle_movement(delta, speed_mult: float = 1.0):
 	var input_dir = Vector2.ZERO
 	if Input.is_action_pressed("move_forward"):
 		input_dir.y -= 1
@@ -120,6 +165,7 @@ func _handle_movement(delta):
 		input_dir.x -= 1
 	if Input.is_action_pressed("move_right"):
 		input_dir.x += 1
+
 	input_dir = input_dir.normalized()
 
 	var cam_basis = Basis.IDENTITY
@@ -127,25 +173,35 @@ func _handle_movement(delta):
 		cam_basis = camera_pivot.get_camera_basis()
 
 	var move_dir = (cam_basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
-	var current_speed = base_speed * (1.35 if ares_buff_timer > 0.0 else 1.0)
+	var current_speed = base_speed * (1.25 if ares_buff_timer > 0.0 else 1.0) * speed_mult
 
-	if move_dir.length_squared() > 0.01:
+	if current_state == State.BLOCK:
+		# Face camera forward while blocking
+		var cam_forward = (cam_basis * Vector3(0, 0, -1)).normalized()
+		var guard_angle = atan2(-cam_forward.x, -cam_forward.z)
+		rotation.y = lerp_angle(rotation.y, guard_angle, 14.0 * delta)
+
+	if move_dir.length() > 0.1:
 		velocity.x = move_dir.x * current_speed
 		velocity.z = move_dir.z * current_speed
 
-		# Smooth character rotation towards movement (facing forward)
-		var target_angle = atan2(-move_dir.x, -move_dir.z)
-		rotation.y = lerp_angle(rotation.y, target_angle, 14.0 * delta)
+		if current_state != State.BLOCK:
+			# Smooth character rotation towards movement (facing forward)
+			var target_angle = atan2(-move_dir.x, -move_dir.z)
+			rotation.y = lerp_angle(rotation.y, target_angle, 14.0 * delta)
 
-		if current_state != State.RUN:
-			current_state = State.RUN
-			_play_anim("Run")
+			if not is_on_floor():
+				_play_anim("Idle", 0.2)
+			elif current_state != State.RUN:
+				current_state = State.RUN
+				_play_anim("Run", 0.14)
 	else:
 		velocity.x = move_toward(velocity.x, 0, current_speed * 12.0 * delta)
 		velocity.z = move_toward(velocity.z, 0, current_speed * 12.0 * delta)
-		if current_state != State.IDLE:
-			current_state = State.IDLE
-			_play_anim("Idle")
+		if current_state != State.BLOCK:
+			if current_state != State.IDLE:
+				current_state = State.IDLE
+				_play_anim("Idle", 0.14)
 
 	move_and_slide()
 
@@ -153,11 +209,19 @@ func _start_attack(combo_step: int):
 	if current_stamina < 15.0:
 		return
 
+	action_id += 1
+	var my_id = action_id
+
 	current_stamina -= 15.0
 	emit_signal("stamina_changed", current_stamina, max_stamina)
 	current_state = State.ATTACK
 	attack_combo = combo_step
 	combo_window_open = false
+
+	# Face camera forward when attacking
+	if camera_pivot and camera_pivot.has_method("get_camera_basis"):
+		var cam_forward = (camera_pivot.get_camera_basis() * Vector3(0, 0, -1)).normalized()
+		rotation.y = atan2(-cam_forward.x, -cam_forward.z)
 
 	# Slight step forward during attack
 	var forward = -transform.basis.z
@@ -165,12 +229,21 @@ func _start_attack(combo_step: int):
 	velocity.z = forward.z * 4.5
 
 	SoundManager.play("sword_swing", 1.0 + (0.15 * combo_step))
-	_play_anim("Attack" + str(combo_step))
+	_play_anim("Attack" + str(combo_step), 0.08, true)
 
-	# Schedule hit impact check and combo window
-	get_tree().create_timer(0.18).timeout.connect(func(): _execute_melee_hit(combo_step))
-	get_tree().create_timer(0.25).timeout.connect(func(): combo_window_open = true)
-	get_tree().create_timer(0.55).timeout.connect(_finish_attack)
+	# Schedule hit impact check and combo window with action_id guard
+	get_tree().create_timer(0.18).timeout.connect(func():
+		if is_instance_valid(self) and my_id == action_id:
+			_execute_melee_hit(combo_step)
+	)
+	get_tree().create_timer(0.25).timeout.connect(func():
+		if is_instance_valid(self) and my_id == action_id:
+			combo_window_open = true
+	)
+	get_tree().create_timer(0.55).timeout.connect(func():
+		if is_instance_valid(self) and my_id == action_id:
+			_finish_attack()
+	)
 
 func _execute_melee_hit(combo_step: int):
 	if current_state != State.ATTACK or is_dead:
@@ -208,7 +281,7 @@ func _finish_attack():
 		combo_window_open = false
 		attack_combo = 0
 		current_state = State.IDLE
-		_play_anim("Idle")
+		_play_anim("Idle", 0.14)
 
 func _get_move_direction() -> Vector3:
 	var input_dir = Vector2.ZERO
@@ -229,6 +302,9 @@ func _get_move_direction() -> Vector3:
 	return (cam_basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 
 func _start_dodge():
+	action_id += 1
+	var my_id = action_id
+
 	current_stamina -= 25.0
 	emit_signal("stamina_changed", current_stamina, max_stamina)
 	current_state = State.DODGE
@@ -239,27 +315,34 @@ func _start_dodge():
 	velocity.x = dodge_dir.x * dodge_speed
 	velocity.z = dodge_dir.z * dodge_speed
 
-	_play_anim("Dodge")
+	_play_anim("Dodge", 0.08, true)
 	SoundManager.play("sword_swing", 0.8)
 
-	get_tree().create_timer(0.38).timeout.connect(func(): is_invulnerable = false)
-	get_tree().create_timer(0.55).timeout.connect(_finish_dodge)
+	get_tree().create_timer(0.38).timeout.connect(func():
+		if is_instance_valid(self) and my_id == action_id:
+			is_invulnerable = false
+	)
+	get_tree().create_timer(0.55).timeout.connect(func():
+		if is_instance_valid(self) and my_id == action_id:
+			_finish_dodge()
+	)
 
 func _finish_dodge():
 	if current_state == State.DODGE and not is_dead:
 		is_invulnerable = false
 		current_state = State.IDLE
-		_play_anim("Idle")
+		_play_anim("Idle", 0.14)
 
-func start_praying(god_name: String):
+func start_praying(_god_name: String):
 	if current_state != State.PRAY and not is_dead:
+		action_id += 1
 		current_state = State.PRAY
-		_play_anim("Pray")
+		_play_anim("Pray", 0.14)
 
 func stop_praying():
 	if current_state == State.PRAY and not is_dead:
 		current_state = State.IDLE
-		_play_anim("Idle")
+		_play_anim("Idle", 0.14)
 
 func _try_cast(god: String):
 	if is_dead or current_state == State.DEAD:
@@ -282,6 +365,20 @@ func take_damage(amount: float, knockback: Vector3 = Vector3.ZERO):
 	if is_invulnerable or is_dead:
 		return
 
+	# Shield Block check (Right-Click)
+	if current_state == State.BLOCK:
+		if current_stamina >= 10.0:
+			current_stamina -= 10.0
+			emit_signal("stamina_changed", current_stamina, max_stamina)
+			SoundManager.play("shield_block", randf_range(0.95, 1.05))
+			if hit_spark:
+				hit_spark.restart()
+			velocity += knockback * 0.25
+			return
+		else:
+			# Guard broken / low stamina: 70% damage reduction
+			amount *= 0.3
+
 	current_health = max(0.0, current_health - amount)
 	emit_signal("health_changed", current_health, max_health)
 	SoundManager.play("player_hurt", 1.0)
@@ -292,22 +389,27 @@ func take_damage(amount: float, knockback: Vector3 = Vector3.ZERO):
 		_die()
 	else:
 		velocity += knockback * 0.5
-		if current_state != State.ATTACK:
+		if current_state != State.ATTACK and current_state != State.BLOCK:
+			action_id += 1
+			var my_id = action_id
 			current_state = State.HIT
-			_play_anim("Hit")
+			_play_anim("Hit", 0.08, true)
 			get_tree().create_timer(0.3).timeout.connect(func():
-				if current_state == State.HIT and not is_dead:
+				if is_instance_valid(self) and my_id == action_id and current_state == State.HIT and not is_dead:
 					current_state = State.IDLE
-					_play_anim("Idle")
+					_play_anim("Idle", 0.14)
 			)
 
 func _die():
+	action_id += 1
 	is_dead = true
 	current_state = State.DEAD
 	velocity = Vector3.ZERO
-	_play_anim("Death")
+	_play_anim("Death", 0.1, true)
 	emit_signal("died")
 
-func _play_anim(anim_name: String):
+func _play_anim(anim_name: String, blend: float = 0.14, force_restart: bool = false):
 	if anim_player and anim_player.has_animation(anim_name):
-		anim_player.play(anim_name)
+		if not force_restart and anim_player.current_animation == anim_name and anim_player.is_playing():
+			return
+		anim_player.play(anim_name, blend)

@@ -66,15 +66,17 @@ func _apply_tint(n: Node, col: Color):
 
 var _t := 0.0
 func _process(delta):
-	# Procedural walk bob for static (un-animated) Sketchfab characters.
+	# Smooth procedural walk bob for static (un-animated) Sketchfab characters.
 	var p = get_parent()
 	if model == null or not (p is CharacterBody3D):
 		return
 	var spd = Vector2(p.velocity.x, p.velocity.z).length()
 	if spd > 0.5:
-		_t += delta * clamp(spd, 2.0, 9.0) * 1.6
-		model.position.y = abs(sin(_t)) * 0.12
-		model.rotation.z = sin(_t) * 0.06
+		_t += delta * clamp(spd, 2.0, 7.0) * 1.35
+		model.position.y = lerp(model.position.y, abs(sin(_t)) * 0.06, 12.0 * delta)
+		model.rotation.x = lerp(model.rotation.x, -0.08, 8.0 * delta)
+		model.rotation.z = lerp(model.rotation.z, sin(_t) * 0.02, 12.0 * delta)
 	else:
 		model.position.y = lerp(model.position.y, 0.0, 10.0 * delta)
+		model.rotation.x = lerp(model.rotation.x, 0.0, 10.0 * delta)
 		model.rotation.z = lerp(model.rotation.z, 0.0, 10.0 * delta)

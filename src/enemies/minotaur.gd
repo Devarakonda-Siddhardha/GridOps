@@ -25,7 +25,10 @@ func _ready():
 	current_health = max_health
 	_update_hp_display()
 	_play_anim("Idle")
-	SoundManager.play_dialogue("minotaur_bellow")
+	get_tree().create_timer(4.0).timeout.connect(func():
+		if is_instance_valid(self) and not is_dead:
+			SoundManager.play_dialogue("minotaur_bellow")
+	)
 	DivineManager.emit_signal("boss_spawned", "INFERNAL MINOTAUR", max_health)
 
 func _physics_process(delta):

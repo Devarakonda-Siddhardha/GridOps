@@ -487,3 +487,10 @@ func play_athena(key: String, force: bool = false):
 		if stream is AudioStream:
 			dur = max(3.0, stream.get_length())
 		emit_signal("dialogue_started", info["speaker"], info["text"], info["color"], dur)
+
+func stop_all_dialogues():
+	if dialogue_player and dialogue_player.playing:
+		dialogue_player.stop()
+	if athena_player and athena_player.playing:
+		athena_player.stop()
+	last_dialogue_time = -100.0

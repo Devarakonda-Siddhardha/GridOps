@@ -125,6 +125,8 @@ func switch_hero_class(new_class: String):
 
 func load_level(level_num: int):
 	current_level = level_num
+	if SoundManager and SoundManager.has_method("stop_all_dialogues"):
+		SoundManager.stop_all_dialogues()
 	if level_scenes.has(level_num):
 		get_tree().change_scene_to_file(level_scenes[level_num])
 
