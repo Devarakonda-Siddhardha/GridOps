@@ -39,15 +39,29 @@ func _ready():
 	floor_stop_on_slope = true
 	if ares_aura:
 		ares_aura.visible = false
+	var real_ap = _find_animated_player(model_node)
+	if real_ap:
+		anim_player = real_ap
 	_configure_loop_anims()
 	emit_signal("health_changed", current_health, max_health)
 	emit_signal("stamina_changed", current_stamina, max_stamina)
 	_play_anim("Idle")
 
+func _find_animated_player(n: Node) -> AnimationPlayer:
+	if not n:
+		return null
+	if n is AnimationPlayer and n.get_animation_list().size() > 0:
+		return n
+	for c in n.get_children():
+		var res = _find_animated_player(c)
+		if res:
+			return res
+	return null
+
 func _configure_loop_anims():
 	if not anim_player:
 		return
-	for anim_name in ["Idle", "Run"]:
+	for anim_name in ["Idle", "Run", "Block", "Pray"]:
 		if anim_player.has_animation(anim_name):
 			var anim = anim_player.get_animation(anim_name)
 			if anim:
