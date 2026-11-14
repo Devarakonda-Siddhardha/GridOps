@@ -303,6 +303,41 @@ var dialogues = {
 		"speaker": "Athena",
 		"text": "Keep moving, warrior! Time your dodges and use the terrain to flank their shields.",
 		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_block_praise": {
+		"speaker": "Athena",
+		"text": "Well guarded! Raise your shield with wisdom, and strike when the Roman legion falters.",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_combo_praise": {
+		"speaker": "Athena",
+		"text": "Magnificent strike! Your blade moves like the fury of Olympus itself!",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_boss_warning": {
+		"speaker": "Athena",
+		"text": "Beware, Champion! A mighty Roman commander approaches. Stand firm and unleash the wrath of the Gods!",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_wave_cleared": {
+		"speaker": "Athena",
+		"text": "The enemy vanguard is broken! Press the advantage and heal at the sacred shrines if you must.",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_cage_freed": {
+		"speaker": "Athena",
+		"text": "Another Spartan brother freed from Roman chains! Our phalanx grows stronger with every soul!",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_divine_cast": {
+		"speaker": "Athena",
+		"text": "The Gods answer your call! Let divine wrath sweep across the battlefield!",
+		"color": Color(1.0, 0.85, 0.25)
+	},
+	"athena_fortress_gate": {
+		"speaker": "Athena",
+		"text": "The fortress gate crumbles! Charge through the breach and claim victory for Hellas!",
+		"color": Color(1.0, 0.85, 0.25)
 	}
 }
 
@@ -400,6 +435,13 @@ func _ready():
 	_load_sound("athena_low_health", "res://assets/audio/athena_low_health.wav")
 	_load_sound("athena_victory", "res://assets/audio/athena_victory.wav")
 	_load_sound("athena_tactical_advice", "res://assets/audio/athena_tactical_advice.wav")
+	_load_sound("athena_block_praise", "res://assets/audio/athena_block_praise.wav")
+	_load_sound("athena_combo_praise", "res://assets/audio/athena_combo_praise.wav")
+	_load_sound("athena_boss_warning", "res://assets/audio/athena_boss_warning.wav")
+	_load_sound("athena_wave_cleared", "res://assets/audio/athena_wave_cleared.wav")
+	_load_sound("athena_cage_freed", "res://assets/audio/athena_cage_freed.wav")
+	_load_sound("athena_divine_cast", "res://assets/audio/athena_divine_cast.wav")
+	_load_sound("athena_fortress_gate", "res://assets/audio/athena_fortress_gate.wav")
 
 	# Create SFX player pool
 	for i in range(pool_size):

@@ -128,4 +128,5 @@ func cast_power(god: String, origin: Vector3 = Vector3.ZERO, forward_dir: Vector
 		SoundManager.play_dialogue("god_ares_cast", true)
 
 	emit_signal("cooldown_updated", god, info["timer"], info["cooldown"])
+	AthenaCommentary.trigger_divine_cast()
 	return true

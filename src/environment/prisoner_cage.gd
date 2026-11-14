@@ -44,6 +44,7 @@ func _break_cage():
 	CampaignManager.recruit_allies(captive_count)
 	CampaignManager.rescued_cages += 1
 	DivineManager.emit_signal("message_broadcast", "CAPTIVES FREED!", "+%d Greek Hoplites joined your Army! (%d/%d Camps)" % [captive_count, CampaignManager.rescued_cages, CampaignManager.total_cages])
+	AthenaCommentary.trigger_cage_freed()
 
 	$CollisionShape3D.set_deferred("disabled", true)
 	if model:

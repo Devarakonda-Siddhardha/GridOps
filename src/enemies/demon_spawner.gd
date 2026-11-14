@@ -85,6 +85,7 @@ func _on_demon_died(demon):
 		wave_in_progress = false
 		if current_wave < total_waves:
 			DivineManager.emit_signal("message_broadcast", "WAVE %d PURGED!" % current_wave, "Prepare yourself for the next assault...")
+			AthenaCommentary.trigger_wave_cleared()
 			get_tree().create_timer(3.5).timeout.connect(start_next_wave)
 		else:
 			emit_signal("all_waves_cleared")

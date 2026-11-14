@@ -271,8 +271,10 @@ func _execute_melee_hit(combo_step: int):
 
 	if hit_any:
 		SoundManager.play("sword_hit", 1.0)
-		if combo_step == 2 and randf() < 0.5:
-			SoundManager.play_dialogue("warrior_attack")
+		if combo_step == 2:
+			if randf() < 0.5:
+				SoundManager.play_dialogue("warrior_attack")
+			AthenaCommentary.trigger_combo_praise()
 		if hit_spark:
 			hit_spark.restart()
 
@@ -371,6 +373,7 @@ func take_damage(amount: float, knockback: Vector3 = Vector3.ZERO):
 			current_stamina -= 10.0
 			emit_signal("stamina_changed", current_stamina, max_stamina)
 			SoundManager.play("shield_block", randf_range(0.95, 1.05))
+			AthenaCommentary.trigger_block_praise()
 			if hit_spark:
 				hit_spark.restart()
 			velocity += knockback * 0.25

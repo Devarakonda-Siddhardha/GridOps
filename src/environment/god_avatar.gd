@@ -8,11 +8,11 @@ var is_player_near: bool = false
 var anim_player: AnimationPlayer = null
 
 const GOD_MODELS = {
-	"zeus": "res://assets/models/god_zeus.glb",
-	"poseidon": "res://assets/models/god_poseidon.glb",
-	"hades": "res://assets/models/god_hades.glb",
-	"ares": "res://assets/models/god_ares.glb",
-	"athena": "res://assets/models/god_athena.glb"
+	"zeus": "res://assets/models/sf_god_zeus.glb",
+	"poseidon": "res://assets/models/sf_god_poseidon.glb",
+	"hades": "res://assets/models/sf_god_hades.glb",
+	"ares": "res://assets/models/sf_god_ares.glb",
+	"athena": "res://assets/models/sf_god_athena.glb"
 }
 
 const GOD_COLORS = {
@@ -37,15 +37,17 @@ func _ready():
 	if interact_label:
 		interact_label.visible = false
 
-	# Instantiate God Model dynamically
+	# Instantiate Sketchfab God Statue dynamically via AutoFit
 	if GOD_MODELS.has(god_id) and ResourceLoader.exists(GOD_MODELS[god_id]):
-		var packed_model = load(GOD_MODELS[god_id])
-		if packed_model:
-			var m_inst = packed_model.instantiate()
-			model_pivot.add_child(m_inst)
-			anim_player = m_inst.get_node_or_null("AnimationPlayer")
-			if anim_player and anim_player.has_animation("Idle"):
-				anim_player.play("Idle")
+		var af = AutoFit.new()
+		af.target_size = 3.6
+		af.fit_axis = "y"
+		if god_id == "hades":
+			af.tint = Color(0.72, 0.55, 0.95, 1.0)
+		elif god_id == "ares":
+			af.tint = Color(1.0, 0.65, 0.55, 1.0)
+		model_pivot.add_child(af)
+		af.load_model(GOD_MODELS[god_id])
 
 	$ProximityArea.body_entered.connect(_on_body_entered)
 	$ProximityArea.body_exited.connect(_on_body_exited)

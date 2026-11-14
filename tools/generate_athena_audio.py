@@ -33,11 +33,21 @@ ATHENA_LINES = {
     "athena_level5_siege": "Behold, Castrum Roma! Marcus Aurelius hides behind stone ramparts. Sound the charge! Breach the fortress gates and reclaim the glory of Hellas!",
     "athena_low_health": "Stand strong, warrior! Do not falter now. Commune with the Gods and regain your vigor!",
     "athena_victory": "Hellas is restored! Your courage and strategy have echoed into eternity. Olympus honors you, Champion of Greece!",
-    "athena_tactical_advice": "Keep moving, warrior! Time your dodges and use the terrain to flank their shields."
+    "athena_tactical_advice": "Keep moving, warrior! Time your dodges and use the terrain to flank their shields.",
+    "athena_block_praise": "Well guarded! Raise your shield with wisdom, and strike when the Roman legion falters.",
+    "athena_combo_praise": "Magnificent strike! Your blade moves like the fury of Olympus itself!",
+    "athena_boss_warning": "Beware, Champion! A mighty Roman commander approaches. Stand firm and unleash the wrath of the Gods!",
+    "athena_wave_cleared": "The enemy vanguard is broken! Press the advantage and heal at the sacred shrines if you must.",
+    "athena_cage_freed": "Another Spartan brother freed from Roman chains! Our phalanx grows stronger with every soul!",
+    "athena_divine_cast": "The Gods answer your call! Let divine wrath sweep across the battlefield!",
+    "athena_fortress_gate": "The fortress gate crumbles! Charge through the breach and claim victory for Hellas!"
 }
 
 def generate_line(key, text):
     wav_path = os.path.join(OUT_DIR, f"{key}.wav")
+    if os.path.exists(wav_path) and os.path.getsize(wav_path) > 1000:
+        print(f"[Athena Voice] Skipping existing '{key}.wav'")
+        return True
     mp3_path = os.path.join(OUT_DIR, f"{key}.mp3")
 
     print(f"\n[Athena Voice] Generating '{key}' using model '{MODEL_ID}'...")

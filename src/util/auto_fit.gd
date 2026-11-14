@@ -26,6 +26,14 @@ static func collect_aabb(n: Node, xf: Transform3D, acc: Array):
 	for c in n.get_children():
 		collect_aabb(c, t, acc)
 
+func _strip_unwanted(n: Node):
+	for c in n.get_children():
+		if c.name in ["Pedestal", "Rain", "Background"]:
+			n.remove_child(c)
+			c.free()
+		else:
+			_strip_unwanted(c)
+
 func load_model(path: String):
 	if model and is_instance_valid(model):
 		model.queue_free()
@@ -34,6 +42,7 @@ func load_model(path: String):
 		push_warning("AutoFit: cannot load " + path)
 		return
 	var inst = scene.instantiate()
+	_strip_unwanted(inst)
 	var holder = Node3D.new()
 	add_child(holder)
 	holder.add_child(inst)

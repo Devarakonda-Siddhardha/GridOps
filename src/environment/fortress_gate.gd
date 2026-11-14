@@ -33,6 +33,7 @@ func _breach_gate():
 		prompt_label.visible = false
 
 	DivineManager.emit_signal("message_broadcast", "FORTRESS GATE BREACHED!", "The path to General Marcus is open! CHARGE!")
+	AthenaCommentary.trigger_fortress_gate()
 	emit_signal("gate_destroyed")
 
 	$CollisionShape3D.set_deferred("disabled", true)

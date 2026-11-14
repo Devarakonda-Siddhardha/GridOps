@@ -73,15 +73,41 @@ func _ready():
 	if p:
 		setup_player_bindings(p)
 
-	# Initial slot setup
+	# Initial slot setup with God Power artwork icons
+	var power_icons = {
+		"zeus": "res://assets/icons/power_zeus.jpg",
+		"poseidon": "res://assets/icons/power_poseidon.jpg",
+		"hades": "res://assets/icons/power_hades.jpg",
+		"ares": "res://assets/icons/power_ares.jpg"
+	}
 	for god in slots.keys():
 		var slot = slots[god]
 		var info = DivineManager.powers[god]
+		if power_icons.has(god) and ResourceLoader.exists(power_icons[god]) and not slot.has_node("IconImg"):
+			var icon_rect = TextureRect.new()
+			icon_rect.name = "IconImg"
+			icon_rect.texture = load(power_icons[god])
+			icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+			icon_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+			icon_rect.offset_left = 3
+			icon_rect.offset_top = 3
+			icon_rect.offset_right = -3
+			icon_rect.offset_bottom = -3
+			icon_rect.modulate = Color(1, 1, 1, 0.78)
+			icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			slot.add_child(icon_rect)
+			slot.move_child(icon_rect, 0)
+		for lbl_name in ["KeyLabel", "NameLabel", "StatusLabel"]:
+			var lbl = slot.get_node_or_null(lbl_name)
+			if lbl:
+				lbl.add_theme_color_override("font_outline_color", Color.BLACK)
+				lbl.add_theme_constant_override("outline_size", 4)
 		slot.get_node("KeyLabel").text = "[" + info["key"] + "]"
 		slot.get_node("NameLabel").text = info["name"]
 		slot.get_node("StatusLabel").text = "LOCKED\n(Pray at Altar)" if not info["unlocked"] else info["title"]
 		slot.get_node("CooldownOverlay").visible = false
-		slot.modulate = Color(1.0, 1.0, 1.0, 1.0) if info["unlocked"] else Color(0.6, 0.6, 0.6, 0.6)
+		slot.modulate = Color(1.0, 1.0, 1.0, 1.0) if info["unlocked"] else Color(0.65, 0.65, 0.65, 0.78)
 		slot.mouse_filter = Control.MOUSE_FILTER_STOP
 		var current_god = god
 		slot.gui_input.connect(func(ev):
