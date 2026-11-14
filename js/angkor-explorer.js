@@ -117,9 +117,25 @@ function setupAtmosphere() {
   scene.add(westFill);
 
   // Warm Garbhagriha Sanctum Glow around Lord Vishnu
-  const sanctumLight = new THREE.PointLight(0xffb85c, 4.5, 16, 1.4);
+  const sanctumLight = new THREE.PointLight(0xffb85c, 6.0, 18, 1.4);
   sanctumLight.position.set(19.0, 16.5, 0);
   scene.add(sanctumLight);
+
+  // Warm Gallery & Exhibition Lights so Bas-Reliefs, Devatas & Stela are crisp under roofs
+  const galleryLights = [
+    [74.2, 3.6, 24, 5.5, 22],   // Samudra Manthana (East-South)
+    [-34.2, 3.6, 24, 5.5, 22],  // Battle of Kurukshetra (West-South)
+    [-34.2, 3.6, -24, 5.5, 22], // Battle of Lanka (West-North)
+    [-8, 3.6, 46.8, 5.5, 22],   // Suryavarman II Procession (South-West)
+    [-41.5, 3.5, -4.5, 4.5, 14],// Royal Sanskrit Stela
+    [-4.8, 6.0, 14, 4.5, 16],   // Enc2 Devata Niches (West-South)
+    [-4.8, 6.0, -14, 4.5, 16]   // Enc2 Devata Niches (West-North)
+  ];
+  for (const [lx, ly, lz, intensity, dist] of galleryLights) {
+    const gl = new THREE.PointLight(0xffdca8, intensity, dist, 1.3);
+    gl.position.set(lx, ly, lz);
+    scene.add(gl);
+  }
 }
 
 setupAtmosphere();
@@ -213,7 +229,7 @@ createHotspotMarkers();
 // ---------------------------------------------------------------------------
 const loader = new GLTFLoader();
 loader.load(
-  './assets/models/angkor_wat_complete.glb',
+  './assets/models/angkor_wat_complete.glb?v=20261114c',
   (gltf) => {
     const root = gltf.scene;
     root.traverse((child) => {

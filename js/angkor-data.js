@@ -127,7 +127,7 @@ export const HISTORICAL_HOTSPOTS = [
     title: 'Sheshanaga Balustrades & Western Causeway',
     category: 'Outer Moat & Causeway',
     sanskrit: 'Śeṣanāga • Setu (Sacred Rainbow Bridge)',
-    pos: [-175, 2.0, -4.1],
+    pos: [-210, 2.2, -4.1],
     radius: 6.5,
     context: 'A 70-meter elevated sandstone causeway spans the vast rectangular moat (historically 190m wide), flanked by sculpted seven-headed Naga serpents.',
     significance: 'In Khmer cosmology, the Naga balustrade acts as a cosmic rainbow bridge linking the mundane human world to the divine abode of Mount Meru inside the enclosure.',
