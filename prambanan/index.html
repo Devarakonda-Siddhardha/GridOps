@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prambanan — The Sacred City of Java (3D Heritage Explorer)</title>
+  <link rel="icon" href="data:," />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three.module.js"
+      }
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { overflow: hidden; font-family: "Inter", "Segoe UI", system-ui, sans-serif; background: #0e1116; color: #f1efe9; }
+    #crosshair {
+      position: fixed; top: 50%; left: 50%; width: 6px; height: 6px;
+      margin: -3px 0 0 -3px; border-radius: 50%; background: rgba(255, 248, 225, 0.85);
+      box-shadow: 0 0 4px rgba(0,0,0,0.8); pointer-events: none; z-index: 10;
+    }
+    #top-bar {
+      position: fixed; top: 14px; left: 16px; display: flex; flex-direction: column; gap: 6px;
+      background: rgba(16, 18, 22, 0.72); backdrop-filter: blur(8px);
+      padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(212, 168, 87, 0.35);
+      pointer-events: none; z-index: 10; font-size: 13px;
+    }
+    #top-bar h1 { font-size: 15px; color: #e8c474; letter-spacing: 0.6px; }
+    .sub-badge { color: #cbd5e1; font-size: 12px; }
+    #controls-hint {
+      position: fixed; bottom: 14px; left: 16px;
+      background: rgba(16, 18, 22, 0.72); backdrop-filter: blur(8px);
+      padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12);
+      font-size: 12px; color: #cbd5e1; pointer-events: none; z-index: 10;
+    }
+    #minimap-wrap {
+      position: fixed; top: 14px; right: 16px;
+      background: rgba(16, 18, 22, 0.78); backdrop-filter: blur(8px);
+      padding: 8px; border-radius: 10px; border: 1px solid rgba(212, 168, 87, 0.35);
+      z-index: 10; text-align: center;
+    }
+    #minimap { display: block; border-radius: 6px; }
+    #minimap-label { font-size: 11px; color: #e8c474; margin-top: 4px; }
+    #checklist-wrap {
+      position: fixed; bottom: 14px; right: 16px; width: 255px;
+      background: rgba(16, 18, 22, 0.78); backdrop-filter: blur(8px);
+      padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(212, 168, 87, 0.35);
+      font-size: 12px; z-index: 10;
+    }
+    #checklist-header { display: flex; justify-content: space-between; color: #e8c474; font-weight: 600; margin-bottom: 6px; }
+    .check-item { padding: 2px 0; color: #94a3b8; }
+    .check-item.done { color: #5eead4; }
+    #interact-prompt {
+      position: fixed; bottom: 92px; left: 50%; transform: translateX(-50%);
+      background: rgba(18, 20, 26, 0.88); color: #fde68a;
+      padding: 9px 18px; border-radius: 999px; border: 1px solid rgba(232, 196, 116, 0.6);
+      font-size: 13px; font-weight: 600; z-index: 15; pointer-events: none;
+    }
+    .modal {
+      position: fixed; inset: 0; background: rgba(8, 10, 14, 0.72); backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center; z-index: 30;
+    }
+    .hidden { display: none !important; }
+    .card {
+      width: min(640px, 92vw); max-height: 86vh; overflow-y: auto;
+      background: #171a21; border: 1px solid rgba(212, 168, 87, 0.45);
+      border-radius: 14px; padding: 22px 26px; box-shadow: 0 24px 60px rgba(0,0,0,0.65);
+    }
+    .card h2 { color: #e8c474; margin-bottom: 4px; font-size: 20px; }
+    .sanskrit { color: #93c5fd; font-style: italic; font-size: 13px; margin-bottom: 10px; }
+    .badge-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .badge {
+      font-size: 11px; padding: 3px 9px; border-radius: 999px;
+      background: rgba(212, 168, 87, 0.16); color: #fde68a; border: 1px solid rgba(212, 168, 87, 0.4);
+    }
+    .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; color: #94a3b8; margin-top: 12px; }
+    .section-text { font-size: 14px; line-height: 1.55; color: #e2e8f0; margin-top: 3px; }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    button {
+      background: #272d38; color: #f8fafc; border: 1px solid rgba(212, 168, 87, 0.35);
+      padding: 8px 13px; border-radius: 8px; cursor: pointer; font-size: 13px;
+    }
+    button:hover { background: #343c4a; border-color: #e8c474; }
+    .primary-btn { background: #b7872d; color: #111; font-weight: 600; border: none; }
+    .primary-btn:hover { background: #d4a343; }
+    .museum-card { width: min(880px, 95vw); max-height: 88vh; }
+    .museum-search {
+      width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid rgba(212, 168, 87, 0.4);
+      background: #0f131a; color: #f8fafc; font-size: 13px; margin: 10px 0;
+    }
+    .cat-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+    .cat-btn { font-size: 11px; padding: 5px 10px; border-radius: 999px; }
+    .cat-btn.active { background: #b7872d; color: #111; font-weight: 600; border-color: #e8c474; }
+    .museum-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 10px; }
+    .museum-item {
+      background: #1d222c; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 14px;
+    }
+    .museum-item h3 { font-size: 14px; color: #fde68a; margin-bottom: 3px; }
+    .museum-meta { font-size: 12px; color: #cbd5e1; line-height: 1.45; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <div id="crosshair"></div>
+
+  <div id="top-bar">
+    <h1>CANDI PRAMBANAN — ŚIVAGṚHA (856 CE)</h1>
+    <div class="sub-badge" id="hud-mode">Mode A: Present-Day Archaeological View (M)</div>
+    <div class="sub-badge" id="hud-lighting">Lighting: Bright Daytime (1-4)</div>
+  </div>
+
+  <div id="controls-hint">
+    <b>Drag / Arrows</b> Look 360° &nbsp;|&nbsp; <b>WASD</b> Move &nbsp;|&nbsp; <b>E</b> Inspect &nbsp;|&nbsp; <b>R</b> Orbit &nbsp;|&nbsp; <b>C</b> Sculpture Museum &nbsp;|&nbsp; <b>Z</b> Zoom &nbsp;|&nbsp; <b>Esc</b> Menu
+  </div>
+
+  <div id="minimap-wrap">
+    <canvas id="minimap" width="160" height="160"></canvas>
+    <div id="minimap-label">Prambanan Plan (N ↑)</div>
+  </div>
+
+  <div id="checklist-wrap">
+    <div id="checklist-header">
+      <span>Temple Exploration</span>
+      <span id="checklist-progress">0/10 Explored</span>
+    </div>
+    <div id="checklist-items"></div>
+  </div>
+
+  <div id="interact-prompt" class="hidden"></div>
+
+  <!-- Information Panel Modal -->
+  <div id="info-panel" class="modal hidden">
+    <div class="card">
+      <h2 id="info-title"></h2>
+      <div id="info-sanskrit" class="sanskrit"></div>
+      <div class="badge-row">
+        <span id="info-category" class="badge"></span>
+        <span id="info-status" class="badge"></span>
+      </div>
+      <div class="section-label">Historical Background</div>
+      <div id="info-bg" class="section-text"></div>
+      <div class="section-label">Iconographic & Architectural Significance</div>
+      <div id="info-icon" class="section-text"></div>
+      <div class="section-label">Archaeological Observations</div>
+      <div id="info-arch" class="section-text"></div>
+      <div class="section-label">Reference Sources</div>
+      <div id="info-src" class="section-text"></div>
+      <div class="btn-row">
+        <button id="btn-close-info" class="primary-btn">Return to Exploration (Esc)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Epigraphy & Inscriptions Modal (A-F) -->
+  <div id="epigraphy-panel" class="modal hidden">
+    <div class="card">
+      <h2 id="epi-title"></h2>
+      <div id="epi-script-note" class="sanskrit"></div>
+      <div class="badge-row">
+        <span id="epi-provenance" class="badge"></span>
+      </div>
+      <div class="section-label">A. Original Script (Old Javanese / Kawi)</div>
+      <div id="epi-original" class="section-text" style="font-size:16px; color:#fde68a; white-space:pre-line;"></div>
+      <div class="section-label">B. Sanskrit / Old Javanese Transcription</div>
+      <div id="epi-transcription" class="section-text" style="white-space:pre-line;"></div>
+      <div class="section-label">C. IAST Transliteration</div>
+      <div id="epi-iast" class="section-text" style="font-style:italic; color:#93c5fd; white-space:pre-line;"></div>
+      <div class="section-label">D. English Translation</div>
+      <div id="epi-translation" class="section-text" style="white-space:pre-line;"></div>
+      <div class="section-label">E. Historical Explanation & Provenance</div>
+      <div id="epi-history" class="section-text"></div>
+      <div class="section-label">F. Source & Scholarly Reference</div>
+      <div id="epi-sources" class="section-text"></div>
+      <div class="btn-row">
+        <button id="btn-close-epi" class="primary-btn">Return to Exploration (Esc)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pause & Fast-Travel Menu -->
+  <div id="pause-menu" class="modal hidden">
+    <div class="card">
+      <h2>Prambanan Exploration Menu</h2>
+      <div class="sanskrit">Candi Rara Jonggrang — Digital Heritage Experience</div>
+
+      <div class="section-label">Historical Restoration Mode</div>
+      <div class="btn-row">
+        <button id="btn-toggle-mode">Toggle Mode A (Present-Day) / Mode B (9th-Century)</button>
+      </div>
+
+      <div class="section-label">Lighting & Atmosphere</div>
+      <div class="btn-row">
+        <button data-light="sunrise">1. Golden Sunrise</button>
+        <button data-light="daytime">2. Bright Daytime</button>
+        <button data-light="sunset">3. Sunset</button>
+        <button data-light="evening">4. Evening Illumination</button>
+      </div>
+
+      <div class="section-label">Audio &amp; Sculpture Museum</div>
+      <div class="btn-row">
+        <button id="btn-toggle-music">Gamelan Ambience: OFF</button>
+        <button id="btn-open-museum">Open Sculpture Museum (C)</button>
+      </div>
+
+      <div class="section-label">Quick-Travel Waypoints</div>
+      <div id="waypoints-list" class="btn-row"></div>
+
+      <div class="btn-row">
+        <button id="btn-resume" class="primary-btn">Resume Exploration (Esc)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Searchable Sculpture Museum Catalogue (12 Categories) -->
+  <div id="museum-modal" class="modal hidden">
+    <div class="card museum-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+        <div>
+          <h2>Prambanan Sculpture &amp; Iconography Museum</h2>
+          <div class="sanskrit">12-Category Archaeological Inventory — Original vs. Museum Provenance</div>
+        </div>
+        <button id="btn-close-museum" class="primary-btn">Close (Esc / C)</button>
+      </div>
+      <input id="museum-search" class="museum-search" type="text" placeholder="Search deity, Sanskrit/Javanese name, location, museum provenance..." />
+      <div id="museum-cats" class="cat-bar"></div>
+      <div id="museum-list" class="museum-grid"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
